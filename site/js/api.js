@@ -192,6 +192,19 @@
   function makeSupaDB() {
     const client = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
     const q = async (p) => { const { data, error } = await p; if (error) throw error; return data; };
+    // 1回の問い合わせで返る行数には上限がある（Supabase の既定は1000行）。予想・応援は参加者と大会が
+    // 増えるほど伸び、上限を超えると黙って切れる＝ランキングや「みんなの予想」が画面ごとに食い違う（11/24 監査）。
+    // 件数（count）を見ながら最後まで取り切る。並びは一意キー（member_id, fight_id）で固定＝境目で重複も欠落もしない
+    const PAGE = 1000;
+    const qAll = async (build) => {
+      const out = [];
+      for (;;) {
+        const { data, error, count } = await build().range(out.length, out.length + PAGE - 1);
+        if (error) throw error;
+        out.push(...(data || []));
+        if (!data || !data.length || count == null || out.length >= count) return out;
+      }
+    };
 
     // ---------- 匿名サインイン（一般公開の前提） ----------
     // 端末ごとに見えないIDを1つ持たせる。名前もメールも要らず、利用者の体験は変わらない。
@@ -225,10 +238,12 @@
         return fillFromSeed(await q(query), window.DEMO_SEED?.fights);
       },
       async listPredictions(filter = {}) {
-        let query = client.from("predictions").select("*");
-        if (filter.fightIds) query = query.in("fight_id", filter.fightIds);
-        if (filter.memberId) query = query.eq("member_id", filter.memberId);
-        return q(query);
+        return qAll(() => {
+          let query = client.from("predictions").select("*", { count: "exact" }).order("member_id").order("fight_id");
+          if (filter.fightIds) query = query.in("fight_id", filter.fightIds);
+          if (filter.memberId) query = query.eq("member_id", filter.memberId);
+          return query;
+        });
       },
       async upsertPrediction(pred) {
         return q(client.from("predictions").upsert(
@@ -246,10 +261,12 @@
       },
       // ----- 応援 -----
       async listSupports(filter = {}) {
-        let query = client.from("supports").select("*");
-        if (filter.fightIds) query = query.in("fight_id", filter.fightIds);
-        if (filter.memberId) query = query.eq("member_id", filter.memberId);
-        return q(query);
+        return qAll(() => {
+          let query = client.from("supports").select("*", { count: "exact" }).order("member_id").order("fight_id");
+          if (filter.fightIds) query = query.in("fight_id", filter.fightIds);
+          if (filter.memberId) query = query.eq("member_id", filter.memberId);
+          return query;
+        });
       },
       async upsertSupport(sup) {
         return q(client.from("supports").upsert(
