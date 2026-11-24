@@ -1,0 +1,69 @@
+// 決まり手マスタ。予想と結果入力で同じIDを使うことで照合を確実にする。
+window.METHODS = [
+  { id: "KO",  label: "KO/TKO" },
+  { id: "SUB", label: "一本" },
+  { id: "DEC", label: "判定" },
+];
+
+window.METHOD_LABEL = { KO: "KO/TKO", SUB: "一本", DEC: "判定", DRAW: "ドロー", NC: "無効試合" };
+
+// ★「決定打」＝相手を倒した一撃で判定する（公式の決着表記ではない）
+//   例）右フックでダウン → パウンドでストップ ＝ 決定打は「右フック」
+//   グラウンドパウンドは「純粋に殴り続けて削り切った」場合のみ選ぶ
+// ※既存IDは変更しない（過去の予想・結果が参照しているため）。追加は末尾IDで。
+window.TECHNIQUES = [
+  // ── 打撃（決定打）──
+  // パンチ
+  { id: "right_straight", label: "右ストレート",             method: "KO" },
+  { id: "left_straight",  label: "左ストレート",             method: "KO" },
+  { id: "right_hook",     label: "右フック",                 method: "KO" },
+  { id: "left_hook",      label: "左フック",                 method: "KO" },
+  { id: "upper",          label: "アッパー",                 method: "KO" },
+  // 蹴り
+  { id: "high_kick",      label: "ハイキック",               method: "KO" },
+  { id: "middle_kick",    label: "ミドルキック",             method: "KO" },
+  { id: "low_kick",       label: "ローキック・カーフキック", method: "KO" },
+  { id: "body",           label: "ボディ（パンチ・蹴り）",   method: "KO" },
+  // 肘・膝
+  { id: "elbow",          label: "肘",                       method: "KO" },
+  { id: "knee",           label: "膝",                       method: "KO" },
+  // 詰め
+  { id: "gnp",            label: "パウンド（削り切り）",     method: "KO" },
+  { id: "ko_other",       label: "その他",                   method: "KO" },
+
+  // ── 一本 ──
+  // 絞め
+  { id: "rnc",            label: "リアネイキドチョーク",     method: "SUB" },
+  { id: "guillotine",     label: "ギロチンチョーク",         method: "SUB" },
+  { id: "triangle",       label: "三角絞め",                 method: "SUB" },
+  { id: "darce",          label: "ダースチョーク",           method: "SUB" },
+  { id: "anaconda",       label: "アナコンダチョーク",       method: "SUB" },
+  { id: "front_choke",    label: "フロントチョーク",         method: "SUB" },
+  { id: "kata_gatame",    label: "肩固め",                   method: "SUB" },
+  { id: "north_south",    label: "ノースサウスチョーク",     method: "SUB" },
+  // 腕関節
+  { id: "armbar",         label: "腕ひしぎ十字固め",         method: "SUB" },
+  { id: "kimura",         label: "キムラ・アームロック",     method: "SUB" },
+  // 足関節
+  { id: "leglock",        label: "ヒールフック・アキレス腱", method: "SUB" },
+  { id: "kneebar",        label: "膝十字固め（ニーバー）",   method: "SUB" },
+  // 首・脊椎
+  { id: "neck_crank",     label: "ネッククランク・フェイスクランク", method: "SUB" },
+  { id: "twister",        label: "ツイスター",               method: "SUB" },
+  { id: "sub_other",      label: "その他",                   method: "SUB" },
+];
+
+window.TECH_LABEL = Object.fromEntries(window.TECHNIQUES.map(t => [t.id, t.label]));
+window.techsFor = (method) => window.TECHNIQUES.filter(t => t.method === method);
+
+// 略称マスタ：ALL PICKSの表など狭い場所で使う。長い技だけ短くする（無ければフルラベル）。
+window.TECH_SHORT = {
+  right_straight: "右スト", left_straight: "左スト", right_hook: "右フック", left_hook: "左フック",
+  upper: "アッパー", high_kick: "ハイK", middle_kick: "ミドルK", low_kick: "ローK",
+  body: "ボディ", elbow: "肘", knee: "膝", gnp: "パウンド", ko_other: "KO他",
+  rnc: "RNC", guillotine: "ギロチン", triangle: "三角", darce: "ダース", anaconda: "アナコンダ",
+  front_choke: "フロント", kata_gatame: "肩固め", north_south: "N-S", armbar: "腕十字",
+  kimura: "キムラ", leglock: "ヒール", kneebar: "ニーバー", neck_crank: "ネック",
+  twister: "ツイスター", sub_other: "一本他",
+};
+window.techShort = (id) => window.TECH_SHORT[id] || window.TECH_LABEL[id] || "";

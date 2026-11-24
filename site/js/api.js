@@ -1,0 +1,525 @@
+// データ層。Supabase設定が空ならデモモード（localStorage保存）で動く。
+// ページ側は window.DB の非同期メソッドだけを使う——モードの差はここに閉じ込める。
+(function () {
+  const cfg = window.PORTAL_CONFIG || {};
+  const IS_DEMO = !cfg.SUPABASE_URL;
+  const LS_KEY = "rizin_portal_demo_v1";
+
+  // ---------- デモモード ----------
+  // シード更新時はSEED_Vを上げる。マスタ（選手・試合・大会）はシードの新値を反映しつつ、
+  // ユーザーが入れた予想・結果・追加データは保持する
+  const SEED_V = 8;
+  // v3: 本番移行——サンプル大会・デモ選手・仮メンバーを完全に取り除く
+  const PURGED = new Set([
+    "ev_demo", "demo_1", "demo_2", "demo_3",
+    "f_demo_a", "f_demo_b", "f_demo_c", "f_demo_d", "f_demo_e", "f_demo_f",
+    "m_gaku", "m_ren", "m_dai", "m_sho",
+  ]);
+  function migrate(saved) {
+    for (const k of ["members", "fighters", "events", "fights", "predictions"]) {
+      saved[k] = (saved[k] || []).filter(x => !PURGED.has(x.id));
+    }
+    const seed = JSON.parse(JSON.stringify(window.DEMO_SEED));
+    const byId = (arr) => Object.fromEntries((arr || []).map(x => [x.id, x]));
+    const savedF = byId(saved.fighters), savedFt = byId(saved.fights), savedE = byId(saved.events);
+    // 選手：シードを完全な正とする（旧フィールドの残留を防ぐためマージしない）。admin追加分だけ残す
+    const fighters = seed.fighters.map(f => ({ ...f }));
+    for (const f of saved.fighters || []) if (!fighters.some(x => x.id === f.id)) fighters.push(f);
+    // 試合：シードのカード定義を正としつつ、結果入力（winner/method等）は保存側から引き継ぐ
+    const fights = seed.fights.map(f => {
+      const s = savedFt[f.id] || {};
+      const result = {};
+      for (const k of ["winner_id", "result_method", "result_round", "result_technique", "result_note"])
+        if (s[k] != null) result[k] = s[k];
+      return { ...f, ...result };
+    });
+    for (const f of saved.fights || []) if (!fights.some(x => x.id === f.id)) fights.push(f);
+    // 大会：時刻設定はシード優先、発表済みステータスだけ保持
+    const events = seed.events.map(e => ({
+      ...e, status: savedE[e.id]?.status === "finished" ? "finished" : e.status,
+    }));
+    for (const e of saved.events || []) if (!events.some(x => x.id === e.id)) events.push(e);
+    // メンバー：保存側優先（admin追加を残す）＋シードの新顔を補完
+    const members = (saved.members || []).slice();
+    for (const m of seed.members) if (!members.some(x => x.id === m.id)) members.push(m);
+    // 予想：消えたメンバー・試合を参照するものは落とす
+    const memberIds = new Set(members.map(m => m.id));
+    const fightIds = new Set(fights.map(f => f.id));
+    const predictions = (saved.predictions || []).filter(p => memberIds.has(p.member_id) && fightIds.has(p.fight_id));
+    // 応援（予想とは別。誰がどの選手を応援するか）
+    const supports = (saved.supports || []).filter(s => memberIds.has(s.member_id) && fightIds.has(s.fight_id));
+    return { _v: SEED_V, members, fighters, events, fights, predictions, supports };
+  }
+  function demoLoad() {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      try {
+        let db = JSON.parse(raw);
+        if (db._v !== SEED_V) { db = migrate(db); localStorage.setItem(LS_KEY, JSON.stringify(db)); }
+        return db;
+      } catch (e) { /* 壊れていたらシードから再生成 */ }
+    }
+    const db = { _v: SEED_V, ...JSON.parse(JSON.stringify(window.DEMO_SEED)) };
+    localStorage.setItem(LS_KEY, JSON.stringify(db));
+    return db;
+  }
+  function demoSave(db) { localStorage.setItem(LS_KEY, JSON.stringify(db)); }
+  const uid = () => "x_" + Math.random().toString(36).slice(2, 10);
+
+  const demoDB = {
+    isDemo: true,
+    async listMembers() { return demoLoad().members; },
+    async listFighters() { return demoLoad().fighters; },
+    async listEvents() {
+      return demoLoad().events.sort((a, b) => (b.event_date || "").localeCompare(a.event_date || ""));
+    },
+    async getEvent(id) { return demoLoad().events.find(e => e.id === id) || null; },
+    async listFights(eventId) {
+      const db = demoLoad();
+      const fs = eventId ? db.fights.filter(f => f.event_id === eventId) : db.fights;
+      return fs.slice();
+    },
+    async listPredictions(filter = {}) {
+      let ps = demoLoad().predictions;
+      if (filter.fightIds) ps = ps.filter(p => filter.fightIds.includes(p.fight_id));
+      if (filter.memberId) ps = ps.filter(p => p.member_id === filter.memberId);
+      return ps.slice();
+    },
+    async upsertPrediction(pred) {
+      const db = demoLoad();
+      // デモでも受付時間は守る（締切なし大会はスキップ）
+      const fight = db.fights.find(f => f.id === pred.fight_id);
+      const ev = fight && db.events.find(e => e.id === fight.event_id);
+      if (!ev) throw new Error("大会が見つかりません");
+      if (!ev.no_deadline) {
+        if (ev.open_at && new Date(ev.open_at) > new Date()) throw new Error("予想は計量終了後に開始されます");
+        if (new Date(ev.lock_at) <= new Date()) throw new Error("予想の締切を過ぎています");
+      }
+      const i = db.predictions.findIndex(p => p.member_id === pred.member_id && p.fight_id === pred.fight_id);
+      if (i >= 0) db.predictions[i] = { ...db.predictions[i], ...pred, updated_at: new Date().toISOString() };
+      else db.predictions.push({ id: uid(), updated_at: new Date().toISOString(), ...pred });
+      demoSave(db);
+    },
+    async deletePrediction(memberId, fightId) {
+      const db = demoLoad();
+      db.predictions = db.predictions.filter(p => !(p.member_id === memberId && p.fight_id === fightId));
+      demoSave(db);
+    },
+    // ----- 応援（予想とは別。誰がどの選手を応援するか） -----
+    async listSupports(filter = {}) {
+      let ss = demoLoad().supports || [];
+      if (filter.fightIds) ss = ss.filter(s => filter.fightIds.includes(s.fight_id));
+      if (filter.memberId) ss = ss.filter(s => s.member_id === filter.memberId);
+      return ss.slice();
+    },
+    async upsertSupport(sup) {
+      const db = demoLoad(); if (!db.supports) db.supports = [];
+      const i = db.supports.findIndex(s => s.member_id === sup.member_id && s.fight_id === sup.fight_id);
+      if (i >= 0) db.supports[i] = { ...db.supports[i], ...sup, updated_at: new Date().toISOString() };
+      else db.supports.push({ id: uid(), updated_at: new Date().toISOString(), ...sup });
+      demoSave(db);
+    },
+    async deleteSupport(memberId, fightId) {
+      const db = demoLoad();
+      db.supports = (db.supports || []).filter(s => !(s.member_id === memberId && s.fight_id === fightId));
+      demoSave(db);
+    },
+    // ----- admin -----
+    async isAdmin() { return true; }, // デモでは誰でも管理可
+    async adminLogin() { return { ok: true }; },
+    async adminSignUp() { return { ok: true }; },
+    async adminLogout() {},
+    async saveResult(fightId, result) {
+      const db = demoLoad();
+      const f = db.fights.find(x => x.id === fightId);
+      if (!f) throw new Error("試合が見つかりません");
+      Object.assign(f, result);
+      demoSave(db);
+    },
+    async upsertEvent(ev) {
+      const db = demoLoad();
+      if (ev.id) { Object.assign(db.events.find(e => e.id === ev.id), ev); }
+      else { ev.id = uid(); db.events.push(ev); }
+      demoSave(db); return ev.id;
+    },
+    async updateEvent(id, fields) {
+      const db = demoLoad();
+      Object.assign(db.events.find(e => e.id === id), fields);
+      demoSave(db);
+    },
+    async upsertFighter(f) {
+      const db = demoLoad();
+      if (f.id) { Object.assign(db.fighters.find(x => x.id === f.id), f); }
+      else { f.id = uid(); db.fighters.push(f); }
+      demoSave(db); return f.id;
+    },
+    async upsertFight(f) {
+      const db = demoLoad();
+      if (f.id) { Object.assign(db.fights.find(x => x.id === f.id), f); }
+      else { f.id = uid(); db.fights.push(f); }
+      demoSave(db); return f.id;
+    },
+    async upsertMember(m) {
+      const db = demoLoad();
+      if (m.id) { Object.assign(db.members.find(x => x.id === m.id), m); }
+      else { m.id = uid(); db.members.push(m); }
+      demoSave(db); return m.id;
+    },
+    async resetDemo() { localStorage.removeItem(LS_KEY); },
+    async syncSeed() { return ["デモモードでは同期不要（ローカルデータをそのまま使用中）"]; },
+  };
+
+  // ---------- Supabaseモード ----------
+  // 選手・大会・試合カードは「編集されない静的マスタ」で、正本は demo-data.js。
+  // Supabaseはそのコピーに過ぎないのに、フィールドを1つ増やすたびに人手のDDL（SQL Editor）が要り、
+  // それが通るまで本番に出ない——という詰まりが繰り返し起きた（former_belt / action_photo_credit で再発・2026-08-17）。
+  // service_roleキーはPostgREST止まりでDDLを流せないので、列を待つのではなく
+  // 「DB側に無い／空のフィールドだけ、正本のseedから補う」ことで構造的に解消する。
+  // ユーザー生成データ（予想・応援・結果入力）は対象外＝DBが正のまま。
+  function fillFromSeed(rows, seedRows) {
+    const seed = Object.fromEntries((seedRows || []).map(x => [x.id, x]));
+    return (rows || []).map(r => {
+      const s = seed[r.id];
+      if (!s) return r;
+      const out = { ...r };
+      for (const [k, v] of Object.entries(s)) {
+        if (out[k] === undefined || out[k] === null) out[k] = v;
+      }
+      return out;
+    });
+  }
+
+  function makeSupaDB() {
+    const client = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+    const q = async (p) => { const { data, error } = await p; if (error) throw error; return data; };
+
+    // ---------- 匿名サインイン（一般公開の前提） ----------
+    // 端末ごとに見えないIDを1つ持たせる。名前もメールも要らず、利用者の体験は変わらない。
+    // これがあって初めて「この予想は誰のものか」をDBが判定でき、
+    // 他人の予想を書き換えられる穴（2026-08-31の監査）を塞げる。
+    // ダッシュボードで匿名サインインが未有効なら失敗するが、その場合も従来どおり動く。
+    window.AUTH_READY = (async () => {
+      if (!cfg.ENABLE_ANON_AUTH) return null;   // SQLを流すまでOFF（上のconfig参照）
+      try {
+        const { data } = await client.auth.getSession();
+        if (data && data.session && data.session.user) return data.session.user.id;
+        const r = await client.auth.signInAnonymously();
+        if (r.error) { console.warn("[auth] 匿名サインイン未有効/失敗:", r.error.message); return null; }
+        return r.data && r.data.user ? r.data.user.id : null;
+      } catch (e) { console.warn("[auth]", e); return null; }
+    })();
+
+    return {
+      isDemo: false,
+      client,
+      async listMembers() { return q(client.from("members").select("*").order("name")); },
+      async listFighters() {
+        const rows = await q(client.from("fighters").select("*").order("name"));
+        return fillFromSeed(rows, window.DEMO_SEED?.fighters);
+      },
+      async listEvents() { return q(client.from("events").select("*").order("event_date", { ascending: false })); },
+      async getEvent(id) { return q(client.from("events").select("*").eq("id", id).single()); },
+      async listFights(eventId) {
+        let query = client.from("fights").select("*");
+        if (eventId) query = query.eq("event_id", eventId);
+        return fillFromSeed(await q(query), window.DEMO_SEED?.fights);
+      },
+      async listPredictions(filter = {}) {
+        let query = client.from("predictions").select("*");
+        if (filter.fightIds) query = query.in("fight_id", filter.fightIds);
+        if (filter.memberId) query = query.eq("member_id", filter.memberId);
+        return q(query);
+      },
+      async upsertPrediction(pred) {
+        return q(client.from("predictions").upsert(
+          { ...pred, updated_at: new Date().toISOString() },
+          { onConflict: "member_id,fight_id" }
+        ));
+      },
+      async deletePrediction(memberId, fightId) {
+        return q(client.from("predictions").delete().eq("member_id", memberId).eq("fight_id", fightId));
+      },
+      // ----- 選手名鑑の閲覧（Gaku 11/8「選手名鑑閲覧ランキングは裏でとっておきたい」）-----
+      // 書くだけで読めない（読むのは管理側だけ・RLS）。表がまだ無い間や失敗しても画面は止めない
+      async logFighterView(fighterId, src) {
+        try { await q(client.from("fighter_views").insert({ fighter_id: fighterId, src: src || null })); } catch (e) { /* 記録は裏方 */ }
+      },
+      // ----- 応援 -----
+      async listSupports(filter = {}) {
+        let query = client.from("supports").select("*");
+        if (filter.fightIds) query = query.in("fight_id", filter.fightIds);
+        if (filter.memberId) query = query.eq("member_id", filter.memberId);
+        return q(query);
+      },
+      async upsertSupport(sup) {
+        return q(client.from("supports").upsert(
+          { ...sup, updated_at: new Date().toISOString() }, { onConflict: "member_id,fight_id" }));
+      },
+      async deleteSupport(memberId, fightId) {
+        return q(client.from("supports").delete().eq("member_id", memberId).eq("fight_id", fightId));
+      },
+      async isAdmin() { const { data } = await client.auth.getSession(); return !!data.session; },
+      async adminLogin(email, password) {
+        const { error } = await client.auth.signInWithPassword({ email, password });
+        if (error) throw error; return { ok: true };
+      },
+      // 初回のみ：管理者アカウントを作る（パスワードはGaku本人が入力）
+      async adminSignUp(email, password) {
+        const { error } = await client.auth.signUp({ email, password });
+        if (error) throw error;
+        // メール確認が有効な場合はセッションが張られないので、続けてログインを試す
+        const { error: e2 } = await client.auth.signInWithPassword({ email, password });
+        if (e2) throw new Error("アカウントは作成されましたが自動ログインできませんでした：" + e2.message);
+        return { ok: true };
+      },
+      async adminLogout() { await client.auth.signOut(); },
+      async saveResult(fightId, result) { return q(client.from("fights").update(result).eq("id", fightId)); },
+      async upsertEvent(ev) { const d = await q(client.from("events").upsert(ev).select()); return d[0].id; },
+      async updateEvent(id, fields) { return q(client.from("events").update(fields).eq("id", id)); },
+      // ローカルのシード（demo-data.js）をSupabaseへ一括同期。管理ログイン必須
+      // ※Supabaseダッシュボードが不安定なため、データ更新はここから行えるようにしている
+      async syncSeed() {
+        const S = window.DEMO_SEED;
+        if (!S) throw new Error("シードデータが読み込まれていません");
+        const out = [];
+        // DB側にまだ存在しない列があっても同期全体を止めない。
+        // 「column X does not exist」を検知したらその列を落として再試行する。
+        const push = async (table, rows) => {
+          let payload = rows, dropped = [];
+          for (let i = 0; i < 8; i++) {
+            const { error } = await client.from(table).upsert(payload, { onConflict: "id" });
+            if (!error) {
+              out.push(`${table}: ${payload.length}件` + (dropped.length ? `（未対応列を除外: ${dropped.join(",")}）` : ""));
+              return;
+            }
+            const msg = error.message || "";
+            // PostgRESTは環境により文言が異なる：
+            //   "column fighters.stance does not exist" / "Could not find the 'stance' column of ..."
+            const m = /column \S*?\.?"?([a-z_]+)"? does not exist/i.exec(msg)
+                   || /Could not find the '([a-z_]+)' column/i.exec(msg);
+            if (!m) { out.push(`${table}: NG ${msg}`); return; }
+            const col = m[1];
+            dropped.push(col);
+            payload = payload.map(r => { const c = { ...r }; delete c[col]; return c; });
+          }
+          out.push(`${table}: NG 列の調整に失敗`);
+        };
+        await push("members", S.members.map(m => ({ id: m.id, name: m.name, color: m.color })));
+        await push("fighters", S.fighters.map(f => ({
+          id: f.id, name: f.name, nickname: f.nickname ?? null, belt: f.belt ?? null,
+          birth_date: f.birth_date ?? null,
+          backbone: f.backbone ?? null, stance: f.stance ?? null,
+          team: f.team ?? null, origin: f.origin ?? null,
+          style: f.style ?? null, career: f.career ?? null, memo: f.memo ?? null,
+          rec_w: f.rec_w ?? null, rec_l: f.rec_l ?? null, rec_d: f.rec_d ?? null, rec_nc: f.rec_nc ?? null,
+          rec_ko: f.rec_ko ?? null, rec_sub: f.rec_sub ?? null, rec_dec: f.rec_dec ?? null,
+          rec_other: f.rec_other ?? null,
+          history: f.history ?? null, rizin_url: f.rizin_url ?? null,
+          highlight_url: f.highlight_url ?? null, highlight_caption: f.highlight_caption ?? null,
+          photo_casual: f.photo_casual ?? null,
+          action_photo: f.action_photo ?? null,
+          weight_class_fixed: f.weight_class_fixed ?? null,
+          action_photo_credit: f.action_photo_credit ?? null,
+          former_belt: f.former_belt ?? null,
+        })));
+        await push("events", S.events.map(e => ({
+          id: e.id, name: e.name, event_date: e.event_date, no_deadline: !!e.no_deadline,
+          open_at: e.open_at ?? null, lock_at: e.lock_at ?? null,
+          poster_url: e.poster_url ?? null, official_url: e.official_url ?? null, status: e.status,
+        })));
+        await push("fights", S.fights.map(f => ({
+          id: f.id, event_id: f.event_id, order_no: f.order_no, segment: f.segment,
+          title_label: f.title_label ?? null, weight_class: f.weight_class ?? null, rounds: f.rounds ?? 3,
+          fighter1_id: f.fighter1_id, fighter2_id: f.fighter2_id, image_url: f.image_url ?? null,
+          winner_id: f.winner_id ?? null, result_method: f.result_method ?? null,
+          result_round: f.result_round ?? null, result_technique: f.result_technique ?? null,
+          cancelled: f.cancelled ?? false, cancel_note: f.cancel_note ?? null,
+          no_score: f.no_score ?? false, no_score_note: f.no_score_note ?? null,
+          event_only: f.event_only ?? false, event_only_note: f.event_only_note ?? null,
+          gallery: f.gallery ?? null,
+        })));
+        return out;
+      },
+      async upsertFighter(f) { const d = await q(client.from("fighters").upsert(f).select()); return d[0].id; },
+      async upsertFight(f) { const d = await q(client.from("fights").upsert(f).select()); return d[0].id; },
+      async upsertMember(m) {
+        // 新規メンバーには持ち主（匿名UID）を付ける。列がまだ無い環境では付けずに続行。
+        const uid = await window.AUTH_READY;
+        let payload = uid ? { ...m, owner_uid: uid } : m;
+        try {
+          const d = await q(client.from("members").upsert(payload).select());
+          return d[0].id;
+        } catch (e) {
+          if (uid && /owner_uid/.test(String(e.message || e))) {
+            const d = await q(client.from("members").upsert(m).select());
+            return d[0].id;
+          }
+          throw e;
+        }
+      },
+      // 2026-11-07：美食会のLINEの固定リンク（#bishoku=鍵）で開いたブラウザを登録する。
+      // 登録済みのブラウザは美食会3人の名前で予想を書ける。鍵違いは false。
+      async joinBishoku(code) {
+        await window.AUTH_READY;
+        return q(client.rpc("join_bishoku", { p_code: code }));
+      },
+      // このブラウザが美食会として登録済みか（group_devices は自分の行しか読めない）
+      async isBishokuDevice() {
+        const uid = await window.AUTH_READY;
+        if (!uid) return false;
+        const rows = await q(client.from("group_devices").select("uid").eq("uid", uid).limit(1));
+        return rows.length > 0;
+      },
+      async resetDemo() {},
+    };
+  }
+
+  // ---------- 退避モード（Supabaseに到達できない時） ----------
+  // 2026-08-31：Supabaseプロジェクトのホスト名がDNSごと消え（無料枠の自動停止と見られる）、
+  // 読み取りが全部失敗してページが真っ黒になった。仲間には「サイトが死んだ」としか見えない。
+  // 正本は demo-data.js に丸ごとあるので、**読み取りだけはシードで代替**して大会・カード・名鑑を出す。
+  // 書き込み（予想の登録）は絶対に代替しない——localStorageに入れて「保存できた」と誤解させる方が有害。
+  function seedSnapshot() {
+    return JSON.parse(JSON.stringify(window.DEMO_SEED || { members: [], fighters: [], events: [], fights: [] }));
+  }
+  function makeFallbackDB(reason) {
+    const offline = async () => { throw new Error("いまサーバーに接続できないため、予想の登録・変更はできません"); };
+    return {
+      isDemo: false, offline: true,
+      async listMembers() { return seedSnapshot().members || []; },
+      async listFighters() { return seedSnapshot().fighters || []; },
+      async listEvents() {
+        return (seedSnapshot().events || []).sort((a, b) => (b.event_date || "").localeCompare(a.event_date || ""));
+      },
+      async getEvent(id) { return (seedSnapshot().events || []).find(e => e.id === id) || null; },
+      async listFights(eventId) {
+        const all = seedSnapshot().fights || [];
+        return eventId ? all.filter(f => f.event_id === eventId) : all;
+      },
+      async listPredictions() { return []; },   // 予想はSupabaseにしか無い。捏造しない＝空で返す
+      async listSupports() { return []; },
+      upsertPrediction: offline, deletePrediction: offline, upsertMember: offline,
+      upsertSupport: offline, deleteSupport: offline,
+      upsertFighter: offline, upsertFight: offline,
+      async syncSeed() { throw new Error("接続できないため同期できません"); },
+      async resetDemo() {},
+    };
+  }
+
+  // Supabaseモードでも、実際に到達できるかを起動時に1回だけ確かめる。
+  // 落ちていたら退避モードへ差し替え、画面上部に理由を出す（黙って空にしない）。
+  function installOfflineBanner() {
+    const put = () => {
+      if (document.getElementById("offline-banner")) return;
+      const d = document.createElement("div");
+      d.id = "offline-banner";
+      d.style.cssText = "position:sticky;top:0;z-index:9999;background:#7a1520;color:#ffd9dd;" +
+        "padding:10px 14px;font-size:13px;line-height:1.5;border-bottom:2px solid #c9a84a;text-align:center";
+      d.innerHTML = "⚠️ <b>いまサーバーに接続できません。</b>対戦カードと選手名鑑は表示していますが、" +
+        "<b>みんなの予想・ランキングは出せず、予想の登録もできません。</b>復旧までお待ちください。";
+      document.body.prepend(d);
+    };
+    if (document.body) put(); else document.addEventListener("DOMContentLoaded", put);
+  }
+
+  // サーバーが落ちている時、fetchは「失敗」ではなく「いつまでも返らない」ことがある
+  // （2026-09-26：Supabaseの無料枠停止でDNSごと消え、listEvents()が45秒経っても解決せず
+  //   画面が真っ白のままだった）。拒否を待つ設計では退避モードに入れない。必ず時間で切る。
+  const READ_TIMEOUT_MS = 6000;
+  const WRITE_TIMEOUT_MS = 12000;
+  function withTimeout(p, ms, label) {
+    return new Promise((resolve, reject) => {
+      const t = setTimeout(() => reject(new Error(label + "がタイムアウトしました（" + ms + "ms）")), ms);
+      Promise.resolve(p).then(
+        (v) => { clearTimeout(t); resolve(v); },
+        (e) => { clearTimeout(t); reject(e); }
+      );
+    });
+  }
+  // 2026-11-07：初回アクセスの1回のタイムアウト（コールドスタート）や一過性の401で退避モードに入り、
+  // そのままページを開いている間ずっと「誰も予想していない」＋登録不可に固定されていた（リロードで直る）。
+  // 退避は「本当に落ちている時」の装置。一過性の失敗では入らない（1回は待って再試行）、
+  // 入っても裏で疎通を確かめ続け、戻ったら自動で再読み込みする。
+  const RETRY_DELAY_MS = 1500;
+  const PROBE_INTERVAL_MS = 15000;
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  let probing = false;
+  function goOffline(e, probe) {
+    if (window.DB_OFFLINE) return;
+    window.DB_OFFLINE = true;
+    window.DB_OFFLINE_REASON = String((e && e.message) || e);
+    installOfflineBanner();
+    console.warn("[api] Supabaseに到達できないため退避モードで表示します:", e);
+    if (probe && !probing) {
+      probing = true;
+      const tick = async () => {
+        try {
+          await withTimeout(probe(), READ_TIMEOUT_MS, "疎通確認");
+          console.info("[api] Supabaseへの接続が戻ったので再読み込みします");
+          location.reload();
+        } catch (_) { setTimeout(tick, PROBE_INTERVAL_MS); }
+      };
+      setTimeout(tick, PROBE_INTERVAL_MS);
+    }
+  }
+
+  if (IS_DEMO) {
+    window.DB = demoDB;
+  } else {
+    const supa = makeSupaDB();
+    const fb = makeFallbackDB("supabase unreachable");
+    // 読み取りは「Supabaseを試し、落ちたらシードで返す」。起動直後に叩かれても競合しない。
+    const READS = ["listMembers", "listFighters", "listEvents", "getEvent", "listFights",
+                   "listPredictions", "listSupports"];
+    const WRITES = ["upsertPrediction", "deletePrediction", "upsertMember",
+                    "upsertSupport", "deleteSupport", "upsertFighter", "upsertFight", "upsertEvent"];
+    const db = Object.create(supa);
+    for (const name of READS) {
+      if (typeof supa[name] !== "function") continue;
+      db[name] = async function (...args) {
+        // 一度落ちたと分かったら、以降は待たずにシードで返す（1画面で何本も叩くため）
+        if (window.DB_OFFLINE && typeof fb[name] === "function") return fb[name].apply(fb, args);
+        try {
+          return await withTimeout(supa[name].apply(supa, args), READ_TIMEOUT_MS, name);
+        } catch (e1) {
+          console.warn("[api] " + name + " 失敗・再試行します:", e1);
+          await sleep(RETRY_DELAY_MS);
+          if (window.DB_OFFLINE && typeof fb[name] === "function") return fb[name].apply(fb, args);
+          try {
+            return await withTimeout(supa[name].apply(supa, args), READ_TIMEOUT_MS, name);
+          } catch (e) {
+            goOffline(e, () => supa.listEvents());
+            if (typeof fb[name] !== "function") throw e;
+            return await fb[name].apply(fb, args);
+          }
+        }
+      };
+    }
+    // 書き込みは退避中でも本物のSupabaseへ試す（成功すれば本当に保存されている＝誤解は生まない）。
+    // 失敗はそのままエラーで返す。一過性の失敗で退避に落とすのは読み取り側だけ。
+    // 一過性の失敗（トークン更新直後の401「JWT issued at future」＝PGRST303、タイムアウト、通信断）は
+    // 2秒おいて1回だけ再試行する。upsert/delete は何度送っても結果が同じなので二重登録にはならない。
+    const isTransient = (e) => /JWT|PGRST30|401|タイムアウト|Failed to fetch|NetworkError|network/i
+      .test(String((e && (e.code + " " + e.message)) || e));
+    for (const name of WRITES) {
+      if (typeof supa[name] !== "function") continue;
+      db[name] = async function (...args) {
+        try {
+          try {
+            return await withTimeout(supa[name].apply(supa, args), WRITE_TIMEOUT_MS, name);
+          } catch (e1) {
+            if (!isTransient(e1)) throw e1;
+            console.warn("[api] " + name + " 一過性の失敗・再試行します:", e1);
+            await sleep(2000);
+            return await withTimeout(supa[name].apply(supa, args), WRITE_TIMEOUT_MS, name);
+          }
+        } catch (e) {
+          if (window.DB_OFFLINE) throw new Error("いまサーバーに接続できないため、予想の登録・変更はできません");
+          throw e;
+        }
+      };
+    }
+    window.DB = db;
+  }
+  window.IS_DEMO = IS_DEMO;
+})();

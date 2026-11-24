@@ -1,0 +1,1634 @@
+/* RIZIN予想部 — 黒×赤×金・鋭角のファイトカードトーン */
+:root {
+  --bg: #08080b;
+  --panel: #131318;
+  --panel2: #1b1b23;
+  --line: #26262f;
+  --red: #e60012;
+  --red-hot: #ff2436;
+  --blue: #1e6fd9;
+  --blue-hot: #3d8bff;
+  --gold: #d4af37;
+  --gold-hot: #f0cd5a;
+  --text: #f4f4f6;
+  --muted: #92929e;
+  --ok: #2ba84a;
+  --display: "Anton", "Noto Sans JP", sans-serif;
+  --num: "Oswald", sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background:
+    radial-gradient(120% 46% at 50% -8%, rgba(230, 0, 18, .16), transparent 62%),
+    repeating-linear-gradient(115deg, transparent 0 46px, rgba(255, 255, 255, .014) 46px 48px),
+    var(--bg);
+  color: var(--text);
+  font-family: "Noto Sans JP", -apple-system, sans-serif;
+  line-height: 1.6;
+  padding-bottom: 70px;
+  min-height: 100vh;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+img { max-width: 100%; display: block; }
+
+.wrap { max-width: 720px; margin: 0 auto; padding: 0 14px; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* ===== ヘッダー ===== */
+#app-header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(8, 8, 11, .9); backdrop-filter: blur(10px);
+}
+#app-header::after {
+  content: ""; display: block; height: 2px;
+  background: linear-gradient(90deg, var(--red) 0%, rgba(230, 0, 18, .25) 45%, transparent 80%);
+}
+.header-inner {
+  max-width: 720px; margin: 0 auto; padding: 11px 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+/* ロゴ＝Gaku の描いたロゴ画像（11/8「予想番付のロゴ変わってないじゃん」・予想/付＝白・番＝赤に斬り線）。
+   原本は Projects/RIZIN/logo/yosou_banzuke_logo_original.png（透過PNG）。ここでは余白を切った 360px 幅を高さで縮めて置く。
+   赤い札は敷かない＝番の赤が札に溶けるため。高さ19px＝幅83px：375px幅でナビの「選手」が右上の名前の札に重ならない上限（22px だと 13px はみ出した） */
+.brand { flex: none; display: block; line-height: 0; }
+.brand img { display: block; height: 19px; width: auto; }
+.header-inner nav { display: flex; gap: 0; flex: 1; min-width: 0; }
+.nav-link {
+  position: relative; padding: 8.6px 7px 10.4px; white-space: nowrap;   /* 字の形の中心をロゴの字と同じ高さに（9/10 だと 0.4px 下） */
+  font-size: 13.5px; font-weight: 900; letter-spacing: .04em; color: #9d9daa;
+}
+.nav-link.active { color: #fff; }
+.nav-link.active::after { content: ""; position: absolute; left: 7px; right: 7px; bottom: 0; height: 3px;
+  background: var(--red-hot); transform: skewX(-30deg); }
+.header-right { display: flex; align-items: center; gap: 8px; }
+.demo-badge {
+  font-size: 9px; color: var(--gold); border: 1px solid rgba(212, 175, 55, .5);
+  padding: 1px 6px; letter-spacing: .18em; white-space: nowrap;
+}
+/* 右上の自分の名前（フルネーム）。形はヘッダーの斬り札に合わせた斜めの札。
+   質感は予想の札（.corner-btn）と同じ＝暗い地に自分の色をうっすら差し、縁を自分の色で（Gaku 11/8「ハメ太郎の枠の色が異質でダサく浮く。
+   他の人も」「色というか質感？見えやすいのがいいけど」＝以前の光る球の塗り・寮の金の縁をやめた）。字はいつも白＝どの色の人でも読める。
+   縁を札の斜めに沿わせるため、縁の色の札の上に一回り小さい地の札（::after）を重ねる。暗い色の人でも縁が見えるよう白を混ぜる */
+.member-chip {
+  --c: #555; position: relative; isolation: isolate; border: 0; cursor: pointer;
+  background: color-mix(in srgb, var(--c), #fff 22%); color: #fff;
+  padding: 4.25px 14px 5.75px; font-size: 12px; font-weight: 900; letter-spacing: .04em; white-space: nowrap;   /* 字の上下を形で揃える（5/5 だと上 8.8・下 7.3＝ロゴと同じ理由） */
+  max-width: 128px; overflow: hidden; text-overflow: ellipsis;
+  clip-path: polygon(7px 0, 100% 0, calc(100% - 7px) 100%, 0 100%);
+}
+.member-chip::after {
+  content: ""; position: absolute; inset: 1px 1.5px; z-index: -1; clip-path: polygon(6.5px 0, 100% 0, calc(100% - 6.5px) 100%, 0 100%);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--c) 42%, var(--panel2)), color-mix(in srgb, var(--c) 12%, var(--panel2)) 75%);
+}
+.member-chip:active { filter: brightness(.9); }
+
+/* ===== 見出し ===== */
+.en-label {
+  font-family: var(--num); font-weight: 700; font-size: 11px; letter-spacing: .42em;
+  color: var(--red-hot); margin-top: 24px; text-transform: uppercase;
+}
+.en-label.gold { color: var(--gold); margin-top: 0; }
+.page-title {
+  font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1.15;
+  letter-spacing: .03em; margin: 2px 0 6px; text-transform: uppercase;
+}
+.page-sub { color: var(--muted); font-size: 12px; margin-bottom: 18px; }
+/* 大会名の副題は主題の下に小さく（Gaku 11/8「超RIZIN.6だけ大きくてサブタイトルは小さく」・3行に折れていた） */
+.page-title .ev-sub { display: block; margin-top: 6px; font: 900 13px/1.3 "Noto Sans JP", sans-serif; letter-spacing: .08em;
+  color: #b9b9c4; text-transform: none; }
+/* 見出しは1行（Gaku 11/7「2段で右の空白が多くてダサい」）：大きい日本語 → 赤い線で横幅を埋める → 右端に英字 */
+.title-row { display: flex; align-items: center; gap: 12px; margin: 22px 0 14px; }
+.title-row .page-title { flex: 0 1 auto; min-width: 0; margin: 0; font-size: 38px; line-height: 1.05; }
+.title-row::after { content: ""; order: 2; flex: 1 1 24px; min-width: 24px; height: 2px;
+  background: linear-gradient(90deg, rgba(230, 0, 18, .85), rgba(230, 0, 18, .12)); transform: skewX(-30deg); }
+.title-row .edate { order: 3; }   /* 大会ページは英字の代わりに開催日（Gaku 11/7「FIGHT CARD 小さくてよくわからん」） */
+.title-row .en-label { order: 3; flex: none; margin: 0; letter-spacing: .3em; margin-right: -.3em; white-space: nowrap; }
+/* 節の見出しは題として立てる（Gaku 11/7「小さくて意味をなしてない・文字もダサい・タイトルっぽく」）：
+   赤い斜めの印 → 極太の題 → 線で横幅を埋める。英字は Anton、日本語は Noto 900（Anton に太字は無いので擬似太字を止める） */
+.section-label {
+  display: flex; align-items: center; gap: 10px;
+  font: 900 22px/1.15 var(--display); font-synthesis: none; letter-spacing: .05em;
+  color: var(--text); margin: 36px 0 14px; text-transform: uppercase;
+}
+.section-label::before { content: ""; flex: none; width: 8px; height: 22px; background: var(--red); transform: skewX(-18deg); }
+.section-label::after { content: ""; flex: 1 1 16px; min-width: 16px; height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, .24), rgba(255, 255, 255, .04)); }
+
+/* ===== プレイヤー選択 ===== */
+.ps-hero { margin-bottom: 4px; }
+.player-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.player-tile {
+  position: relative; overflow: hidden; text-align: left; width: 100%;
+  background: linear-gradient(155deg, #1a1a21 0%, #101015 70%);
+  border: 1px solid var(--line);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+  padding: 20px 14px 16px 18px;
+  transition: transform .12s;
+  animation: rise .45s both; animation-delay: var(--d, 0ms);
+}
+.player-tile::before {
+  content: attr(data-initial); position: absolute; right: -4px; top: -26px;
+  font-family: var(--display); font-size: 96px; line-height: 1;
+  color: rgba(255, 255, 255, .045); pointer-events: none;
+}
+.player-tile::after {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+  background: linear-gradient(180deg, var(--c, var(--red)), transparent 130%);
+}
+.player-tile:active { transform: scale(.96); }
+.entry-no {
+  display: block; font-family: var(--num); font-weight: 500; font-size: 10px;
+  letter-spacing: .3em; color: var(--muted); margin-bottom: 6px;
+}
+.player-tile .pname {
+  display: block; font-size: 22px; font-weight: 900; letter-spacing: .04em;
+  color: var(--text); transform: skewX(-5deg);
+}
+
+/* ===== カウントダウン ===== */
+.countdown-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  flex-wrap: wrap;
+  background: linear-gradient(90deg, rgba(230, 0, 18, .14), rgba(230, 0, 18, .03) 65%), var(--panel);
+  border-top: 1px solid rgba(230, 0, 18, .35);
+  padding: 10px 14px;
+}
+/* 付いてくるのは外側の #sticky-cd（帯そのものを sticky にすると、帯と同じ高さの親の中でしか動けず付いてこなかった）。
+   top はヘッダーの実測の高さ（event.html が --hdr-h に入れる・画面幅で変わる） */
+#sticky-cd { position: sticky; top: var(--hdr-h, 57px); z-index: 40; }
+.countdown-bar.sticky {
+  border: none; border-bottom: 1px solid rgba(230, 0, 18, .35);
+  background: linear-gradient(90deg, rgba(56, 3, 8, .96), rgba(20, 8, 10, .96));
+  backdrop-filter: blur(8px);
+  max-width: 100%; margin: 0;
+  padding-inline: max(14px, calc((100% - 720px) / 2 + 14px));   /* 中身は本文（.wrap 720px）と同じ幅に揃える */
+}
+/* 大会ページ上の帯：文言なしの数字＋予想の目盛り（大会タブと同じ型・Gaku 11/7「書かなくても時間が減ってればわかる」） */
+.cd-timer {
+  display: flex; align-items: baseline; font-family: var(--num); font-weight: 700; font-size: 24px; letter-spacing: .06em;
+  color: #f4f1ea; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.cd-timer::before { content: ""; flex: none; align-self: center; width: 6px; height: 6px; margin-right: 9px; border-radius: 50%;
+  background: var(--red-hot); box-shadow: 0 0 6px rgba(255, 36, 54, .6); animation: blink 1.6s infinite; }
+.cd-timer small { font-size: .55em; color: var(--muted); letter-spacing: 0; margin: 0 .35em 0 .08em; }
+@keyframes blink { 50% { opacity: .25; } }
+#sticky-prog { flex: 1; min-width: 0; max-width: 300px; }
+#sticky-prog .eprog { margin: 0; padding: 0; border: 0; gap: 8px; }
+#sticky-prog .ep-bar { gap: 2px; height: 8px; }
+#sticky-prog .ep-n b { font-size: 18px; }
+@media (max-width: 430px) {
+  .cd-timer { font-size: 20px; letter-spacing: .03em; }
+  .countdown-bar { padding-block: 10px; gap: 12px; }
+  /* 付いてくる帯は上下を詰める（53→47px）：カードの頭から判断材料までをスマホの1画面に収めるため（Gaku 11/8「外せない条件」） */
+  .countdown-bar.sticky { padding-block: 7px; }
+}
+
+/* 大会タブの残り時間（index.html の bigCountdown・Gaku 11/7）：文言なし・数字と単位だけを枠いっぱいに。
+   字の大きさは欄の幅（cqw）から決める＝日の欄が消えると残りが大きくなる */
+.cd-big { container-type: inline-size; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
+  padding: 12px 10px 10px; border-top: 1px solid rgba(230, 0, 18, .35);
+  background: linear-gradient(90deg, rgba(230, 0, 18, .16), rgba(230, 0, 18, .03) 70%), var(--panel); }
+.cdb { position: relative; display: flex; flex-direction: column; align-items: center; font-size: min(17cqw, 92px); }
+.cd-big.n3 .cdb { font-size: min(23cqw, 112px); }
+.cdb b { font-family: var(--num); font-weight: 700; font-size: 1em; line-height: .95; letter-spacing: .01em;
+  color: #f4f1ea; font-variant-numeric: tabular-nums; text-shadow: 0 2px .3em rgba(0, 0, 0, .5); }   /* 黄色はやめる（Gaku 11/7）＝白 */
+.cdb + .cdb::before { content: ":"; position: absolute; left: 0; top: 0; transform: translate(-50%, -.06em);
+  font-family: var(--num); font-weight: 400; line-height: .95; color: rgba(255, 36, 54, .55); }
+.cdb.d + .cdb::before { content: none; }   /* 「2日 03:02:04」＝日と時間の間はコロンで繋がない */
+.cdb i { font-style: normal; font-size: 10.5px; color: var(--muted); letter-spacing: .25em; margin-top: 6px; }
+.cd-big.hot .cdb b { color: var(--red-hot); text-shadow: 0 0 .35em rgba(255, 36, 54, .3); }   /* 1時間を切ったら赤 */
+
+/* ===== 大会カード ===== */
+/* 大会ごとに1枚の独立したカードとして立たせる。
+   ポスターが縦長だと隣の大会と地続きに見えて数珠繋ぎになるため、
+   間隔・枠・影で「ここで一つ終わり」を明示する。 */
+.event-card {
+  display: block; background: var(--panel); border: 1px solid var(--line);
+  overflow: hidden; margin-bottom: 52px; position: relative;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+  animation: rise .45s both;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .55);
+}
+/* 上端の赤いバー＝新しい大会の始まり */
+.event-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--red); z-index: 2;
+}
+.event-card.soon::before { background: var(--line); }
+/* ポスターは大会ごとに縦横比が違う（B2縦・16:9横が混在）。
+   クリエイティブを毎大会そのまま味わうため、切り抜かずに全体を映す。
+   余白はポスター自身をぼかして敷き、黒帯に見せない。 */
+.event-card .eposter {
+  position: relative; background-size: cover; background-position: center;
+  display: flex; justify-content: center; overflow: hidden;
+}
+.event-card .eposter::before {
+  content: ""; position: absolute; inset: -40px;
+  backdrop-filter: blur(28px) saturate(.7) brightness(.45);
+  background: rgba(0, 0, 0, .35);
+}
+.event-card .eposter img {
+  position: relative; display: block; width: auto; max-width: 100%;
+  max-height: 68vh; object-fit: contain;
+}
+.event-card .ebody { padding: 12px 14px; }
+.event-card .ename { font-weight: 900; font-size: 15px; letter-spacing: .02em; }
+.event-card .emeta { color: var(--muted); font-size: 11px; margin-top: 3px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+/* 名前の段（index.html の dateBlock／progBlock・Gaku 11/7）：大会名は大きく、日付は右端に数字で、予想した数は目盛りで */
+.eb-top { display: flex; align-items: flex-end; gap: 12px; }
+.eb-top .ename { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px;
+  font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1.05; letter-spacing: .03em; }
+.eb-top .ename.long { font-size: 24px; }
+.eb-top .en-s { flex-basis: 100%; font-family: "Noto Sans JP", sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .04em; color: #c9c9d2; }
+.eb-top .ename .tag { font-family: "Noto Sans JP", sans-serif; letter-spacing: .06em; }
+.edate { flex: none; text-align: right; line-height: 1; }
+.edate small { display: block; margin-bottom: 4px; font: 700 10px/1 var(--num); letter-spacing: .28em; margin-right: -.28em; color: var(--red-hot); }
+.edate b { font: 700 28px/1 var(--num); letter-spacing: .02em; color: var(--text); }
+.eprog { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, .07); }
+.ep-k { flex: none; font-size: 10.5px; color: var(--muted); letter-spacing: .15em; }
+.ep-bar { flex: 1; min-width: 0; display: flex; gap: 3px; height: 9px; }
+.ep-bar i { flex: 1; background: rgba(255, 255, 255, .09); transform: skewX(-20deg); }
+.ep-bar i.on { background: linear-gradient(180deg, var(--red-hot), var(--red)); box-shadow: 0 0 6px rgba(255, 36, 54, .3); }
+.ep-n { flex: none; font: 500 13px/1 var(--num); color: var(--muted); letter-spacing: .04em; }
+.ep-n b { font-size: 22px; font-weight: 700; color: #f4f1ea; margin-right: 1px; }
+.eprog.full .ep-k { color: var(--ok); font-weight: 700; }
+.eprog.full .ep-k::before { content: "✓ "; }
+.tag {
+  font-size: 10px; padding: 2px 8px; font-weight: 700; letter-spacing: .06em;
+  clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+}
+.tag.open { background: var(--red); color: #fff; }
+.tag.before_open { background: var(--panel2); color: var(--muted); border: 1px solid var(--line); }
+.tag.locked { background: #2c2c36; color: #c9c9d2; }
+.tag.finished { background: var(--gold); color: #131007; }
+
+/* 半分サイズの結果ダイジェスト（直近の結果を上部に残す・匂わせ） */
+.event-card.compact {
+  display: flex; align-items: stretch; margin-bottom: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .45);
+}
+.event-card.compact::before { background: var(--gold); }
+.event-card.compact .eposter.mini {
+  flex: none; width: 92px; background-size: cover; background-position: center;
+  border-right: 1px solid var(--line);
+}
+.event-card.compact .ebody { flex: 1; min-width: 0; padding: 10px 12px; display: flex; flex-direction: column; justify-content: center; gap: 3px; }
+.event-card.compact .ename.small { font-size: 13px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.result-flag { font-size: 9px; font-weight: 900; letter-spacing: .08em; color: #131007; background: var(--gold); padding: 1px 7px; border-radius: 3px; }
+.compact-main { font-size: 12px; color: #e8e8ee; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.compact-hook { font-size: 11px; color: var(--gold); font-weight: 700; }
+
+/* 次大会の匂わせラベル。絵文字で飾らない（Gaku 11/7「スマホの文字で打った感がダメ」）＝英字の組みと斜めの3本線だけ */
+.next-flag {
+  display: inline-flex; align-items: center; gap: 9px; margin: 2px 0 8px;
+  font-family: var(--num); font-size: 13px; font-weight: 700; letter-spacing: .34em; line-height: 1; color: #fff;
+  background: linear-gradient(90deg, var(--red), #7a0a12); padding: 6px 18px 6px 12px;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+}
+/* 頭の「大会 / EVENTS」を外したので（11/8）、ページの先頭に来たときだけヘッダーとの間を空ける＝2pxだと貼り付いて見えた */
+#main > .next-flag:first-child { margin-top: 16px; }
+.next-flag i { width: 13px; height: 10px; transform: skewX(-24deg);
+  background: repeating-linear-gradient(90deg, #fff 0 2.5px, transparent 2.5px 5px); }
+.cm-w { margin-right: 7px; padding: 1px 6px; font: 700 10px/1.4 var(--num); letter-spacing: .14em; color: #fff; background: var(--red); vertical-align: 1px; }
+
+/* カード未発表（COMING SOON） */
+.event-card.soon {
+  border-style: dashed; opacity: .82;
+  background: repeating-linear-gradient(115deg, var(--panel) 0 14px, rgba(255,255,255,.015) 14px 28px);
+}
+.soon-label {
+  font-family: var(--num); font-weight: 700; font-size: 11px; letter-spacing: .34em;
+  color: var(--gold); margin-bottom: 4px;
+}
+.event-card.soon .ename { color: var(--muted); }
+
+/* 大会の系統の煙（Gaku 11/8「大会選択画面もナンバーシリーズ赤煙背景、LANDMARK緑煙背景、超RIZIN金煙にしよう」）。
+   試合の煙（.fight-unit.glow）と同じ作り・同じ色の3階調。カードは clip-path で外が切れるので、包み .ev-unit に煙を置く。
+   金（超RIZIN）だけ揺らす＝試合のタイトル戦と同じ決まり。上端のバーも系統の色にする（ナンバーは従来の赤のまま）。
+   カードは試合より縦に長い（縦長ポスター）ので、横の帯の長さはカードの高さに対する％で持つ */
+.ev-unit { position: relative; isolation: isolate; margin-bottom: 52px; animation: rise .45s both; }
+.ev-unit > .event-card { margin-bottom: 0; animation: none; border-color: rgba(var(--sm2), .28); }
+.ev-unit.compact { margin-bottom: 40px; }   /* 下の煙が次の見出しにかからない間隔 */
+.ev-unit.s-num { --sm1: 255, 128, 128; --sm2: 236, 44, 60; --sm3: 176, 12, 28; --k: .62; --bar: var(--red); }
+/* 緑は明るくしない（Gaku 11/8「明るいとダサくなる」）＝深いエメラルド。暗い色なので濃さで出す */
+.ev-unit.s-lm  { --sm1: 70, 150, 104; --sm2: 30, 120, 74; --sm3: 10, 74, 44; --k: 1; --bar: #1f7a4b; }
+.ev-unit.s-cho { --sm1: 255, 236, 170; --sm2: 240, 205, 90; --sm3: 212, 175, 55; --k: 1; --bar: var(--gold); }
+.ev-unit.soon { --k: .3; }   /* カード未発表は淡く */
+.ev-unit::before {
+  content: ""; position: absolute; inset: -34px -12px; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(170px 44px at 16% 26px, rgba(var(--sm1), var(--k)), transparent 72%),
+    radial-gradient(210px 38px at 62% 24px, rgba(var(--sm2), calc(.8 * var(--k))), transparent 72%),
+    radial-gradient(120px 40px at 94% 30px, rgba(var(--sm1), var(--k)), transparent 72%),
+    radial-gradient(22px 34% at 8px 18%, rgba(var(--sm2), calc(.8 * var(--k))), transparent 72%),
+    radial-gradient(20px 46% at 7px 52%, rgba(var(--sm3), calc(.6 * var(--k))), transparent 72%),
+    radial-gradient(22px 32% at 9px 84%, rgba(var(--sm2), calc(.7 * var(--k))), transparent 72%),
+    radial-gradient(22px 40% at calc(100% - 8px) 30%, rgba(var(--sm2), calc(.75 * var(--k))), transparent 72%),
+    radial-gradient(20px 38% at calc(100% - 7px) 70%, rgba(var(--sm3), calc(.6 * var(--k))), transparent 72%),
+    radial-gradient(180px 40px at 30% calc(100% - 28px), rgba(var(--sm2), calc(.85 * var(--k))), transparent 72%),
+    radial-gradient(140px 36px at 80% calc(100% - 30px), rgba(var(--sm3), calc(.7 * var(--k))), transparent 72%),
+    linear-gradient(rgba(var(--sm2), calc(.5 * var(--k))), rgba(var(--sm2), calc(.5 * var(--k)))) center / calc(100% - 6px) calc(100% - 52px) no-repeat;
+  filter: blur(9px); opacity: .85;
+}
+.ev-unit.s-cho::before { will-change: transform, opacity; animation: goldSmoke 5s ease-in-out infinite alternate; }
+.ev-unit > .event-card:not(.compact):not(.soon)::before { background: var(--bar); }
+/* カードの縁にかかる靄（screen＝暗い所だけ色に光る）。四辺の際だけ・真ん中は塗らない＝ポスターと大会名がくすまない */
+.ev-unit > .event-card::after {
+  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none; mix-blend-mode: screen;
+  background:
+    radial-gradient(150px 40px at 14% 0, rgba(var(--sm1), calc(.42 * var(--k))), transparent 75%),
+    radial-gradient(170px 34px at 72% 0, rgba(var(--sm2), calc(.32 * var(--k))), transparent 75%),
+    linear-gradient(90deg, rgba(var(--sm2), calc(.2 * var(--k))), transparent 14px),
+    linear-gradient(270deg, rgba(var(--sm2), calc(.2 * var(--k))), transparent 14px),
+    linear-gradient(0deg, rgba(var(--sm3), calc(.18 * var(--k))), transparent 36px);
+}
+.ev-unit.s-cho > .event-card::after { animation: goldBreath 5s ease-in-out infinite alternate; }
+/* 枠内の強調色も系統の色に（Gaku 11/8「枠内強調色も変えよう」）：年と曜日・予想の目盛り・残り時間の縁と下地とコロン。
+   ナンバーは従来の赤のまま。大きな数字は白のまま（金/黄で塗らない）。残り1時間を切った赤（.hot）は急ぎの合図なので系統に関わらず赤 */
+.ev-unit.s-lm  { --ac: #5fae80; --ac-rgb: 30, 120, 74; --ac-bar: linear-gradient(180deg, #4b9e70, #1d6440); }
+.ev-unit.s-cho { --ac: var(--gold); --ac-rgb: 212, 175, 55; --ac-bar: linear-gradient(180deg, #f0d67c, #b8892a); }
+.ev-unit:is(.s-lm, .s-cho) .edate small { color: var(--ac); }
+.ev-unit:is(.s-lm, .s-cho) .ep-bar i.on { background: var(--ac-bar); box-shadow: 0 0 6px rgba(var(--ac-rgb), .3); }
+.ev-unit:is(.s-lm, .s-cho) .cd-big { border-top-color: rgba(var(--ac-rgb), .4);
+  background: linear-gradient(90deg, rgba(var(--ac-rgb), .16), rgba(var(--ac-rgb), .03) 70%), var(--panel); }
+.ev-unit:is(.s-lm, .s-cho) .cdb + .cdb::before { color: var(--ac); opacity: .6; }
+/* 大会名の系統の差し色（app.js の evNameHTML）。ナンバーの数字＝RIZINの赤／LANDMARK＝深い緑／超＝金。
+   金と緑は平らに塗ると黄・若草に見えて安っぽいので、上から下へ沈む金属の階調にする（金は1字だけの差し色） */
+.evn.num { color: var(--red-hot); }
+.evn.lm, .evn.cho { -webkit-background-clip: text; background-clip: text; color: transparent; }
+.evn.lm  { background-image: linear-gradient(180deg, #6fb98c, #2f8a5a 55%, #1b5e3b); }
+.evn.cho { background-image: linear-gradient(180deg, #fff0b0, #e2bd4f 50%, #a87b1f); }
+/* 煙は後ろの見出し・NEXT の札にかぶさらない（後に描かれる包みより前へ出す） */
+.next-flag, .section-label { position: relative; z-index: 1; }
+
+/* ===== 試合カード ===== */
+.fight-card {
+  background: var(--panel); border: 1px solid var(--line);
+  overflow: hidden; margin-bottom: 18px;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+  animation: rise .4s both;
+}
+/* VSバナーは公式の宣材そのまま。下3割に黒い影を重ねていたが、国旗と名前にかかって沈むので外した（Gaku 11/8「黒いシャドーが国旗にかかってるのはよくない」） */
+.fight-card .banner { position: relative; }
+.fight-label {
+  display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; row-gap: 8px;
+  padding: 14px 14px 0; font: 900 16px/1.2 "Noto Sans JP", sans-serif; letter-spacing: .04em; color: var(--text);
+}
+.fight-label .fno { flex: none; font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .04em; white-space: nowrap; }
+.fight-label .fno b { font: 700 28px/1 var(--num); color: #f4f1ea; margin: 0 2px; letter-spacing: 0; }
+.fight-label .fl-t { white-space: nowrap; }
+.fight-label .title-label { color: var(--red-hot); }   /* 王座戦でない題（キックルール・甲子園など）は赤のまま */
+/* 王座戦の題＝「フライ級」は白、「TITLE MATCH」は金の英字（Anton）。和文の長い金字はダサかった（Gaku 11/8）ので組み直した。
+   金は上が明るく下が深い金属の金・まわりにほのかな光・ときどき光の筋が横切る（「光っているような特別感」）＝光の筋は1枚目の背景だけを動かす */
+.fight-label .tl-ttl { display: inline-flex; align-items: baseline; gap: 8px; }
+.fight-label .tl-wc { color: var(--text); }
+.fight-label .tl-en {
+  font: 400 19px/1 var(--display); letter-spacing: .07em;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 252, 235, .95) 50%, transparent 60%) 250% 0 / 220% 100% no-repeat,
+              linear-gradient(180deg, #fff6d0 0%, #f3d26a 42%, #d9a93a 70%, #b8862b 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 6px rgba(240, 205, 90, .35));
+  animation: goldShine 4.8s ease-in-out 1s infinite;
+}
+.fight-label .title-label.gold { color: var(--gold-hot); }
+@keyframes goldShine { 0%, 55% { background-position: 250% 0, 0 0; } 100% { background-position: -150% 0, 0 0; } }   /* 220%幅の背景は位置%が逆向き＝250%→-150%で左から右へ */
+@media (prefers-reduced-motion: reduce) { .fight-unit.title::before, .fight-unit.title > .aura, .fight-label .tl-en { animation: none; } }
+/* 階級の直後に（61.0kg）＝離さない（Gaku 11/8）。小さく「級」に寄せて添える（「小さめで級の字に近づけて。添える感じ」）：
+   全角括弧の左の空き（半角分）を palt で詰める */
+.fight-label .fl-kg { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .02em; font-feature-settings: "palt"; margin-left: 1px; }
+/* カードの一番上＝写真の上の段（Gaku 11/8「カード写真に被らないで、その上ね」） */
+.fight-label.top { padding: 7px 14px 9px; }   /* 字の上下の余白をそろえる（12/10 だと数字の「9」の上 15px・下 11.6px で下に寄って見えた・Gaku 11/8「上下位置」）。
+   10/12 から 7/9 へ詰めた：カードの頭から判断材料（STATS〜前戦）までがスマホの1画面に収まるのが外せない条件（Gaku 11/8） */
+.vs-row { display: flex; gap: 6px; padding: 10px 14px 4px; align-items: stretch; position: relative; }
+.vs-mark { position: absolute; left: 50%; top: 50%; z-index: 2; transform: translate(-50%, -50%) skewX(-8deg); pointer-events: none;
+  font-family: var(--display); font-size: calc(14px + 20px * var(--grow, 0)); color: #fff; letter-spacing: .04em;
+  text-shadow: 0 0 14px rgba(0, 0, 0, .95), 0 2px 0 rgba(0, 0, 0, .7); }
+/* 勝敗予想の札（Gaku 11/7「気持ちが昂る瞬間」「うっすら赤と青」「顔をすかす」「金で囲む」「縦長でもいい」）。
+   札の地＝枠の色（選ぶと金）／::before＝内側の本体（うっすら赤・青）／::after＝選手の顔（下は名前が読めるよう暗く）。
+   斜めに切っている（clip-path）ので border や box-shadow では斜めの辺に線が出ない＝地の色をそのまま枠にする */
+.corner-btn {
+  --sl: 12px;
+  flex: 1; min-width: 0; min-height: 80px; position: relative; isolation: isolate;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  background: #30303b; border: 0; color: #fff;
+  padding: 12px 14px; font-size: 15px; font-weight: 700; line-height: 1.25; text-shadow: 0 1px 4px rgba(0, 0, 0, .9);
+  transition: opacity .2s, transform .12s;
+}
+.corner-btn.c1 { clip-path: polygon(0 0, 100% 0, calc(100% - var(--sl)) 100%, 0 100%); align-items: flex-start; text-align: left; padding-right: calc(var(--sl) + 6px); }
+.corner-btn.c2 { clip-path: polygon(var(--sl) 0, 100% 0, 100% 100%, 0 100%); align-items: flex-end; text-align: right; padding-left: calc(var(--sl) + 6px); }
+.corner-btn::before, .corner-btn::after { content: ""; position: absolute; inset: 1px; z-index: -1; clip-path: inherit; }
+.corner-btn.c1::before { background: linear-gradient(160deg, rgba(230, 0, 18, .22), rgba(230, 0, 18, .04) 70%), var(--panel2); }
+.corner-btn.c2::before { background: linear-gradient(200deg, rgba(30, 111, 217, .24), rgba(30, 111, 217, .04) 70%), var(--panel2); }
+.corner-btn::after { opacity: 0; filter: grayscale(.5); transition: opacity .25s, filter .25s;
+  background: linear-gradient(to top, rgba(8, 8, 11, .94), rgba(8, 8, 11, .3) 36%, transparent 58%), var(--face) center 8% / cover no-repeat; }
+.corner-btn.has-face::after { opacity: calc(.3 + .3 * var(--grow, 0)); }   /* 近づくほど顔が濃くなる */
+.corner-btn small { display: block; font-family: var(--num); font-size: 9.5px; font-weight: 700; letter-spacing: .3em; margin-bottom: 3px; }
+.corner-btn.c1 small { color: #ff8a93; }
+.corner-btn.c2 small { color: #8ab8ff; }
+button.corner-btn:not(.sel):hover::after { opacity: .7; }
+button.corner-btn:active { transform: scale(.98); }
+.vs-row .corner-btn { min-height: 112px; }
+/* 選んだ方（締切後は勝った方）：金の枠・顔がはっきり・地の赤青が濃く */
+.corner-btn.sel { background: linear-gradient(115deg, #9a7522 0%, #e9c552 18%, #fff2bf 26%, #e9c552 34%, #a8822a 56%, #d9b547 100%) 0 0 / 240% 100%; }
+.corner-btn.sel::before, .corner-btn.sel::after { inset: 2px; }
+.corner-btn.sel::after { opacity: 1; filter: none; }
+.corner-btn.c1.sel::after { background: linear-gradient(to top, rgba(8, 8, 11, .92), transparent 52%), linear-gradient(160deg, rgba(230, 0, 18, .38), transparent 62%), var(--face) center 8% / cover no-repeat; }
+.corner-btn.c2.sel::after { background: linear-gradient(to top, rgba(8, 8, 11, .92), transparent 52%), linear-gradient(200deg, rgba(30, 111, 217, .4), transparent 62%), var(--face) center 8% / cover no-repeat; }
+.corner-btn.c1.sel:not(.has-face)::before { background: linear-gradient(160deg, rgba(230, 0, 18, .5), rgba(230, 0, 18, .12) 78%), #170d11; }
+.corner-btn.c2.sel:not(.has-face)::before { background: linear-gradient(200deg, rgba(30, 111, 217, .52), rgba(30, 111, 217, .12) 78%), #0d111c; }
+.corner-btn.sel small { color: var(--gold-hot); }
+.vs-row.has-sel .corner-btn:not(.sel) { opacity: .5; }
+.vs-row.has-sel .corner-btn:not(.sel)::after { filter: grayscale(1); }
+/* 押した瞬間だけ：札が弾み、金の光が走り、顔が寄ってくる */
+.corner-btn.pop { animation: cb-pop .4s cubic-bezier(.2, .9, .3, 1.35), cb-sheen .8s ease-out; }
+.corner-btn.pop::after { animation: cb-face .45s ease-out; }
+@keyframes cb-pop { from { transform: scale(.95); } to { transform: none; } }
+@keyframes cb-sheen { from { background-position: 100% 0; } to { background-position: 0 0; } }
+@keyframes cb-face { from { opacity: .4; transform: scale(1.1); } to { opacity: 1; transform: none; } }
+.corner-btn.disabled { opacity: .55; }
+/* 選手名→名鑑リンク */
+.profile-links { display: flex; gap: 8px; padding: 8px 14px 2px; }
+.profile-links a {
+  position: relative; flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; padding: 9px 12px 9px 18px;
+  border: 1px solid var(--line); background: var(--panel2); white-space: nowrap;
+  font: 700 12.5px/1.3 "Noto Sans JP", sans-serif; letter-spacing: .06em; color: #c9c9d2;
+}
+.profile-links a.c1 { clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+.profile-links a.c2 { justify-content: flex-end; padding: 9px 18px 9px 12px; clip-path: polygon(8px 0, 100% 0, 100% 100%, 0 100%); }
+.profile-links a::before { content: ""; position: absolute; top: 9px; bottom: 9px; width: 3px; transform: skewX(-18deg); }
+.profile-links a.c1::before { left: 7px; background: var(--red); }
+.profile-links a.c2::before { right: 7px; background: #1e6fd9; }
+.profile-links a span b { font: 700 13.5px/1 var(--num); letter-spacing: .06em; margin-left: 2px; color: var(--text); }
+.profile-links a i { flex: none; font-style: normal; font: 700 16px/1 var(--num); color: var(--muted); }
+@media (max-width: 359px) { .profile-links a { font-size: 11px; padding-left: 14px; } .profile-links a.c2 { padding: 9px 14px 9px 10px; } .profile-links a span b { font-size: 12px; } }
+.profile-links a:active { color: var(--gold-hot); border-color: var(--gold); }
+
+.chips { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 16px; }
+.chips .clabel { width: 100%; font-size: 10px; color: var(--muted); margin-bottom: -2px; letter-spacing: .05em; }
+.chip {
+  background: var(--panel2); border: 1px solid var(--line); color: var(--text);
+  padding: 5px 15px; font-size: 13px; transform: skewX(-8deg);
+  transition: border-color .1s, color .1s, background .1s;
+}
+.chip.sel {
+  border-color: var(--gold); color: var(--gold-hot); font-weight: 700;
+  background: rgba(212, 175, 55, .1);
+  box-shadow: inset 0 0 12px rgba(212, 175, 55, .12);
+}
+.fight-foot {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 16px 14px; font-size: 11px; color: var(--muted);
+}
+.save-note.saved { color: var(--ok); }
+
+/* 決定・編集 */
+.confirm-bar {
+  display: flex; gap: 10px; align-items: center;
+  padding: 10px 16px 16px;
+}
+.btn.decide { flex: 1; padding: 12px; font-size: 15px; letter-spacing: .08em; }
+.btn:disabled { opacity: .35; cursor: default; }
+.my-pick {
+  display: flex; gap: 10px; align-items: baseline;
+  margin: 4px 14px 0; padding: 10px 12px; font-size: 14px;
+  background: rgba(43, 168, 74, .08); border: 1px solid rgba(43, 168, 74, .4);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+}
+.my-pick .mp-check { color: var(--ok); font-weight: 700; }
+.my-pick .mp-body b { font-size: 15px; }
+.my-pick .mp-max { display: block; font-size: 11px; color: var(--muted); }
+.fight-card.confirmed .confirm-bar { padding-top: 8px; justify-content: space-between; }
+.fight-card.confirmed .btn.ghost { padding: 8px 26px; }
+
+/* 答え合わせ */
+.result-box {
+  margin: 2px 14px 12px; background: rgba(212, 175, 55, .07);
+  border: 1px solid rgba(212, 175, 55, .45);
+  padding: 10px 12px; font-size: 14px;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+}
+.result-box.waiting { border-color: var(--line); background: var(--panel2); color: var(--muted); }
+.result-box .rline { font-weight: 700; }
+.result-box .rline .win { color: var(--gold-hot); }
+.pred-row {
+  display: flex; align-items: center; gap: 8px; padding: 7px 16px;
+  border-top: 1px solid var(--line); font-size: 13px;
+}
+.pred-row .pwho { font-weight: 700; min-width: 64px; }
+.pred-row .pdetail { color: var(--muted); flex: 1; font-size: 12px; }
+.pred-row .ptier { font-size: 11px; font-weight: 700; white-space: nowrap; color: var(--muted); }
+.pred-row .ptier.pitari { color: var(--gold-hot); }
+.pred-row .ptier.aramasu {
+  color: var(--gold-hot); font-size: 12px;
+  text-shadow: 0 0 10px rgba(212, 175, 55, .6);
+}
+.pred-row.miss { opacity: .5; }
+.hitmark { font-weight: 700; }
+.hit .hitmark { color: var(--ok); }
+.miss .hitmark { color: var(--red); }
+
+/* 結果発表サマリー */
+.summary-box {
+  background: linear-gradient(160deg, rgba(212, 175, 55, .1), rgba(212, 175, 55, .02) 60%), var(--panel);
+  border: 1px solid rgba(212, 175, 55, .5);
+  padding: 16px; margin: 4px 0 24px;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+}
+.summary-title { font-size: 22px; font-weight: 900; letter-spacing: .04em; color: var(--gold-hot); margin: 0 0 10px; }
+.summary-row {
+  display: flex; align-items: baseline; gap: 10px; padding: 8px 0;
+  border-top: 1px solid rgba(212, 175, 55, .18); flex-wrap: wrap;
+}
+.summary-row .srank { font-family: var(--display); font-size: 18px; color: var(--muted); min-width: 22px; }
+.summary-row .sname { font-weight: 900; font-size: 15px; }
+.summary-row .srate { font-family: var(--num); font-weight: 700; font-size: 20px; color: var(--gold-hot); margin-left: auto; }
+.summary-row .ssub { width: 100%; font-size: 11px; color: var(--muted); margin-top: -4px; }
+.summary-row.champ .srank { color: var(--gold-hot); }
+.summary-box .rk-grid { padding: 0; }
+.summary-box .rk-unranked { margin: 12px 0 0; }
+.summary-rule { margin: 10px 0 0; font-size: 11px; line-height: 1.5; color: var(--muted); }
+
+/* ===== ランキング ===== */
+.lb-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.lb-table th {
+  text-align: right; color: var(--muted); font-weight: 400; font-size: 10px;
+  padding: 6px 8px; border-bottom: 1px solid var(--line); letter-spacing: .08em;
+}
+.lb-table th:nth-child(-n+2) { text-align: left; }
+.lb-table td { padding: 14px 8px; border-bottom: 1px solid var(--line); text-align: right; }
+.lb-table td:nth-child(-n+2) { text-align: left; }
+.lb-rank { font-family: var(--display); font-size: 22px; color: var(--muted); width: 36px; }
+tr.top { background: linear-gradient(90deg, rgba(212, 175, 55, .09), transparent 75%); }
+tr.top .lb-rank { color: var(--gold-hot); }
+.lb-name { font-weight: 900; font-size: 15px; }
+.lb-rate { font-family: var(--num); font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+tr.top .lb-rate { color: var(--gold-hot); }
+.lb-sub { color: var(--muted); font-size: 11px; }
+.lb-num { font-family: var(--num); font-size: 18px; font-weight: 700; }
+.lb-num.gold { color: var(--gold-hot); }
+
+/* 大会チェックボックス */
+.ev-checks { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.ev-check {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  background: var(--panel2); border: 1px solid var(--line); color: var(--muted);
+  padding: 6px 12px; font-size: 12px; user-select: none;
+  clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+}
+.ev-check input { accent-color: var(--red); }
+.ev-check.on { color: var(--text); border-color: rgba(230, 0, 18, .55); }
+.ev-check.all.on { border-color: var(--gold); color: var(--gold-hot); }
+
+/* 全員の予想マトリクス */
+.matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -14px; padding: 0 14px; }
+.matrix { border-collapse: collapse; min-width: 100%; font-size: 11px; }
+.matrix th, .matrix td { border: 1px solid var(--line); padding: 5px 7px; text-align: left; }
+.matrix .mx-member {
+  font-family: var(--num); font-weight: 700; font-size: 12px; letter-spacing: .04em;
+  background: var(--panel2); white-space: nowrap;
+}
+.matrix .mx-fight {
+  font-family: var(--num); font-weight: 700; color: var(--gold);
+  background: var(--panel); white-space: nowrap; font-size: 11px;
+}
+.mx-cell { min-width: 84px; background: var(--panel); }
+.mx-cell.none { color: var(--muted); text-align: center; }
+.mx-cell .mx-name { display: block; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+.mx-cell .mx-sub { display: block; color: var(--muted); font-size: 10px; }
+.mx-cell.c1 .mx-name { color: var(--red-hot); }
+.mx-cell.c2 .mx-name { color: var(--blue-hot); }
+.mx-cell.hit { background: rgba(43, 168, 74, .12); }
+.mx-cell.miss { opacity: .5; }
+
+/* ===== admin ===== */
+.admin-section {
+  background: var(--panel); border: 1px solid var(--line);
+  padding: 16px; margin-bottom: 18px;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+}
+.admin-section h2 { font-size: 14px; margin-bottom: 12px; color: var(--gold); letter-spacing: .04em; }
+.form-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.form-row label { font-size: 11px; color: var(--muted); width: 100%; margin-bottom: -6px; }
+.form-row input, .form-row select {
+  flex: 1; min-width: 120px; background: var(--panel2); color: var(--text);
+  border: 1px solid var(--line); padding: 9px 10px; font-size: 14px; border-radius: 0;
+}
+.btn {
+  background: var(--red); color: #fff; border: none;
+  padding: 10px 22px; font-size: 14px; font-weight: 700; letter-spacing: .04em;
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+}
+.btn.ghost { background: var(--panel2); border: 1px solid var(--line); }
+.btn.gold { background: var(--gold); color: #131007; }
+.admin-note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+.admin-note a { color: var(--gold); text-decoration: underline; }
+.result-fight-row { border-top: 1px solid var(--line); padding: 12px 0; }
+.result-fight-row .rf-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) skewX(-6deg);
+  background: var(--panel2); border: 1px solid var(--gold); color: var(--text);
+  padding: 9px 22px; font-size: 13px; z-index: 100;
+  opacity: 0; transition: opacity .2s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+/* 三段梯子（的中→ピタリ→あらます） */
+.ladder { display: grid; gap: 12px; margin-bottom: 10px; }
+.ladder-step {
+  background: var(--panel); border: 1px solid var(--line);
+  padding: 14px 16px; position: relative;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+}
+.ladder-step::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+}
+.ladder-step.s1::before { background: var(--muted); }
+.ladder-step.s2::before { background: var(--red); }
+.ladder-step.s3::before { background: var(--gold); }
+.ladder-step.note {
+  background: rgba(212, 175, 55, .05); border-color: rgba(212, 175, 55, .3);
+}
+.ladder-step.note::before { background: repeating-linear-gradient(180deg, var(--gold) 0 6px, transparent 6px 12px); }
+.ladder-step.note .ls-name { color: var(--gold-hot); }
+.ls-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+.ls-no {
+  font-family: var(--num); font-weight: 700; font-size: 10px;
+  letter-spacing: .28em; color: var(--muted);
+}
+.ls-name { font-family: var(--display); font-weight: 400; font-size: 26px; letter-spacing: .04em; }
+.ladder-step.s2 .ls-name { color: var(--red-hot); }
+.ladder-step.s3 .ls-name {
+  color: var(--gold-hot); text-shadow: 0 0 16px rgba(212, 175, 55, .4);
+}
+.ls-desc { font-size: 12.5px; color: var(--muted); line-height: 1.75; }
+.ls-desc b { color: var(--text); }
+.ladder-note { font-size: 11px; color: var(--muted); margin-bottom: 20px; }
+
+/* ルール説明 */
+.rules-box {
+  background: var(--panel); border: 1px solid var(--line);
+  border-left: 3px solid var(--red);
+  padding: 14px 16px; font-size: 12px; color: var(--muted); margin: 22px 0;
+}
+.rules-box b { color: var(--text); }
+.rules-box .gold { color: var(--gold-hot); }
+
+@media (min-width: 560px) {
+  .player-grid { grid-template-columns: repeat(3, 1fr); }
+  .page-title { font-size: 36px; }
+  .title-row .page-title { font-size: 44px; }
+}
+
+/* admin：入力欄に添える補足（年齢の自動計算など） */
+.form-note { font-size: 11px; color: var(--muted); align-self: center; white-space: nowrap; }
+
+/* ===== 名鑑：検索・階級グループ ===== */
+.fi-search { margin: 0 0 6px; }
+.fi-search input {
+  width: 100%; background: var(--panel); border: 1px solid var(--line);
+  color: var(--text); font-family: inherit; font-size: 14px; padding: 11px 14px;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+}
+.fi-search input::placeholder { color: var(--muted); }
+.fi-search input:focus { outline: none; border-color: var(--red); }
+
+/* オープンブック：各カード下の「みんなの予想」併記 */
+.ob-picks {
+  margin: -6px 0 16px; padding: 10px 14px 4px;
+  background: var(--panel); border: 1px solid var(--line); border-top: none;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+}
+.ob-head { margin-bottom: 10px; }
+/* 1試合＝1かたまり。カードとみんなの予想は継ぎ目なく1枚に見せ、かたまり同士は大きく空ける
+   （Gaku 11/7「カードとカードの間に余白がないから脳がどこまでが意味の区切りなのか理解しにくい」） */
+.fight-unit { margin-bottom: 56px; }
+.fight-unit > .fight-card { margin-bottom: 0; }
+.fight-unit > .fight-card:has(+ .ob-picks) { clip-path: none; border-bottom: 0; }
+.fight-unit > .ob-picks { margin: 0; }
+/* タイトルマッチは1試合のかたまり全体（カード＋みんなの予想）を金で囲む（Gaku 11/8「ほんのり金で囲もう。そのエリア全体を」
+   →「光っているようなオーラが出ているような特別感。ただの線囲みだとつまんない。金の煙に覆われてるような」）。3枚重ね：
+   ::before＝外の金の煙。縁のまわりに濃淡のある金の靄をぼかして置き、ゆっくり揺らす。横は画面の余白（14px）の内側に収める＝横スクロールを生まない
+   ::after ＝金の細い縁（ごく淡く）。かたまりより1px大きい金の札を後ろに敷き、はみ出た1pxが縁に見える（切り欠きは中の札＋0.6px＝斜めも1pxの太さ）
+   .aura   ＝カードの縁にかかる靄（screen で重ねる＝暗い所だけ金に光る）。上の題の段と四辺の際だけ・真ん中は塗らない＝予想のアイコンがくすまない */
+/* 煙の色は3階調（--sm1 明・--sm2 中・--sm3 深）と濃さ --k。タイトルマッチ＝金（揺れる）／それ以外＝RIZINの赤（揺らさない・少し淡く）
+   （Gaku 11/8「タイトル戦は金の煙で囲ってたけど、他の試合も何かしらの色で囲もう」）。中止のカードは囲まない（.glow を付けない） */
+.fight-unit.glow { --sm1: 255, 128, 128; --sm2: 236, 44, 60; --sm3: 176, 12, 28; --k: .62;
+  --cut: 10.6px; position: relative; isolation: isolate; }
+.fight-unit.title { --sm1: 255, 236, 170; --sm2: 240, 205, 90; --sm3: 212, 175, 55; --k: 1; }
+.fight-unit.glow:not(:has(> .ob-picks)) { --cut: 12.6px; }
+.fight-unit.glow > :where(.fight-card, .ob-picks) { border-color: transparent; }
+.fight-unit.glow::after {
+  content: ""; position: absolute; inset: -1px; z-index: -1; pointer-events: none;
+  background: linear-gradient(160deg, rgba(var(--sm2), .34), rgba(var(--sm3), .16) 45%, rgba(var(--sm2), .28));   /* 線は目立たせない＝煙が主役（Gaku 11/8「外囲みの枠線の金線は目立たないようにしたい」） */
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%);
+}
+.fight-unit.glow::before {
+  content: ""; position: absolute; inset: -34px -12px; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(170px 44px at 16% 26px, rgba(var(--sm1), var(--k)), transparent 72%),
+    radial-gradient(210px 38px at 62% 24px, rgba(var(--sm2), calc(.8 * var(--k))), transparent 72%),
+    radial-gradient(120px 40px at 94% 30px, rgba(var(--sm1), var(--k)), transparent 72%),
+    radial-gradient(22px 220px at 8px 16%, rgba(var(--sm2), calc(.8 * var(--k))), transparent 72%),
+    radial-gradient(20px 300px at 7px 52%, rgba(var(--sm3), calc(.6 * var(--k))), transparent 72%),
+    radial-gradient(22px 200px at 9px 84%, rgba(var(--sm2), calc(.7 * var(--k))), transparent 72%),
+    radial-gradient(22px 260px at calc(100% - 8px) 30%, rgba(var(--sm2), calc(.75 * var(--k))), transparent 72%),
+    radial-gradient(20px 240px at calc(100% - 7px) 68%, rgba(var(--sm3), calc(.6 * var(--k))), transparent 72%),
+    radial-gradient(180px 40px at 30% calc(100% - 28px), rgba(var(--sm2), calc(.85 * var(--k))), transparent 72%),
+    radial-gradient(140px 36px at 80% calc(100% - 30px), rgba(var(--sm3), calc(.7 * var(--k))), transparent 72%),
+    linear-gradient(rgba(var(--sm2), calc(.5 * var(--k))), rgba(var(--sm2), calc(.5 * var(--k)))) center / calc(100% - 6px) calc(100% - 52px) no-repeat;   /* 光の芯＝カードの外へ8〜9pxの帯。ぼかすと四辺を包む後光になる */
+  filter: blur(9px); opacity: .85;
+}
+.fight-unit.title::before { will-change: transform, opacity; animation: goldSmoke 5s ease-in-out infinite alternate; }
+@keyframes goldSmoke {
+  0%   { opacity: .6; transform: translateY(4px); }
+  50%  { opacity: 1; }
+  100% { opacity: .75; transform: translateY(-6px); }
+}
+.fight-unit.glow > .aura {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none; mix-blend-mode: screen;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cut) + .6px), calc(100% - var(--cut) + .6px) 100%, 0 100%);
+  background:
+    radial-gradient(150px 40px at 14% 0, rgba(var(--sm1), calc(.42 * var(--k))), transparent 75%),
+    radial-gradient(170px 34px at 72% 0, rgba(var(--sm2), calc(.32 * var(--k))), transparent 75%),
+    linear-gradient(180deg, rgba(var(--sm3), calc(.2 * var(--k))), transparent 64px),
+    linear-gradient(90deg, rgba(var(--sm2), calc(.2 * var(--k))), transparent 14px),
+    linear-gradient(270deg, rgba(var(--sm2), calc(.2 * var(--k))), transparent 14px),
+    linear-gradient(0deg, rgba(var(--sm3), calc(.18 * var(--k))), transparent 36px);
+}
+.fight-unit.title > .aura { animation: goldBreath 5s ease-in-out infinite alternate; }
+@keyframes goldBreath { 0% { opacity: .55; } 100% { opacity: 1; } }
+/* 王座戦の印＝「TITLE MATCH」の金のプレート（event.html の TITLE_PLATE）。見出しの段の右端・第〇試合の数字と真ん中の高さを揃える
+   （Gaku 11/8「13試合目とおんなじレベル」「タイトルMATCHはこんな感じで。右側に。」）。大きさは Gaku の画像の比率（数字「13」の約1.6倍の高さ）＝34px。
+   写真には被せない。題がプレートの下に潜らないよう見出しの右を空ける（狭い画面では題が2段目へ回り、プレートは1段目の右に残る） */
+.fight-label.top { position: relative; }
+.fight-unit.title .fight-label.top { padding-right: 140px; }
+.fight-label.top > .t-plate { position: absolute; top: 5px; right: 12px; line-height: 0; pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .65)); }
+.t-plate img { display: block; height: 34px; width: auto; }
+/* キラッ（Gaku 11/8「キラッとね」）：光の筋が左から右へ横切り、通る間だけ少し明るむ。光はプレートの絵で型を抜く（mask）＝外の暗い所には出ない */
+.t-plate::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 253, 240, .95) 50%, transparent 62%) 250% 0 / 220% 100% no-repeat;
+  -webkit-mask: url(../assets/title_match.webp) 0 0 / 100% 100% no-repeat; mask: url(../assets/title_match.webp) 0 0 / 100% 100% no-repeat;
+  mix-blend-mode: screen; animation: plateShine 4.8s ease-in-out 1s infinite; }
+@keyframes plateShine { 0%, 62% { background-position: 250% 0; } 100% { background-position: -150% 0; } }
+@media (prefers-reduced-motion: reduce) { .t-plate::after { animation: none; display: none; } }
+
+/* ===== 予想の一致／割れ を瞬間で視認 ===== */
+/* 併記ブロック：一致は金の左帯、割れは赤の左帯 */
+.ob-picks.unanimous { border-left: 3px solid var(--gold); }
+.ob-picks.split     { border-left: 3px solid var(--red); }
+.ob-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cons {
+  font-family: var(--num); font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  padding: 2px 9px; border-radius: 100px; white-space: nowrap;
+}
+.cons.agree { color: #131007; background: var(--gold-hot); }
+.cons.split { color: #fff; background: var(--red); }
+
+/* マトリクス：一致した試合の番号セルを金、割れを赤で縁取り */
+.matrix tr.mxrow.unanimous .mx-fight {
+  color: var(--gold-hot); box-shadow: inset 3px 0 0 var(--gold);
+}
+.matrix tr.mxrow.split .mx-fight {
+  color: var(--red-hot); box-shadow: inset 3px 0 0 var(--red);
+}
+/* 一致した試合は行をほんのり金でハイライト（割れは素のまま＝コントラストで割れが目立つ） */
+.matrix tr.mxrow.unanimous td { background: color-mix(in srgb, var(--gold) 8%, transparent); }
+
+/* ===== 中止・延期の試合 ===== */
+.fight-card.cancelled { position: relative; opacity: .96; }
+.fight-card.cancelled .banner,
+.fight-card.cancelled .vs-row { filter: grayscale(1) brightness(.5); }
+/* 大きな斜めスタンプ */
+.cancel-stamp {
+  position: absolute; top: 50%; left: 50%; z-index: 3;
+  transform: translate(-50%, -50%) rotate(-14deg);
+  font-family: var(--display); font-size: clamp(34px, 12vw, 72px);
+  letter-spacing: .06em; color: var(--red-hot);
+  border: 5px solid var(--red-hot); border-radius: 10px;
+  padding: 4px 22px; background: rgba(8, 8, 11, .55);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, .8); pointer-events: none;
+  white-space: nowrap;
+}
+.cancel-note {
+  margin: 12px 14px; padding: 10px 14px; font-size: 13px; color: var(--text);
+  background: color-mix(in srgb, var(--red) 12%, var(--panel));
+  border-left: 3px solid var(--red);
+}
+/* マトリクスの中止行 */
+.matrix tr.mxrow.cancelled td { filter: grayscale(1); opacity: .5; }
+.matrix tr.mxrow.cancelled .mx-fight {
+  color: var(--muted); box-shadow: inset 3px 0 0 var(--red); position: relative;
+}
+.matrix .mx-x {
+  display: block; font-size: 9px; font-weight: 800; color: var(--red-hot);
+  letter-spacing: .1em;
+}
+/* 体重超過＝予想対象外（試合はやる） */
+.fight-label .ns-badge {
+  background: #4a2f00; color: #ffcf66; border: 1px solid #7a5200;
+  border-radius: 5px; padding: 2px 8px; font-size: 11px; font-weight: 900;
+  letter-spacing: .02em; line-height: 1.5;
+}
+.matrix tr.mxrow.noscore td { opacity: .62; }
+.matrix tr.mxrow.noscore .mx-fight { box-shadow: inset 3px 0 0 #b8860b; }
+.matrix .mx-x.ns { color: #ffcf66; }
+.mx-sup { display: block; font-size: 9px; font-weight: 700; margin-top: 2px; white-space: nowrap; }
+.mx-sup.r { color: #ff5a67; } .mx-sup.b { color: #5aa0ff; }
+/* 名鑑：所属ジム／バックボーンをクリックで絞り込み */
+.mteam { display: inline-block; font-size: 10px; font-weight: 700; color: #8ec7ff; background: #12202e;
+  border: 1px solid #24455e; border-radius: 4px; padding: 1px 6px; cursor: pointer; }
+.mteam:hover { background: #1a3448; }
+
+.pt-link { color: #8ec7ff; text-decoration: none; font-weight: 700; }
+.pt-link:hover { text-decoration: underline; }
+/* ランキングのピタリ＝金色で強調＋クリックで内訳 */
+.pit-cell { position: relative; display: inline-block; cursor: pointer; outline: none; }
+.pit-btn { background: var(--gold); color: #131007; font-weight: 900; font-family: var(--num);
+  font-size: 15px; border-radius: 6px; padding: 3px 11px; display: inline-block; }
+.pit-cell:hover .pit-btn, .pit-cell:focus .pit-btn, .pit-cell.open .pit-btn { filter: brightness(1.12); }
+.pit-zero { color: var(--muted); font-family: var(--num); }
+/* ホバー／タップで浮かぶ吹き出し（スクロール不要） */
+.pit-pop { position: absolute; right: 0; bottom: calc(100% + 8px); z-index: 30;
+  min-width: 190px; max-width: 260px; text-align: left; padding: 10px 12px;
+  background: #1a1710; border: 1px solid var(--gold); border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.6); display: none; }
+.pit-pop::after { content: ""; position: absolute; top: 100%; right: 16px;
+  border: 7px solid transparent; border-top-color: var(--gold); }
+.pit-cell:hover .pit-pop, .pit-cell:focus .pit-pop, .pit-cell.open .pit-pop { display: block; }
+.pit-pop .pit-head { display: block; font-weight: 900; color: var(--gold); font-size: 12px; margin-bottom: 5px; }
+.pit-pop .pit-row { display: block; font-size: 13px; color: var(--text); padding: 3px 0; border-top: 1px solid #2a2416; white-space: nowrap; }
+
+/* 国旗は名前の左に一回り大きく（カード右側に余白があるので詰まらない） */
+.mflag { margin-right: 5px; font-size: 17px; line-height: 1; vertical-align: -2px; }
+/* 試合の生写真ギャラリー */
+.gal-event { font-size: 12px; color: var(--gold); font-weight: 700; margin: 14px 0 6px; }
+.gal-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+.gal-item { flex: none; width: 150px; }
+.gal-item img { width: 150px; height: 100px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); }
+.gal-label { display: block; font-size: 10px; color: var(--muted); margin-top: 3px; text-align: center; }
+
+.photo-credit { font-size: 10px; color: var(--muted); text-align: right; padding: 3px 6px 0; }
+
+/* Xシェアボタン（2026-08-31） */
+.x-share { background:#000; color:#fff; border:1px solid #3a3a44; border-radius:999px;
+  padding:9px 18px; font-size:13px; font-weight:700; cursor:pointer; display:inline-flex;
+  align-items:center; gap:7px; }
+.x-share:hover { background:#16161c; border-color:#55555f; }
+.x-share .x-logo { font-size:15px; font-weight:900; line-height:1; }
+/* スクショ用のURL表記。カード内に必ず出す */
+.share-url { font-family:Oswald,sans-serif; letter-spacing:.02em; color:#c9a84a; font-size:11px; font-weight:700; }
+
+/* ランキング：スクショで一望できる密度に（2026-08-31） */
+.rk-scope { font-size:12px; color:#9a9aa2; margin:-4px 0 10px; }
+.rk-scope .share-url { display:block; margin-top:3px; }
+.rk-share { margin:14px 0 10px; text-align:center; }
+.lb-table td, .lb-table th { padding-top:9px !important; padding-bottom:9px !important; }
+.lb-table .lb-name { font-size:15px !important; }
+.lb-table .lb-rate { font-size:22px !important; }
+@media (max-width:480px){
+  .lb-table td, .lb-table th { padding-top:7px !important; padding-bottom:7px !important; }
+  .lb-table .lb-name { font-size:14px !important; }
+}
+
+/* 入口の次大会（2026-11-11 作り直し）：公式のVSバナーで「何を予想するのか」を見せる。
+   Gaku「予想受付中って書いてあるけど、ファイトカードとかのビジュアルがないと意味がない」 */
+.tz-card { display:block; max-width:460px; margin:0 auto 26px; overflow:hidden; text-decoration:none; color:var(--text);
+  background:linear-gradient(180deg,#141419,#0b0b0e); border:1px solid #2a2a33; border-radius:14px;
+  box-shadow:0 10px 40px rgba(0,0,0,.5); }
+.tz-card:hover { border-color:#5a1a22; }
+.tz-card figure { margin:0; position:relative; background:#000; }
+.tz-card img { display:block; width:100%; aspect-ratio:16/9; object-fit:cover; }
+.tz-head { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; padding:12px 14px 10px; }
+.tz-ev { min-width:0; }
+.tz-ev-m { display:block; font:900 22px/1.15 var(--display); font-synthesis:none; letter-spacing:.02em; }
+.tz-ev small { display:block; margin-top:4px; font:700 12px/1.35 "Noto Sans JP",sans-serif; color:#c9c9d2; }
+.tz-head .edate { flex:none; }
+.tz-rest { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; padding:0 14px; }
+.tz-rest figure { border-radius:6px; overflow:hidden; }
+.tz-foot { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; padding:11px 14px;
+  border-top:1px solid #23232b; font:700 13px/1.3 "Noto Sans JP",sans-serif; }
+.tz-foot span, .tz-foot em { white-space:nowrap; }
+.tz-foot b { font-weight:900; color:#fff; }
+.tz-foot em { margin-left:8px; font-style:normal; font-weight:900; color:var(--red-hot); }
+.tz-foot i { flex:none; font-style:normal; font-weight:900; color:#fff; }
+
+/* ALL PICKS を折りたたみに（2026-08-31）：スマホで横スクロールの表が最初に来るのを防ぐ */
+.mx-details { margin:14px 0 18px; border:1px solid #3a3320; border-radius:10px; background:#101014; }
+.mx-summary { cursor:pointer; padding:15px 16px; font-weight:900; font-size:15px; color:#0d0d0f;
+  list-style:none; display:flex; align-items:center; gap:10px;
+  background:linear-gradient(90deg,#c9a84a,#e0c877); border-radius:8px; }
+.mx-summary:hover { filter:brightness(1.06); }
+.mx-summary::-webkit-details-marker { display:none; }
+.mx-summary::before { content:"▶"; font-size:11px; color:#0d0d0f; transition:transform .15s; }
+.mx-details[open] .mx-summary::before { transform:rotate(90deg); }
+.mx-count { margin-left:auto; font-size:12px; color:#3a2f10; font-weight:900; }
+.mx-details #matrix-section { padding:0 8px 10px; }
+
+/* 美食会のメンバーの札（美食会のLINEのリンクで開いたブラウザにだけ出る・2026-11-11） */
+.back-box { max-width:460px; margin:16px auto 20px; padding:14px 16px 12px;
+  background:#12121a; border:1px solid #2f2f3a; border-left:4px solid #c9a84a; border-radius:12px; }
+.back-ttl { font-weight:900; font-size:14px; color:#c9a84a; margin-bottom:10px; }
+/* 「前に参加した人はこちら」は登録欄の下に小さく（Gaku 11/11「主従が逆じゃない？」）。押すと理由が開く */
+.back-more { max-width:460px; margin:22px auto 0; text-align:center; }
+.back-more summary { display:inline-block; cursor:pointer; list-style:none; padding:9px 18px; border:1px solid #3a3a44; border-radius:999px;
+  font:900 13px/1.3 "Noto Sans JP",sans-serif; color:#e8e8ee; }
+.back-more summary::-webkit-details-marker { display:none; }
+.back-more summary::after { content:" ›"; color:var(--red-hot); }
+.back-more[open] summary::after { content:" ×"; }
+.back-more p { margin:12px 4px 0; text-align:left; font-size:13px; line-height:1.7; color:#d4d4dc; }
+
+/* お詫びのお知らせ（2026-09-10） */
+#apology-modal { position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; padding:16px; box-sizing:border-box; }
+#apology-modal .ap-back { position:absolute; inset:0; background:rgba(0,0,0,.72); }
+#apology-modal .ap-box { position:relative; max-width:420px; width:100%; box-sizing:border-box; background:#14141a;
+  border:1px solid #3a3320; border-top:4px solid #c9a84a; border-radius:14px; padding:22px 18px 18px;
+  box-shadow:0 18px 50px rgba(0,0,0,.6); max-height:82vh; overflow-y:auto;
+  overflow-wrap:anywhere; }
+#apology-modal .ap-x { position:absolute; top:8px; right:10px; background:none; border:none;
+  color:#8a8a92; font-size:19px; cursor:pointer; line-height:1; padding:6px; }
+#apology-modal .ap-x:hover { color:#eee; }
+#apology-modal .ap-ttl { font-weight:900; font-size:16px; color:#c9a84a; line-height:1.45; margin:2px 30px 12px 0; }
+#apology-modal .ap-body { font-size:13.5px; line-height:1.85; color:#ddd; }
+#apology-modal .ap-body b { color:#fff; }
+#apology-modal .ap-never { display:flex; align-items:center; gap:9px; margin-top:18px;
+  font-size:12.5px; color:#9a9aa2; cursor:pointer; user-select:none; }
+#apology-modal .ap-never input { width:17px; height:17px; accent-color:#c9a84a; cursor:pointer; flex:none; }
+#apology-modal .ap-ok { width:100%; box-sizing:border-box; margin-top:12px; padding:12px; border:none; border-radius:8px;
+  background:#2a2a33; color:#eee; font-size:14px; font-weight:700; cursor:pointer; }
+#apology-modal .ap-ok:hover { background:#35353f; }
+
+/* ポイント制ランキング（2026-09-11） */
+.lb-pt { font-family:Oswald,sans-serif; font-size:26px; font-weight:700; color:#c9a84a; line-height:1; }
+.lb-table .lb-rate.thin { color:#6a6a72 !important; font-size:17px !important; }
+@media (max-width:480px){ .lb-pt { font-size:22px; } }
+
+/* ランク外（通算8試合未満） */
+.rk-unranked { margin:16px 0 4px; padding:12px 14px; background:#101014; border:1px solid #26262c; border-radius:10px; }
+.rk-un-ttl { font-size:12px; color:#8a8a92; font-weight:700; margin-bottom:8px; }
+.rk-un-row { display:flex; justify-content:space-between; gap:10px; padding:5px 0; font-size:13px; color:#b9b9c2; border-bottom:1px solid #1a1a20; }
+.rk-un-row:last-child { border-bottom:none; }
+.rk-un-n { color:#6a6a72; font-size:11.5px; white-space:nowrap; }
+.rk-un-n b { color:#c9a84a; font-weight:700; }
+.lb-of { font-family:var(--num); font-size:14px; color:var(--muted); margin-left:2px; }
+.lb-hit { font-family:var(--num); font-size:26px; font-weight:700; font-variant-numeric:tabular-nums; }
+/* 順位表は2列×5段の塊（Gaku 11/8・app.js rankGrid・ランキングと大会ページの「この大会の成績」で共用）。左＝1〜5位・右＝6〜10位／下の塊＝11〜20位。1マス＝順位・顔・名前の下に的中数と的中率 */
+.rk-grid { position:relative; padding:0 7px 2px; }
+.rk-blk { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(5, auto); grid-auto-flow:column; column-gap:6px; }
+.rk-blk + .rk-blk { margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,.10); }
+.rk-cell { display:grid; grid-template-columns:auto auto 1fr; align-items:center; gap:5px; min-width:0;
+  padding:7px 4px; border-bottom:1px solid rgba(255,255,255,.06); }
+.rk-cell.top { background:linear-gradient(90deg, rgba(212,175,55,.18), rgba(212,175,55,.03)); border-radius:8px; border-bottom-color:transparent; }
+.rk-grid .rk-cell .lb-rank { width:auto; min-width:17px; font-size:18px; text-align:center; }
+.rk-grid .rk-cell.top .lb-rank, .rk-grid .rk-cell.top .lb-hit { color:var(--gold-hot); }
+.rk-grid .rk-cell .lb-ava { width:24px; height:24px; }
+.rk-body { min-width:0; display:flex; flex-direction:column; gap:1px; }
+.rk-grid .rk-cell a.lb-name { display:block; font-size:12.5px; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; border-bottom:none; }
+.rk-nums { display:flex; align-items:baseline; justify-content:space-between; gap:4px; }
+.rk-grid .rk-cell .lb-hit { font-size:20px; line-height:1; }
+.rk-grid .rk-cell .lb-of { font-size:11px; }
+.rk-grid .rk-cell .lb-rate { font-size:12.5px; color:#c9c9d2; }
+.rk-grid .rk-cell .lb-rate.thin { color:var(--muted); }
+/* ランク外は2列に詰める（Gaku 11/8「縦に列とかにしよう。スペース無駄使いしてる」） */
+.rk-un-grid { display:grid; grid-template-columns:1fr 1fr; column-gap:14px; }
+.rk-un-cell { display:flex; justify-content:space-between; align-items:baseline; gap:6px; min-width:0; padding:4px 0;
+  border-bottom:1px solid #1a1a20; font-size:12px; color:#b9b9c2; }
+.rk-un-cell .nm { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rk-un-cell .rk-un-n { font-size:11px; }
+.rk-un-cell .rk-un-n b { margin-left:4px; }
+
+/* 2026-11-07 心理ハードルを下げる：予想カードごとに「勝敗だけでいい」を明記 */
+
+/* 予想者のアイコン：外部予想者はチャンネルロゴ、それ以外は頭文字の丸（app.js の avatarHTML） */
+.ava-img { object-fit: cover; background: #fff; padding: 0; }
+/* 動画で予想を公開している予想者（インフルエンサー）は、アイコンの外に赤い細い輪（Gaku 11/17「ランキングに並んでたら少し目立つようにアイコンに施す」）。
+   輪とアイコンの間は透かす（outline-offset）＝下の背景がそのまま見える。一般の人の名前・色・形の意味は変えない */
+.ava-pub { outline: 1.5px solid var(--red-hot); outline-offset: 1.5px; }
+/* 頭文字の丸は原色のベタ塗りをやめ、左上に光・縁に影の球（Gaku 11/7「丸アイコンの色もデザイン寄せて」）。
+   赤・青・金の系統は誰の丸かを見分ける目印なので残す */
+span.mav { background: radial-gradient(circle at 32% 26%, color-mix(in srgb, var(--c) 58%, #fff) 0%, var(--c) 46%, color-mix(in srgb, var(--c) 52%, #000) 100%);
+  color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .45); }
+span.mav.lt { color: #1a1408; text-shadow: 0 1px 0 rgba(255, 255, 255, .3); }
+span.mav.trim { box-shadow: inset 0 0 0 1.5px var(--t); }   /* 縁＝寮の差し色（金・銀・黒）。字は読めること優先で白／明るい塗りだけ黒（Gaku 11/7「色は背景、中の文字は視認性優先」） */
+span.mav.lt.trim { text-shadow: none; }
+span.mav.sq { border-radius: 12%; }   /* 抜き太郎だけ正方形（Gaku指定11/7） */
+/* ハメ太郎は三角形（Gaku 11/8）。尖りすぎない＝角を丸め、辺も少し膨らませた三角（Gaku「辺が少し膨らんでもいいから丸く」）。
+   形は 正三角形の各辺を半径2倍の弧にし、角を半径0.15で丸めたもの（48点の多角形で近似）。
+   三角に切ると縁の box-shadow も消えるので、縁（寮の金）と塗りを疑似要素の三角2枚で重ねる。
+   内側の三角は重心に向けて縮めて、辺での縁の太さを揃える（上 1.506b・左右 1.292b・下 1.078b） */
+span.mav.tri { position: relative; isolation: isolate; background: none; box-shadow: none; border-radius: 0;
+  --tri: polygon(37.3% 9.0%, 39.9% 6.5%, 43.0% 4.6%, 46.4% 3.4%, 50.0% 3.0%, 53.6% 3.4%, 57.0% 4.6%, 60.1% 6.5%, 62.7% 9.0%, 68.4% 16.2%, 73.7% 23.6%, 78.8% 31.2%, 83.5% 39.0%, 87.9% 47.0%, 91.9% 55.1%, 95.6% 63.5%, 99.0% 71.9%, 99.9% 75.4%, 100.0% 79.1%, 99.3% 82.6%, 97.9% 85.9%, 95.7% 88.8%, 93.0% 91.2%, 89.8% 92.9%, 86.3% 93.9%, 77.3% 95.3%, 68.2% 96.2%, 59.1% 96.8%, 50.0% 97.0%, 40.9% 96.8%, 31.8% 96.2%, 22.7% 95.3%, 13.7% 93.9%, 10.2% 92.9%, 7.0% 91.2%, 4.3% 88.8%, 2.1% 85.9%, 0.7% 82.6%, 0.0% 79.1%, 0.1% 75.4%, 1.0% 71.9%, 4.4% 63.5%, 8.1% 55.1%, 12.1% 47.0%, 16.5% 39.0%, 21.2% 31.2%, 26.3% 23.6%, 31.6% 16.2%); }
+span.mav.tri::before, span.mav.tri::after { content: ""; position: absolute; z-index: -1; clip-path: var(--tri); }
+span.mav.tri::before { inset: 0; background: var(--t, var(--c)); }
+span.mav.tri::after { inset: 2.26px 1.94px 1.62px;
+  background: radial-gradient(circle at 44% 62%, color-mix(in srgb, var(--c) 58%, #fff) 0%, var(--c) 46%, color-mix(in srgb, var(--c) 52%, #000) 100%); }
+/* 頭文字は枠の真ん中に、大きく（Gaku 11/8「位置は真ん中に。サイズは枠いっぱいに読みやすさ重視で」→「ギリギリは言い過ぎた」
+   →「やっぱ位置がズレてる。丸とか中心じゃない」「それぞれの文字で大きさが異なりすぎ」）。
+   字の箱ではなく字の実際の形で揃える：app.js の fitGlyph が1字ずつ測った --gs（1÷外形の長辺）と --gx/--gy（外形の中心のずれ）を使い、
+   外形の長辺が丸は枠の53%・正方形は56%・三角は50%になる大きさで、外形の中心を枠の中心に置く。大きさは枠の幅に比例（cqw）＝18pxでも50pxでも同じ比率。
+   三角は字を枠の中心から高さの7%下に置く。重心（15%下）では底辺に寄って「ハの位置が下すぎる」（Gaku 11/8）ので、4/7/10/15%を並べて見比べて決めた。
+   39%では「ハだけ小さい？」（Gaku 11/8）＝丸・四角と並べて同じ大きさに見える50%へ。ハは字の形自体が上すぼまりなので、狭い頭にかからない */
+span.mav { container-type: size; }
+span.mav > i { --k: 53cqw; font-style: normal; display: inline-block; line-height: 1; font-size: calc(var(--k) * var(--gs, 1.14));
+  transform: translate(calc(var(--gx, 0) * 1em), calc(var(--gy, 0) * 1em)); }
+span.mav.sq > i { --k: 56cqw; }
+span.mav.tri > i { --k: 50cqw; position: relative; top: 7cqh; }
+.lb-who { display: inline-flex; align-items: center; gap: 8px; }
+.lb-ava, .pava {
+  width: 22px; height: 22px; border-radius: 50%; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 900; color: #0a0a0d; vertical-align: middle;
+}
+.pava { width: 18px; height: 18px; font-size: 10px; margin-right: 6px; }
+.pred-row .pwho { display: inline-flex; align-items: center; }
+.pred-row .psup .mega { width: 12px; height: 12px; fill: currentColor; vertical-align: -2px; margin-right: 3px; }
+.pred-row .psup { font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45%; }
+.pred-row .psup.r { color: #ff5a67; } .pred-row .psup.b { color: #5aa0ff; }
+
+/* 予想カードのスタッツ（名前・戦績・勝ち方の割合・前戦／トグルで直近5試合・Gaku依頼2026-11-07）
+   STATS は項目名を真ん中に置いた向かい合わせの表（11/8）。色はコーナーの赤・青だけを「どっち側の人か」の印として刺す
+   （Gaku 11/8「赤青の色もそれぞれ刺していったらメリハリつくかも」）：異名の前の斜めの棒・勝ち数・フィニッシュ（KO・一本）のバー */
+/* 判断材料（異名〜直近5試合）は1枚の資料として囲み、カードの地より一段明るい面にする＝下の「どっちが勝つ？」（入れる所）とメリハリ
+   （Gaku 11/8「判断材料のスタッツから直近5試合までは、違う囲み方というか背景色少し変えたり、メリハリつけていいんじゃないかな」）。
+   上の縁だけ左＝赤・右＝青の細い線＝どっちの人の資料かが縁から分かる。中の線（--line）も面に合わせて一段明るく */
+.stats { --sheet: #1f2029; --line: #32333f; position: relative; margin: 8px 14px 2px; border: 1px solid var(--line); border-top: 0;
+  background: var(--sheet); container-type: inline-size; box-shadow: 0 8px 18px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .04); }
+.stats::before { content: ""; position: absolute; z-index: 2; left: -1px; right: -1px; top: -2px; height: 2px;
+  background: linear-gradient(90deg, var(--red-hot), rgba(255, 255, 255, .14) 30%, rgba(255, 255, 255, .14) 70%, var(--blue-hot)); }
+.st-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: repeat(var(--rows, 4), auto); }
+/* 左右で段の高さをそろえる（片側だけ異名が2行等でも下の段がずれない） */
+.st-side { padding: 10px 10px 10px; min-width: 0; display: grid; grid-row: span var(--rows, 4); grid-template-rows: subgrid; align-content: start; }
+.st-side.c2 { border-left: 1px solid var(--line); text-align: right; }
+/* 名前の段は異名だけ（選手名は写真と札にある・Gaku 11/8「名前は書かなくていいや」）。異名で改行しない（11/7）・切らない（「異名切れてる」11/7）：
+   年齢は STATS の表の段へ（「そこは異名だけ」）＝異名は列の幅を丸ごと使う。
+   入りきらない時は js/stats.js の fitNicks() が字を小さくして収める。左右とも列の中央（Gaku 11/8「異名は中央に」） */
+.st-head { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; margin-bottom: 8px; text-align: center; }
+/* 書体＝明朝の最も太い（Noto Serif JP Black・Gaku 11/8「B2かな？」）。下の数字の表（ゴシック）と役割を分けて、異名を二つ名らしく。
+   明朝の中でこれだけ palt（字詰め）が効く＝今までのゴシックと同じ大きさで1行に入る（Zen Old Mincho 等は間延びして10.5pxまで縮んだ）。
+   読み込みは event.html の Google Fonts（900だけ）。読み込み後に fitNicks が測り直す */
+.st-nick { display: block; flex: none; max-width: 100%; font-family: "Noto Serif JP", "Noto Sans JP", serif; font-size: 14px; font-weight: 900; color: var(--text); line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-feature-settings: "palt"; }   /* かな・括弧を詰める＝長い異名（足立区のバカストイックマン）も10pxで1行に入る（詰めないと1px足りず「…」で切れていた） */
+.st-nick.wrap { white-space: normal; overflow: visible; }   /* 10pxまで縮めても入らない長い異名だけ折り返す（白鵬女子高等学校…） */
+/* 異名の横のコーナー色の棒は外した（Gaku 11/8「異名の横のコーナー色はいらない」）＝左右は列の位置と上の縁の赤青で分かる */
+/* 名前の段（.st-names）と前戦（.st-main）は左右2列の格子。左右の仕切り線は同じ位置に引く＝間の STATS の真ん中の帯とつながって、上から下まで1本の背骨に見える */
+:is(.st-names, .st-main) > .st-side { grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; }
+:is(.st-names, .st-main) > .st-side.c2 { grid-template-columns: minmax(0, 1fr) auto; }
+:is(.st-names, .st-main) > .st-side > * { grid-column: 1 / -1; }
+:is(.st-names, .st-main) > .st-side { grid-row: 1 / -1; }   /* 見出しの帯が両列をまたぐので、左右の列は位置を明示する（自動配置だと帯を避けて下へずれる） */
+:is(.st-names, .st-main) > .st-side.c1 { grid-column: 1; }
+:is(.st-names, .st-main) > .st-side.c2 { grid-column: 2; }
+.st-names > .st-side { padding-top: 8px; padding-bottom: 0; }   /* 名前の段と表の間は仕切りの帯が持つ */
+.st-names > .st-side > .st-head { grid-row: 1; margin-bottom: 0; }
+.st-main > .st-side { padding-top: 0; padding-bottom: 8px; }
+.st-main > .st-side > .g2 { grid-row: 1; }
+.st-main > .st-side > .st-row { grid-row: 2; margin-top: 1px; }
+/* 意味のまとまりごとに、うっすらの横線の帯で仕切る：人（異名）／表／前戦（Gaku 11/7「横線うっすら引いてメリハリ」）。
+   帯の題（STATS・前戦）は外した（Gaku 11/8「STATS 前戦 の文字ももはやいらないかも」＝表と前戦は見れば分かる）。
+   帯は左右の列をまたいで1本（真ん中の縦線もそこで切る）。前戦は左右の列の同じ段（subgrid）に高さだけの空き（.st-gap）を置き、その上に帯を重ねる。
+   前戦の帯は「直近5試合」の札を載せるので高さを残し、表の上の帯は線だけなので細く（24→14：1画面に収める余白を足す） */
+.st-gap { height: 24px; }
+.st-tape > .st-sep { height: 9px; }
+.st-sep { grid-column: 1 / -1; position: relative; z-index: 1; display: flex; align-items: center; padding: 0 10px; background: var(--sheet); }
+.st-sep::before { content: ""; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .16) 25%, rgba(255, 255, 255, .16) 75%, transparent); }
+.st-sep.s2 { grid-row: 1; }
+/* 2人とも異名が無い試合は名前の段を出さない（空の帯にしない）。表の上の線もパネルの縁の真下に来るだけなので消して余白にする */
+.stats.nonick .st-names { display: none; }
+.stats.nonick .st-tape > .st-sep { height: 10px; }
+.stats.nonick .st-tape > .st-sep::before { display: none; }
+/* STATS＝向かい合わせの表（Gaku 11/8「配置とかレイアウトデザインに余地あり。もっといい形あるはず」）。
+   項目名は真ん中の帯に1回だけ、左右の数字は真ん中寄せで同じ段に向かい合う＝目を横に動かすだけで比べられる */
+.tp-rows { position: relative; }   /* 下の余白は前戦の帯（線は真ん中）が持つ */
+.tp-rows::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 48px; margin-left: -24px; background: rgba(255, 255, 255, .035); }
+.tp-row { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr); align-items: center; }
+/* まとまり（戦績／勝ち方の3段／年齢）の間だけ空ける。勝ち方の3段は詰めて1つの塊に見せる。
+   前の形（勝ち方を1本のバー＋凡例）より高くならないよう詰めてある（Gaku 11/8「さっきの方がコンパクトだったけどなあ」） */
+/* ★1画面の予算（390×664 で一番背の高いカード ≦552px）に効く値。触ったら超RIZIN.6 等の upcoming 大会で全カードを測る。
+   11/17 に身長とリーチを2段に分けた時、予算を測らずに出して最大560px（5試合が超過）＝ここを1pxずつ詰めて550pxへ戻した */
+.tp-row.rec { padding-bottom: 3px; }
+.tp-row.way { min-height: 15px; }
+.tp-row.way + .tp-row.way { margin-top: 1.5px; }
+.tp-row.fin { margin-bottom: 3px; }
+.tp-row.body { margin-top: 3px; }
+/* 身長とリーチの2段は行の高さ＝数字の高さに詰めて1つの塊に（11/17・段を分けても表の高さをほぼ変えない） */
+.tp-row.body + .tp-row.body { margin-top: 2px; }
+.tp-row.body .tp-k, .tp-row.body .tp-v { line-height: 1; }
+/* 項目名は「小さな灰色の文字」で済ませない（設計哲学の問い9）：太字の白で、真ん中の帯の上に置く */
+.tp-k { text-align: center; font: 900 11.5px/1 "Noto Sans JP", sans-serif; letter-spacing: .06em; color: #e4e4ea; }
+.tp-v { display: flex; align-items: center; gap: 6px; min-width: 0; padding: 0 10px; }
+.tp-v.c1 { flex-direction: row-reverse; }   /* 左は真ん中（右端）から外へ並べる＝左右が鏡になる */
+/* 戦績の段は上端そろえ。分・NC の2行目が片方だけにあっても、勝敗の数字と「戦績」は同じ高さに並ぶ
+   （前は段の真ん中そろえで、2行目の無い側が下がって左右の数字がずれた・Gaku 11/8「ノーコンテストとかが入ると崩れる」） */
+.tp-row.rec { align-items: start; }
+.tp-row.rec .tp-k { line-height: 32px; }   /* 32px＝勝敗の数字の高さ */
+.tp-row.rec .tp-v { flex-direction: column; align-items: flex-end; gap: 0; }
+.tp-row.rec .tp-v.c2 { align-items: flex-start; }
+.tp-wl { display: flex; gap: 6px; align-items: baseline; }
+.tp-wl .st-n { line-height: 1; }   /* 行の高さ＝数字の高さ（小さい「勝」の行送りで段が膨らまない） */
+.st-n { font-size: 12px; font-weight: 700; color: #b4b4be; white-space: nowrap; }
+.st-n b { font-family: var(--num); font-size: 32px; line-height: 1; margin-right: 2px; color: #fff; }
+.tp-v.c1 .st-n.w b { color: var(--red-hot); }   /* 勝ち数だけコーナー色＝負け数（白）と一目で分かれる */
+.tp-v.c2 .st-n.w b { color: var(--blue-hot); }
+/* 分・NC は脇役＝敗の横に小さく、下端を数字の下にそろえる。両方ある時は縦に2つ（横に並べると「1分1NC」と1語に詰まって見える） */
+.tp-dn { align-self: flex-end; display: flex; flex-direction: column; gap: 2px; font-size: 10.5px; line-height: 1; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.tp-dn b { font: 600 12px/1 var(--num); color: #c8c8d0; margin-right: 1px; }
+/* フィニッシュ率（Gaku 11/8「フィニッシュレートの方が大事」）＝勝ち方の3段の要約。KO の数（15px）より一回り大きく、白で立てる */
+.tp-row.fin .tp-k { font-size: 10.5px; letter-spacing: .03em; }
+.tp-fin { font-size: 12px; font-weight: 700; color: #b4b4be; white-space: nowrap; }
+.tp-fin b { font: 600 22px/1 var(--num); color: #fff; margin-right: 1px; }
+/* 年齢・身長・リーチ（11/8「優先度としては低いから表示も小さめでいいよ」）：表の一番下に、項目名も数字も小さく灰で */
+.tp-row.body .tp-v { gap: 8px; }
+/* 項目名（年齢・身長・リーチ）は、どっちの数字かを決める鍵なので灰に沈めない（11/17「リーチと身長がどっちかわからん」） */
+.tp-row.body .tp-k { font-size: 10px; letter-spacing: .02em; color: #c8c8d0; }
+.tp-age, .tp-hr { font-size: 10.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.tp-age b, .tp-hr b { font: 600 13px/1 var(--num); color: #c8c8d0; }
+.tp-age b { margin-right: 1px; }
+.tp-hr b.na { color: #55555f; }
+.tp-hr small { font-size: 10px; margin-left: 1px; }
+.tp-none { font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+/* 勝ち方：何勝かは真ん中寄り（幅をそろえてバーの根元を縦に揃える）。バーは真ん中から外へ伸び、割合はバーの先。
+   バーの長さは「残りの幅－割合の字の分」を100%とする＝100%でも割合の字がはみ出さず、左右・上下で長さが比べられる */
+.tp-c { flex: none; width: 20px; font: 600 15px/1 var(--num); color: #fff; }
+.tp-v.c1 > .tp-c { text-align: right; }
+.tp-c.zero { color: #4c4c56; }   /* 0勝はバーも割合も出さず、数だけ沈める */
+/* 11/17：バーは薄い溝（s）の中を伸び、割合は溝の外の決まった幅に置く＝3段の割合が縦に揃う。前は割合がバーの先に付き、段ごとに位置がばらばらで詰まって見えた */
+.tp-bar { flex: 1; min-width: 0; max-width: 230px; display: flex; align-items: center; gap: 5px; }
+.tp-v.c1 > .tp-bar { flex-direction: row-reverse; }
+.tp-bar s { flex: 1; min-width: 0; height: 7px; display: flex; background: rgba(255, 255, 255, .06); text-decoration: none; }
+.tp-v.c1 > .tp-bar s { justify-content: flex-end; }   /* 左は真ん中（右端）から外へ伸びる */
+.tp-bar i { flex: none; height: 100%; width: calc(var(--p) * 100%); min-width: 4px; }
+.tp-bar em { flex: none; width: 27px; font: 600 11.5px/1 var(--num); color: #c4c4ce; }
+.tp-v.c1 > .tp-bar em { text-align: left; }
+.tp-v.c2 > .tp-bar em { text-align: right; }
+/* KO と一本はフィニッシュ＝コーナー色（KO が明るく、一本は一段深い）、判定だけ灰＝色の付いた段がフィニッシュ（Gaku指示11/7・色は11/8）。
+   得票率のバーと同じく外側を暗く・真ん中を明るく、外の端は斜めに切る（ファイトカードの鋭角トーン） */
+.tp-v.c1 > .tp-bar i { clip-path: polygon(4px 0, 100% 0, 100% 100%, 0 100%); }
+.tp-v.c2 > .tp-bar i { clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 100%, 0 100%); }
+.tp-v.c1 > .tp-bar.k i { background: linear-gradient(90deg, #5c0a12, var(--red-hot)); }
+.tp-v.c1 > .tp-bar.s i { background: linear-gradient(90deg, #3a050a, #b3101d); }
+.tp-v.c2 > .tp-bar.k i { background: linear-gradient(270deg, #0c2a5e, var(--blue-hot)); }
+.tp-v.c2 > .tp-bar.s i { background: linear-gradient(270deg, #07193a, #1f5fbf); }
+.tp-v.c1 > .tp-bar.d i { background: linear-gradient(90deg, #2a2a32, #74747f); }
+.tp-v.c2 > .tp-bar.d i { background: linear-gradient(270deg, #2a2a32, #74747f); }
+@container (min-width: 640px) {   /* PC：真ん中の帯を広げて左右に余裕を持たせる */
+  .tp-rows::before { width: 64px; margin-left: -32px; }
+  .tp-row { grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr); }
+  .tp-v { padding: 0 16px; }
+}
+@media (max-width: 480px) {
+  .st-side { padding-left: 8px; padding-right: 8px; }
+  .tp-v { padding: 0 8px; }
+}
+/* 前戦の結果は語で WIN／LOSE（Gaku 11/8「まるばつじゃなくて」）。枠は付けない（11/7）。WIN は白・LOSE は灰＝明るさで勝ち負けが分かれる。
+   幅をそろえて相手の名前の頭を縦に揃える（左は左寄せ・右は右寄せ＝外側の端に付く） */
+.rm { flex: none; width: 34px; display: flex; flex-direction: column; gap: 3px; font: 700 13px/1 var(--num); letter-spacing: .04em; color: #fff; }
+.rm small { font: 500 10px/1 var(--num); letter-spacing: 0; color: var(--muted); white-space: nowrap; }   /* 前戦の日付（34px＝「2026.03」がちょうど入る幅） */
+.st-side.c2 .rm { text-align: right; align-items: flex-end; }
+.rm.l { color: #7c7c88; }
+.rm.d { color: var(--muted); }
+.st-row { display: flex; gap: 7px; align-items: center; margin-top: 3px; min-width: 0; }
+.st-side.c2 .st-row { flex-direction: row-reverse; }
+.st-row + .st-row { margin-top: 8px; }
+.st-body { min-width: 0; flex: 1; }
+.st-opp { display: block; font-size: 13px; font-weight: 700; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.st-how { display: block; font-size: 10.5px; color: var(--muted); line-height: 1.2; }
+/* 直近5試合の札は「前戦」の帯の右端（下に1段置くと1画面に収まらない・Gaku 11/8）。開くと前戦の下に残り4試合が続く */
+.st-tg { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); padding: 4px 7px 4px 8px; border: 1px solid #3e3f4c; border-radius: 3px;
+  background: var(--sheet); font: 900 10.5px/1 "Noto Sans JP", sans-serif; letter-spacing: .04em; color: #d4d4dc; cursor: pointer; }
+.st-tg::before { content: ""; position: absolute; inset: -9px -8px; }   /* 押せる範囲は見た目より広く */
+.st-tg::after { content: "▼"; margin-left: 4px; font-size: 8px; color: var(--muted); }
+.stats.open .st-tg::after { content: "▲"; }
+.st-list { display: none; }
+.stats.open .st-list { display: grid; }
+.st-list > .st-side { padding-top: 0; padding-bottom: 8px; }
+.st-list .st-row:first-child { margin-top: 0; }
+
+/* 勝敗予想の入力は判断材料（スタッツ・名鑑）の下にまとめて分ける（Gaku指示11/7「別物」） */
+.pick-zone { margin-top: 14px; border-top: 1px solid var(--line); background: rgba(255, 255, 255, .02); padding-bottom: 4px; }
+.pz-head { padding: 16px 14px 0; }
+/* カードの中の見出し（勝敗予想・みんなの予想）＝節の見出しの小さい版 */
+.pz-head, .ob-head { display: flex; align-items: center; gap: 8px; font: 900 17px/1.2 "Noto Sans JP", sans-serif; letter-spacing: .06em; color: var(--text); }
+.pz-head::before, .ob-head::before { content: ""; flex: none; width: 6px; height: 17px; background: var(--red); transform: skewX(-18deg); }
+.ob-n { margin-left: auto; font: 700 18px/1 var(--num); color: var(--text); letter-spacing: .02em; }
+.ob-n small { font: 700 11px/1 "Noto Sans JP", sans-serif; color: var(--muted); margin-left: 2px; }
+/* 応援：見出し文字（「応援」「📣」）を出さず、メガホンの形とコーナー色だけで伝える（Gaku 11/7「応援も無駄な文字」）。
+   赤は左から・青は右から伸びる斜めの札。押した側はコーナー色で塗る。数は Oswald */
+.support-row { display: flex; gap: 6px; margin: 12px 14px 4px; }
+.sup-btn { --sl: 10px; flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 5px 14px 5px 10px;
+  border: 0; cursor: pointer; color: #b9b9c6; font: 700 12.5px/1.2 "Noto Sans JP", sans-serif; text-align: left; }
+.sup-btn.c1 { background: linear-gradient(90deg, rgba(230, 0, 18, .22), rgba(230, 0, 18, .04) 75%);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--sl)) 100%, 0 100%); }
+.sup-btn.c2 { flex-direction: row-reverse; padding: 5px 10px 5px 14px; text-align: right;
+  background: linear-gradient(270deg, rgba(30, 111, 217, .24), rgba(30, 111, 217, .04) 75%);
+  clip-path: polygon(var(--sl) 0, 100% 0, 100% 100%, 0 100%); }
+.sup-btn.long { font-size: 11px; }
+.sup-btn .mega { flex: none; width: 16px; height: 16px; fill: currentColor; opacity: .75; }
+.sup-btn.c2 .mega { transform: scaleX(-1); }
+.sup-t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sup-t small { font: 700 9.5px/1.2 "Noto Sans JP", sans-serif; letter-spacing: .08em; margin-bottom: 2px; white-space: nowrap; }
+.sup-btn.c1 .sup-t small { color: #ff8a93; }
+.sup-btn.c2 .sup-t { align-items: flex-end; }
+.sup-btn.c2 .sup-t small { color: #8ab8ff; }
+.sup-nm { min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.sup-n { flex: none; font: 700 17px/1 var(--num); color: var(--text); }
+.sup-btn.sel { color: #fff; }
+.sup-btn.sel .mega { opacity: 1; }
+.sup-btn.c1.sel { background: linear-gradient(90deg, #e60012, #9c0010); }
+.sup-btn.c2.sel { background: linear-gradient(270deg, #3d8bff, #1e6fd9); }
+.sup-btn:active { transform: scale(.97); }
+/* 選んだ勝者の札の中に、決まり手の中身を小さく（一本・RNC・2R）。直すのは札を押して開く予想の画面で */
+.cb-note { display: block; margin-top: 4px; font: 700 11px/1.3 "Noto Sans JP", sans-serif; font-style: normal; color: var(--gold-hot); letter-spacing: .04em; }
+/* 予想の画面の1問目：保存済みの試合だけ「予想を取り消す」を静かに置く */
+.wiz-clear { align-self: center; margin-top: 10px; padding: 8px 14px; background: none; border: 0; color: var(--muted);
+  font: 700 12px/1 "Noto Sans JP", sans-serif; letter-spacing: .06em; cursor: pointer; }
+.wiz-clear:active { color: var(--text); }
+
+/* 美食会3人の予想まとめ（中身は Shadow DOM・幅に合わせて縮小。高さは JS が入れる） */
+.bsum { margin: 4px 0 18px; overflow: hidden; border: 1px solid var(--line); background: #0b0b0e; }
+/* 選手名（app.js の fnm）：仮名・漢字の途中では折らず「・」の後ろでだけ折る。1語が欄より長い時だけ anywhere が割る */
+.fnm { word-break: keep-all; overflow-wrap: anywhere; }
+
+/* 得票率のバー。色分けは「赤コーナーか青コーナーか」を伝えるため（Gaku 11/7「赤青がチープ。全体の空気に合わせて」）。
+   原色のベタ塗りをやめ、外側を暗く・ぶつかる中央を明るく。境目は斜めに切る（ファイトカードの鋭角トーン） */
+.vb { --cut: 7px; --gap: 3px; display: flex; height: 22px; }
+.vb > i { display: flex; align-items: center; min-width: 0; overflow: hidden; white-space: nowrap; font-style: normal;
+  font: 600 13px/1 var(--num); letter-spacing: .05em; color: rgba(255, 255, 255, .92); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1); }
+.vb > .r { background: linear-gradient(90deg, #2b0609, #7d0d16 55%, #c4111f); padding-left: 8px;
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--cut)) 100%, 0 100%); }
+.vb > .b { background: linear-gradient(270deg, #061328, #123a74 55%, #1f5fbf); padding-right: 8px; justify-content: flex-end;
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% 100%, 0 100%); }
+.vb > .r + .b { margin-left: calc(var(--gap) - var(--cut)); }
+/* 真ん中に薄く「ODDS」（Gaku 11/8「邪魔しないけど、見たら、あ、オッズかと分かる感じ」）。割合の数字は両端に寄るので真ん中は空いている */
+.vb { position: relative; }
+.vb:not(.mini)::after { content: "ODDS"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none;
+  font: 600 10px/1 var(--num); letter-spacing: .32em; margin-left: .16em; color: rgba(255, 255, 255, .3); }
+.vb.mini { --cut: 3px; --gap: 2px; height: 7px; margin-top: 4px; }
+.vb.mini > i { padding: 0; }
+
+/* ---------- 予想の画面（event.html の openWiz・Gaku 11/7「ボタンで押して階層を作る」「脳死で質問に答えれば」） ---------- */
+/* 上の大きな入口札（顔を透かした「予想を入れる / WHO WINS?」）は撤去（Gaku 11/8「これがそもそもいらない」）。入口は下の浮く札と各カードの札 */
+/* 浮いて追いかけてくる「予想を入れる ↓」（Gaku 11/8）。ロゴの斬り札と同じ斜めの札を真ん中で2枚に斬った形＝左半分が赤・右半分が青
+   （Gaku 11/8「赤青真ん中半分にしたい」。前は赤い札に字・右端の細い青い札に矢印）。字と矢印は2枚の上に1つにまとめて真ん中に置く
+   （1枚の赤い札＋左端の斬り跡3本も試したが「赤青の方が良かった」「左の三本線もキモい」で戻した）。
+   本来は「この下にある」の合図（「右の青いボタン押さないといけない感じじゃなくて」）。押されたら一番上の試合の選択ボタンへ飛ぶ
+   （Gaku 11/8「「予想を入れる」ボタン押したら一番上のカードの選択ボタンに飛ぶ」・動きは event.html の jumpToPick）。飛んで光になる間（.fly）は指を通す。
+   字は Noto Sans JP の900（--display の Anton は和字を持たず、細い既定の太さに落ちてチープだった＝「字がチープ」）。
+   影は札の形に沿わせる（drop-shadow）。トーストが出ている間はその上へ逃げる */
+.pick-guide { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 90; pointer-events: none;
+  display: flex; align-items: stretch; gap: 3px; width: 248px; height: 54px; color: #fff;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, .7)) drop-shadow(0 0 18px rgba(230, 0, 18, .28));
+  opacity: 0; transform: translate(-50%, 14px); transition: opacity .25s, transform .25s; }
+.pick-guide.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.show ~ .pick-guide.show { transform: translate(-50%, -54px); }
+.pick-guide.show:not(.fly) { pointer-events: auto; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.pick-guide.show:not(.fly):active { transform: translate(-50%, 2px) scale(.97); transition-duration: .08s; }
+.toast.show ~ .pick-guide.show:not(.fly):active { transform: translate(-50%, -52px) scale(.97); }
+body.wiz-open .pick-guide { display: none; }
+.pg-t, .pg-a { flex: 1; position: relative; overflow: hidden; clip-path: polygon(14px 0, 100% 0, calc(100% - 14px) 100%, 0 100%); }
+.pg-t { background: linear-gradient(180deg, #ff2a3c, #d4000f 52%, #9e000b); }
+.pg-a { background: linear-gradient(180deg, #4a93ff, #1e6fd9 52%, #10418d); }
+.pg-x { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 9px;
+  font: 900 20px/1 "Noto Sans JP", sans-serif; letter-spacing: .1em; white-space: nowrap; text-shadow: 0 1px 3px rgba(0, 0, 0, .45); }
+/* 光の筋が赤い札から青い札へ横切る */
+.pg-t::after, .pg-a::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-top: 1px solid rgba(255, 255, 255, .35);
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, .28) 50%, transparent 60%) -100% 0 / 60% 100% no-repeat;
+  animation: wc-shine 3.2s ease-in-out infinite; }
+.pg-a::after { animation-delay: .35s; }
+@keyframes wc-shine { 0%, 55% { background-position: -100% 0; } 100% { background-position: 220% 0; } }
+/* 矢印は下向き＝「この下にある、スクロールして」（Gaku 11/8「下にスクロールしてを伝えたい」）。下へ小さく弾む */
+.pg-arw { flex: none; width: 12px; height: 12px; margin-top: -7px; border: solid #fff; border-width: 0 3.5px 3.5px 0;
+  transform: rotate(45deg); animation: pg-nudge 1.6s ease-in-out infinite; }
+@keyframes pg-nudge { 0%, 60%, 100% { transform: translateY(0) rotate(45deg); } 80% { transform: translateY(5px) rotate(45deg); } }
+/* メインイベントの「どっちが勝つ？」まで来たら、勝手に照らす（Gaku 11/8「上から順にスクロールしてメインイベント一番上の試合のボタンまで行ったら、
+   勝手に背景黒くしてハイライトする感じ。流れるように繋がってるの、しかも一度きりの出現」）。浮く札はその場で光になって消え、
+   照明の穴（.pg-spot）が浮く札の位置・大きさから、周りを暗くしながら「どっちが勝つ？」と2人の札を囲む大きさまで飛ぶ（動きは event.html の arriveGuide）。
+   飛ぶ間は札と同じ赤い光の縁、着いたら白い輪が外へ広がり、2人の札が交互に光る。3.4秒か画面に触れたら明かりが戻り、そのページではもう出ない。
+   照明は指を通す＝暗い所も札もそのまま触れる */
+.pick-guide.fly { opacity: 0; transform: translate(-50%, -18px) scale(.94); transition: opacity .2s, transform .3s; }
+.pg-spot { position: fixed; z-index: 89; pointer-events: none; border-radius: 12px; box-shadow: 0 0 0 200vmax rgba(4, 4, 8, .78);
+  opacity: 0; transition: opacity .3s; }
+.pg-spot.on { opacity: 1; }
+.pg-spot.on.off { opacity: 0; transition: opacity .6s; }
+.pg-spot::before { content: ""; position: absolute; inset: 0; border-radius: inherit; border: 2px solid #ff2a3c;
+  box-shadow: 0 0 22px 4px rgba(230, 0, 18, .55); transition: opacity .45s; }
+.pg-spot.lit::before { opacity: 0; }
+.pg-spot::after { content: ""; position: absolute; inset: 0; border-radius: inherit; border: 2px solid rgba(255, 255, 255, .9); opacity: 0; }
+.pg-spot.lit::after { animation: spot-ping 1.4s ease-out infinite; }
+@keyframes spot-ping { 0% { inset: 0; opacity: .9; } 100% { inset: -14px; opacity: 0; border-radius: 22px; } }
+body.wiz-open .pg-spot { display: none; }
+/* 照らされた2人の札は赤・青の順に交互に光る＝ここを押す */
+.vs-row.beckon .corner-btn { animation: pz-beckon .7s ease-in-out 2; }   /* 照らす時間を半分にした（11/8）のに合わせて2回ずつ */
+.vs-row.beckon .corner-btn.c2 { animation-delay: .35s; }
+@keyframes pz-beckon { 0%, 100% { filter: none; transform: none; } 40% { filter: brightness(1.7); transform: scale(1.035); } }
+@media (prefers-reduced-motion: reduce) { .pg-spot.lit::after, .vs-row.beckon .corner-btn, .pg-arw, .pg-t::after, .pg-a::after { animation: none; } }
+
+/* 画面いっぱいの1試合 */
+body.wiz-open { overflow: hidden; }
+.wiz { position: fixed; inset: 0; z-index: 95; display: flex; flex-direction: column; height: 100dvh;
+  background: radial-gradient(120% 60% at 50% 0%, rgba(230, 0, 18, .12), transparent 60%), var(--bg); }
+.wiz[hidden] { display: none; }
+.wiz-top { flex: none; display: flex; align-items: center; gap: 12px; padding: 12px 14px 6px; max-width: 720px; width: 100%; margin: 0 auto; }
+.wiz-x { flex: none; width: 36px; height: 36px; border: 1px solid var(--line); background: var(--panel); color: var(--text); font-size: 20px; line-height: 1; cursor: pointer; }
+.wiz-bar { flex: 1; height: 10px; cursor: pointer; }
+.wiz-bar i.cur { outline: 2px solid var(--gold-hot); outline-offset: 1px; }
+.wiz-q { flex: none; max-width: 720px; width: 100%; margin: 0 auto; }
+.wiz-q .fight-label { padding-top: 6px; }
+.wiz-h { margin: 6px 14px 0; font-family: var(--display); font-size: 30px; font-weight: 400; letter-spacing: .04em; }
+.wiz-stage { --grow: 1; flex: 1; min-height: 0; max-width: 720px; width: 100%; margin: 0 auto; padding: 12px 12px 8px; }
+.wiz-stage .corner-btn { --sl: 34px; height: 100%; font-size: 22px; padding-bottom: 22px; }
+.wiz-stage .corner-btn small { font-size: 11.5px; }
+/* 説明は最後に1行（どう勝つ？の画面だけ：順位は勝敗だけ＝ここからは任意） */
+.wiz-foot { flex: none; max-width: 720px; width: 100%; margin: 12px auto 0; text-align: center; font: 700 11.5px/1.5 "Noto Sans JP", sans-serif; color: var(--muted); letter-spacing: .04em; }
+.wiz-nav { flex: none; display: flex; justify-content: space-between; gap: 10px; max-width: 720px; width: 100%; margin: 0 auto;
+  padding: 6px 14px calc(14px + env(safe-area-inset-bottom)); }
+.wiz-nav button { flex: 1; height: 46px; border: 1px solid var(--line); background: var(--panel); color: var(--text);
+  font: 700 14px/1 inherit; letter-spacing: .08em; cursor: pointer; }
+.wiz-nav button:disabled { opacity: .3; }
+
+/* 押したら「これでいい？」：真ん中に大きい「決定」、両脇は前後の試合へ（Gaku 11/7「これでいい？は各試合の予想登録の話」） */
+/* 2問目から：選んだ勝者を小さく（顔＋名前・金の縁） */
+.wiz-who { display: flex; align-items: center; gap: 10px; margin: 10px 14px 0; }
+.wiz-who i { flex: none; width: 46px; height: 46px; background: #30303b center 12% / cover no-repeat; outline: 2px solid var(--gold-hot); outline-offset: -2px; }
+.wiz-who.c1 i { background-color: #4a1219; }
+.wiz-who.c2 i { background-color: #12234a; }
+.wiz-who b { font-size: 19px; font-weight: 900; color: #f4f1ea; }
+/* 答えの選択肢：大きい札を縦に並べて画面を使い切る。決まり手は2列 */
+.wiz-opts { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; max-width: 720px; width: 100%; margin: 0 auto;
+  padding: 14px 14px 8px; overflow-y: auto; }
+.wiz-opt { flex: 1 1 0; min-height: 58px; max-height: 132px; border: 0; color: #f4f1ea; background: #22222b;
+  font: 900 26px/1 "Noto Sans JP", sans-serif; letter-spacing: .06em; cursor: pointer;
+  clip-path: polygon(14px 0, 100% 0, calc(100% - 14px) 100%, 0 100%); transition: transform .08s; }
+.wiz-opt small { font-size: .6em; margin-left: 2px; }
+.wiz-opt:active { transform: scale(.98); }
+.wiz-opt.sel { color: #1a1405; background: linear-gradient(135deg, var(--gold-hot), #b8902a); }
+.wiz-opts.grid { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 56px; align-content: start; gap: 8px; }
+.wiz-opts.grid .wiz-opt { min-height: 0; max-height: none; font-size: 14px; letter-spacing: 0; padding: 0 8px; line-height: 1.25;
+  clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+/* これでいい？：勝者の札1枚＋答えた分だけ */
+.wiz-one .corner-btn { flex: 1; }
+/* 相手は勝者の札の外に、独立した小さい札（Gaku 11/7「枠の中に入れないで、あくまで独立。隙間入れていいから斜めに」）。
+   勝者の斜めの辺に沿って平行に隙間を空けて置く：赤の勝ち→青は右下、青の勝ち→赤は左上。
+   勝者の辺の傾き＝--sl(34px)÷札の高さ。小さい札は高さ46%なので、同じ傾きの斜め＝34×0.46≒16px */
+.wiz-one { gap: 0; }
+.wiz-alt { position: relative; flex: none; width: 31%; max-width: 128px; height: 46%; padding: 0; border: 0; cursor: pointer;
+  display: flex; flex-direction: column; background: #22222b; margin-left: -24px;
+  clip-path: polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%); transition: transform .1s; }
+.wiz-alt.c2 { align-self: flex-end; }
+.wiz-alt.c1 { align-self: flex-start; order: -1; margin: 0 -24px 0 0; }
+.wiz-alt i { flex: 1; min-height: 0; background: #22222b center 10% / cover no-repeat; filter: grayscale(.7) brightness(.72); transition: filter .15s; }
+.wiz-alt b { flex: none; padding: 6px 18px 7px; font-size: 11px; line-height: 1.25; font-weight: 700; color: #e2e2ea; text-align: center; }
+.wiz-alt.c1 b { background: rgba(230, 0, 18, .55); }
+.wiz-alt.c2 b { background: rgba(30, 111, 217, .55); }
+.wiz-alt:active { transform: scale(.96); }
+.wiz-alt:active i { filter: none; }
+.ws-spec { flex: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 720px; width: 100%; margin: 0 auto; padding: 4px 14px 6px; }
+.ws-spec b { padding: 9px 14px; font-size: 18px; font-weight: 900; color: var(--gold-hot); background: rgba(212, 175, 55, .1);
+  border: 1px solid rgba(212, 175, 55, .55); clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%); }
+.wiz-nav.ask button.wiz-arw { flex: none; width: 54px; font-size: 22px; }
+.wiz-nav button.wiz-ok { flex: 1; height: 54px; border: 0; color: #fff; font-size: 19px; letter-spacing: .3em; text-indent: .3em;
+  background: linear-gradient(180deg, var(--red-hot), var(--red)); clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  animation: wiz-ok-in .22s ease-out; }
+.wiz-nav button.wiz-ok:disabled { opacity: .7; }
+.wiz-nav.ask { align-items: center; }
+@keyframes wiz-ok-in { from { transform: translateY(8px); opacity: 0; } }
+body.wiz-open .toast { bottom: 84px; }   /* 予想の画面では「戻る/次へ」に重ねない */
+
+/* ===== 選手名鑑（11/8 作り直し）＝一覧はキャラ選び・詳細は上がウェット（人）／下がドライ（数字） =====
+   体験の手本は格闘ゲームのキャラ選びの「気持ち」（Gaku 11/8「ワクワクする感じ」）。見た目はこのサイトの意匠（黒・赤い斜めの印・極太の字）で作る */
+/* 上に残る大きな枠＝選んだ選手。格子をスクロールしても残す（キャラ選びの芯）。高さは格子の見える範囲を残すように抑える */
+.cs-stage { position: sticky; top: var(--hdr-h, 57px); z-index: 40; height: 236px; margin: 0 -14px; overflow: hidden;
+  background: linear-gradient(180deg, #131318, #0b0b0f); border-bottom: 1px solid var(--line); box-shadow: 0 10px 22px rgba(0, 0, 0, .5); }
+.cs-stage::before { content: ""; position: absolute; top: -20%; right: 6%; width: 46%; height: 140%; transform: skewX(-14deg);
+  background: linear-gradient(180deg, rgba(230, 0, 18, .2), rgba(230, 0, 18, .03)); }
+.cs-pic { position: absolute; top: 0; right: 0; bottom: 0; width: 56%; background: center 12% / cover no-repeat;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 34%); mask-image: linear-gradient(90deg, transparent 0, #000 34%); }
+.cs-pic.act { width: 66%; background-position: center 30%; opacity: .8; }   /* 公式ポートレートの無い人は試合写真を薄く */
+.cs-pic.none { display: none; }
+.cs-txt { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: flex-end; width: 64%; height: 100%; padding: 12px 0 14px 14px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, .8); }
+.cs-nick { font: 900 15px/1.3 "Noto Serif JP", "Noto Sans JP", serif; font-feature-settings: "palt"; color: #e8e8ee; white-space: nowrap; overflow: hidden; }
+.cs-name { margin-top: 2px; font: 900 26px/1.12 "Noto Sans JP", sans-serif; letter-spacing: .01em; color: #fff; }
+.cs-name .fnm, .fd-name .fnm, .cs-nm .fnm { overflow-wrap: normal; }   /* 語の途中で割らずに字を小さくする（fitText） */
+.cs-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-top: 7px; font-size: 11.5px; font-weight: 700; color: #b9b9c4; }
+.cs-rec { color: #b9b9c4; }
+.cs-rec b { font: 600 16px/1 var(--num); color: #fff; margin: 0 1px 0 0; }
+.cs-rec b + b { margin-left: 4px; }
+/* 王座は金の線の札（面は塗らない＝「黄色やめよ」） */
+.cs-tag { padding: 2px 6px 1px; border: 1px solid var(--gold); font: 700 10px/1.3 var(--num); letter-spacing: .14em; color: var(--gold-hot); }
+.cs-roots { display: flex; flex-direction: column; gap: 1px; margin-top: 7px; font-size: 11px; line-height: 1.45; font-weight: 700; color: #d2d2da; }
+.cs-roots span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cs-word { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 8px;
+  font: 900 12.5px/1.5 "Noto Serif JP", "Noto Sans JP", serif; color: #fff; quotes: "「" "」"; }
+.cs-go { align-self: flex-start; display: inline-flex; align-items: center; margin-top: 10px; padding: 7px 14px 7px 10px; background: var(--red);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); font: 900 12px/1 "Noto Sans JP", sans-serif; letter-spacing: .04em; color: #fff; text-decoration: none; text-shadow: none; }
+.cs-go i { font-style: normal; margin-left: 6px; font-size: 14px; }
+/* 切り替わる瞬間：写真が横から入り、字が下から順に出る */
+.cs-stage.in .cs-pic { animation: cs-pic .42s cubic-bezier(.2, .8, .2, 1); }
+.cs-stage.in .cs-txt > * { animation: cs-up .34s cubic-bezier(.2, .8, .2, 1) both; }
+.cs-stage.in .cs-txt > :nth-child(2) { animation-delay: .03s; }
+.cs-stage.in .cs-txt > :nth-child(3) { animation-delay: .06s; }
+.cs-stage.in .cs-txt > :nth-child(n+4) { animation-delay: .09s; }
+@keyframes cs-pic { from { opacity: 0; transform: translateX(22px); } }
+@keyframes cs-up { from { opacity: 0; transform: translateY(8px); } }
+/* 束ね方の切替（階級｜バックボーン｜ジム｜出身） */
+.cs-lens { display: flex; margin: 14px 0 10px; border-bottom: 1px solid var(--line); }
+.cs-lens button { position: relative; flex: 1; min-width: 0; padding: 11px 0 10px; border: 0; background: none; cursor: pointer;
+  font: 900 13px/1 "Noto Sans JP", sans-serif; letter-spacing: .04em; color: var(--muted); white-space: nowrap; }
+.cs-lens button[aria-selected="true"] { color: var(--text); }
+.cs-lens button[aria-selected="true"]::after { content: ""; position: absolute; left: 18%; right: 18%; bottom: -1px; height: 3px; background: var(--red); transform: skewX(-24deg); }
+/* 群の見出し＝節の見出しの小さい版＋人数 */
+.cs-gh { display: flex; align-items: center; gap: 8px; margin: 22px 0 9px; font: 900 15px/1.2 "Noto Sans JP", sans-serif; letter-spacing: .06em; color: var(--text); }
+.cs-gh::before { content: ""; flex: none; width: 5px; height: 15px; background: var(--red); transform: skewX(-18deg); }
+.cs-gh.champ::before { background: var(--gold); }
+.cs-gh.ex::before { background: #9aa0a6; }
+.cs-gh b { font: 500 14px/1 var(--num); color: var(--muted); letter-spacing: .04em; }
+.cs-gh::after { content: ""; flex: 1 1 16px; min-width: 16px; height: 1px; background: linear-gradient(90deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .03)); }
+/* 顔の格子。選んだ顔は金の線で囲み（大会ページの勝敗予想の札と同じ「選ぶ」の言葉）、他は少し沈む */
+.cs-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.cs-face { display: block; min-width: 0; padding: 2px; color: inherit; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+.cs-face.sel { background: linear-gradient(115deg, #9a7522 0%, #e9c552 18%, #fff2bf 26%, #e9c552 34%, #a8822a 56%, #d9b547 100%); }
+.cs-img { position: relative; display: block; aspect-ratio: 4 / 5; overflow: hidden; background: #16161c; }
+.cs-img img { width: 100%; height: 100%; object-fit: cover; object-position: center 10%; transition: filter .2s; }
+.cs-grid .cs-face:not(.sel) .cs-img img { filter: brightness(.7) saturate(.85); }
+@media (hover: hover) { .cs-grid .cs-face:hover .cs-img img { filter: none; } }
+/* 公式ポートレートの無い人＝サイトの意匠の札（写真のふりをした絵は作らない） */
+.cs-img.none { background: linear-gradient(160deg, #20202a, #111116); }
+.cs-img.none i { position: absolute; left: 50%; top: 50%; width: 9px; height: 34%; margin: -17% 0 0 -4px; background: var(--red); opacity: .5; transform: skewX(-18deg); }
+.cs-nm { display: block; padding: 4px 2px 5px; background: #121217; font: 700 10.5px/1.25 "Noto Sans JP", sans-serif; text-align: center; color: #c4c4ce; overflow: hidden; }
+.cs-face.sel .cs-nm { color: #fff; background: #1d1d25; }
+.cs-empty { padding: 34px 0; text-align: center; font-size: 13px; color: var(--muted); }
+.cs-empty a { color: var(--text); }
+@media (min-width: 600px) {
+  .cs-stage { height: 280px; }
+  .cs-txt { padding-left: 22px; }
+  .cs-name { font-size: 32px; }
+  .cs-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+}
+@media (prefers-reduced-motion: reduce) { .cs-stage.in .cs-pic, .cs-stage.in .cs-txt > * { animation: none; } }
+
+/* ----- 詳細：頭 ----- */
+.fd-hero { position: relative; height: min(112vw, 560px); margin: 0 -14px; overflow: hidden; background: linear-gradient(180deg, #131318, var(--bg)); }
+.fd-hero:has(.fd-pic.act) { height: min(72vw, 420px); }
+.fd-hero.nopic { height: auto; padding-top: 40px; }
+.fd-pic { position: absolute; inset: 0; background: center 12% / cover no-repeat; }
+.fd-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 0%, rgba(8, 8, 11, .82) 24%, transparent 58%); }
+.fd-id { position: absolute; z-index: 1; left: 14px; right: 14px; bottom: 14px; text-shadow: 0 1px 10px rgba(0, 0, 0, .85); }
+.fd-hero.nopic .fd-id { position: relative; inset: auto; padding: 0 14px 6px; }
+.fd-nick { font: 900 18px/1.3 "Noto Serif JP", "Noto Sans JP", serif; font-feature-settings: "palt"; color: #ececf2; white-space: nowrap; overflow: hidden; }
+.fd-name { margin: 3px 0 0; font: 900 36px/1.1 "Noto Sans JP", sans-serif; letter-spacing: .01em; color: #fff; }
+.fd-wc { margin-top: 8px; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #b9b9c4; }
+.fd-credit { margin-top: 4px; text-align: right; font-size: 10px; color: var(--muted); }
+/* 王座＝金の線の印だけ（面を塗らない）。元王座は銀 */
+.fd-belts { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+.fd-belt { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; line-height: 1.4; color: #ece6cf; }
+.fd-belt::before { content: ""; flex: none; width: 4px; height: 14px; background: var(--gold); transform: skewX(-18deg); }
+.fd-belt.ex { color: #b9b9c4; }
+.fd-belt.ex::before { background: #9aa0a6; }
+/* 戦う理由＝本人の言葉（原文のまま・出典付き） */
+.fd-word { position: relative; margin: 0; padding: 20px 18px 14px 24px; background: var(--panel); border: 1px solid var(--line); }
+.fd-word::before { content: "“"; position: absolute; left: 8px; top: -6px; font: 400 64px/1 var(--display); color: var(--red); opacity: .55; }
+.fd-word p { margin: 0; font: 900 17px/1.7 "Noto Serif JP", "Noto Sans JP", serif; color: #fff; }
+.fd-word cite { display: block; margin-top: 10px; text-align: right; font-size: 11px; font-style: normal; color: var(--muted); }
+.fd-word cite a { color: inherit; }
+/* どんな人：どこから来たか（押すと一覧がその束ね方で開く） */
+.fd-roots { border-top: 1px solid var(--line); }
+.fd-root { display: grid; grid-template-columns: 92px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 12px 2px; border-bottom: 1px solid var(--line);
+  color: var(--text); text-decoration: none; }
+.fd-rk { font-size: 11.5px; font-weight: 700; color: var(--muted); }
+.fd-rv { font-size: 14px; font-weight: 700; line-height: 1.45; }
+.fd-root i { font-style: normal; font-size: 18px; color: var(--muted); }
+.fd-tx { margin-top: 18px; }
+.fd-tk { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; font: 900 12.5px/1.2 "Noto Sans JP", sans-serif; letter-spacing: .08em; color: #d0d0d8; }
+.fd-tk::before { content: ""; flex: none; width: 4px; height: 12px; background: var(--red); transform: skewX(-18deg); }
+.fd-tx p { margin: 0; font-size: 14px; line-height: 1.8; color: #d9d9e0; }
+.fd-hl { overflow: hidden; background: var(--panel); border: 1px solid var(--line); }
+.fd-hl-pic { height: 200px; background: center 30% / cover no-repeat; }
+.fd-hl p { margin: 0; padding: 12px 14px 14px; font-size: 13.5px; line-height: 1.75; color: #d9d9e0; }
+/* つながり＝同じジム・同じバックボーンの顔が横一列（押すとその人） */
+.fd-lh { display: flex; align-items: baseline; gap: 8px; margin: 18px 0 8px; }
+.fd-lk { flex: none; font-size: 11px; font-weight: 700; color: var(--muted); }
+.fd-lv { min-width: 0; font-size: 14px; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fd-lh b { margin-left: auto; font: 500 13px/1 var(--num); color: var(--muted); }
+.fd-faces { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.fd-faces::-webkit-scrollbar { display: none; }
+.cs-face.mini { flex: none; width: 70px; padding: 0; }
+.cs-face.mini .cs-nm { font-size: 9.5px; }
+/* ----- 詳細：ドライ（数字）。ウェットとの間は大きく空ける ----- */
+.fd-dry { margin-top: 56px; }
+/* STATS＝大会ページの表の片側。項目名は左の帯、数字とバーは右へ伸びる。色は白と灰（赤青はコーナーの意味なので使わない） */
+.st-solo { --sheet: #1f2029; --line: #32333f; position: relative; padding: 12px 0; background: var(--sheet); border: 1px solid var(--line); border-top: 0;
+  container-type: inline-size; box-shadow: 0 8px 18px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .04); }
+.st-solo::before { content: ""; position: absolute; left: -1px; right: -1px; top: -2px; height: 2px; background: linear-gradient(90deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, .1)); }
+.st-solo .tp-rows::before { left: 0; width: 64px; margin-left: 0; }
+.st-solo .tp-row { grid-template-columns: 64px minmax(0, 1fr); }
+.st-solo .tp-row.way { min-height: 20px; }
+.st-solo .tp-row.way + .tp-row.way { margin-top: 4px; }
+.st-solo .tp-row.fin { margin: 4px 0 8px; }
+.st-solo .tp-row.body { margin-top: 8px; }
+.st-solo .tp-row.body + .tp-row.body { margin-top: 4px; }
+.tp-v.solo { flex-direction: row; padding: 0 14px; }
+.tp-row.rec .tp-v.solo { align-items: flex-start; }
+.tp-v.solo .st-n.w b { color: #fff; }
+.tp-v.solo .st-n.l b { color: #9a9aa6; }
+.tp-v.solo > .tp-bar { max-width: none; }
+.tp-v.solo > .tp-bar em { text-align: right; }
+.tp-v.solo > .tp-bar i { clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 100%, 0 100%); }
+.tp-v.solo > .tp-bar.k i { background: linear-gradient(90deg, #3a3a44, #fff); }
+.tp-v.solo > .tp-bar.s i { background: linear-gradient(90deg, #2c2c35, #c8c8d0); }
+.tp-v.solo > .tp-bar.d i { background: linear-gradient(90deg, #2a2a32, #74747f); }
+.tp-born { font: 500 11px/1 var(--num); color: var(--muted); letter-spacing: .02em; }
+/* NEXT FIGHT＝大会ページと同じ向かい合わせ（ここだけコーナーがあるので赤青を使う） */
+.nf { margin-bottom: 16px; padding-bottom: 14px; background: var(--panel); border: 1px solid var(--line); }
+.nf-ev { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 11px 12px; color: var(--text); text-decoration: none; }
+.nf-en { min-width: 0; font: 900 15px/1.3 "Noto Sans JP", sans-serif; word-break: keep-all; overflow-wrap: anywhere; }   /* 大会名は空白の所でだけ折る（「下｜剋上祭り」と割れた） */
+.nf-d { flex: none; font: 600 12px/1 var(--num); color: var(--muted); }
+.nf-banner { display: block; width: 100%; }
+.nf-names { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; padding: 12px 12px 2px;
+  font: 900 15px/1.3 "Noto Sans JP", sans-serif; }
+.nf-names .c1 { color: var(--red-hot); }
+.nf-names .c2 { color: var(--blue-hot); text-align: right; }
+.nf-names b { font: 400 14px/1 var(--display); color: var(--muted); letter-spacing: .06em; }
+.nf .stats { margin: 10px 12px 0; }
+.nf-memo { margin: 12px 12px 0; font-size: 12.5px; line-height: 1.75; color: #c8c8d0; }
+.nf-go { display: flex; align-items: center; justify-content: center; margin: 14px 12px 0; padding: 12px; background: var(--red);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%); font: 900 14px/1 "Noto Sans JP", sans-serif; letter-spacing: .06em; color: #fff; text-decoration: none; }
+.nf-go i { font-style: normal; margin-left: 8px; font-size: 16px; }
+/* FIGHT RECORD・予想番付での記録＝大会ページの前戦と同じ WIN／LOSE の行。相手が名鑑にいれば押せる */
+.fd-record, .fd-site { border-top: 1px solid var(--line); }
+:is(.fd-record, .fd-site) .st-row { margin: 0; padding: 11px 2px; border-bottom: 1px solid var(--line); }
+:is(.fd-record, .fd-site) .rm { width: 42px; }
+.st-opp.lk { color: var(--text); text-decoration: none; }
+.st-opp.lk i { font-style: normal; margin-left: 5px; color: var(--muted); }
+.st-ev { display: flex; gap: 8px; margin-top: 3px; font-size: 10.5px; color: var(--muted); text-decoration: none; white-space: nowrap; }
+.st-ev span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }   /* 大会名が長ければ名前だけ詰める（日付は切らない） */
+.st-ev span:last-child { flex: none; font-family: var(--num); }
+.fd-sup { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; min-width: 58px; }
+.fd-sup small { font-size: 9.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.fd-sup b { font: 600 20px/1 var(--num); color: #fff; }
+.fd-sup b i { font-style: normal; font-size: 12px; margin-left: 1px; }
+.fd-note { margin: 8px 0 0; font-size: 10px; color: var(--muted); }
+.fd-foot { display: flex; flex-direction: column; gap: 10px; margin: 44px 0 34px; }
+.fd-foot a { display: block; padding: 13px 14px; border: 1px solid var(--line); text-align: center; font-size: 13px; font-weight: 700; color: #d0d0d8; text-decoration: none; }
+@media (min-width: 600px) {
+  .fd-name { font-size: 46px; }
+  .fd-nick { font-size: 21px; }
+}
+
+/* ===== 運用哲学への入口（TOPの最後・Gaku 11/9） ===== */
+.ph-link { display:flex; flex-direction:column; gap:6px; margin:56px 0 8px; padding:18px 16px; border-left:4px solid var(--red);
+  background:linear-gradient(90deg, rgba(230,0,18,.10), transparent 70%); }
+.ph-link b { font:900 20px/1.2 var(--display); font-synthesis:none; letter-spacing:.02em; color:var(--text); }
+.ph-link span { font-size:13px; font-weight:700; color:#b9b9c4; }
+.ph-link.small { display:block; margin:-6px auto 16px; padding:0; border:0; background:none; text-align:center;
+  font-size:12px; font-weight:700; color:#9d9daa; text-decoration:underline; text-underline-offset:3px; }
+
+/* 画面下に一言だけ出す（リンクをコピーした等・app.js flashMsg・2026-11-09） */
+.flash-msg { position:fixed; left:50%; bottom:calc(22px + env(safe-area-inset-bottom)); z-index:10002; width:max-content; max-width:calc(100vw - 32px); box-sizing:border-box; text-align:center;
+  padding:10px 16px; border-radius:999px; background:#1d1d24; border:1px solid #3a3a44; color:#f4f4f6; font:700 13px/1.4 "Noto Sans JP", sans-serif;
+  box-shadow:0 8px 30px rgba(0,0,0,.6); opacity:0; pointer-events:none; transform:translate(-50%, 10px); transition:opacity .2s, transform .2s; }
+.flash-msg.on { opacity:1; transform:translate(-50%, 0); }
+
+/* ゲスト登録：名前のかぶり・使えない名前のお知らせ（11/10）。空の時は高さを取らない */
+.gname-msg { margin:0; font-size:13px; font-weight:900; line-height:1.5; color:#ff6b6b; }
+.gname-msg.on { margin-top:8px; }
+
+/* TOPの「無料。広告なし。賭けなし。」（11/10 Gaku「これださい」で丸札3つから作り直し）。宣言は白の太字、句点だけ赤。理由への入口は下に小さく */
+.free-decl { margin:4px auto 18px; text-align:center; }
+.free-decl .fd-words { font:900 19px/1.2 "Noto Sans JP", sans-serif; letter-spacing:.06em; color:var(--text); }
+.free-decl .fd-words i { font-style:normal; color:var(--red-hot); margin-right:.15em; }
+.free-decl .fd-words i:last-child { margin-right:0; }
+
+/* スクショ用の誘い（Gaku 11/10「ランキングの内容スクショにランキングに参加しよう！みたいなキャッチ画像あっていい」）。
+   表の下・ロゴの上に赤い帯を1本。スクショが回った先で「自分も載れる」と分かるように。右端は斜めに切る（サイトの斜めの意匠） */
+.rk-cta { position:relative; display:flex; align-items:center; justify-content:space-between; gap:10px; margin:4px 0 0;
+  padding:11px 22px 11px 16px; background:linear-gradient(100deg, var(--red) 0%, #b0000e 60%, #5a0007 100%);
+  clip-path:polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
+.rk-cta b { font:900 17px/1.2 "Noto Sans JP", sans-serif; letter-spacing:.04em; color:#fff; white-space:nowrap; }
+.rk-cta span { flex:none; font:900 11px/1 "Noto Sans JP", sans-serif; letter-spacing:.08em; color:#fff;
+  padding:5px 8px; border:1px solid rgba(255,255,255,.7); border-radius:3px; }
+
+/* TOPの登録欄の「いまの番付」（11/10）。ランキングの札（ranking.html の .rk-card）と同じ地・同じ順位表で、10番目を「あなた」の席に */
+.jr-card { position:relative; overflow:hidden; margin:6px auto 18px; max-width:460px; border-radius:16px; border:1px solid #2a2a33;
+  background:
+    radial-gradient(120% 50% at 100% 0%, rgba(230,0,18,.20), transparent 55%),
+    radial-gradient(90% 50% at 0% 100%, rgba(212,175,55,.08), transparent 60%),
+    linear-gradient(180deg,#121217,#0a0a0d);
+  box-shadow:0 10px 40px rgba(0,0,0,.55); }
+.jr-head { padding:16px 14px 8px; }
+/* 見出し＝Gaku 11/10「予想通りに全くいかない。だから面白い。」。1位でも6割弱という番付そのものが、この一行の証拠になる */
+.jr-ttl { position:relative; margin:0; padding-left:17px; font:900 min(21px, 5.9vw)/1.3 var(--display); font-synthesis:none; letter-spacing:.02em; color:var(--text); }
+.jr-ttl::before { content:""; position:absolute; left:0; top:4px; bottom:4px; width:7px; background:var(--red); transform:skewX(-12deg); }
+.jr-ttl span { display:block; white-space:nowrap; }
+.jr-ttl .jr-hot { color:var(--red-hot, #ff2d3d); }
+.jr-scope { margin:0; padding:5px 0 0 17px; font:700 11.5px/1.45 "Noto Sans JP", sans-serif; letter-spacing:.06em; color:#9d9daa; }
+.jr-card .rk-cta { margin-top:8px; }
+.rk-cell.you { border:1px dashed rgba(255,36,54,.75); border-radius:8px; background:rgba(230,0,18,.08); }
+.rk-grid .rk-cell.you .lb-rank { color:var(--red-hot); }
+.rk-cell.you .you-ava { width:24px; height:24px; border:1px dashed var(--red-hot); background:transparent; color:var(--red-hot); font-size:12px; }
+.rk-cell.you .you-nm { display:block; font-size:12.5px; font-weight:900; line-height:1.3; color:var(--red-hot); }
+.rk-cell.you .lb-hit { color:var(--red-hot); }

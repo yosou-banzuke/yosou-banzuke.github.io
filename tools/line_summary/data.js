@@ -1,0 +1,870 @@
+window.LDATA = {
+ "event": "ev_lm17",
+ "members": [
+  {
+   "id": "m_hame",
+   "name": "ハメ太郎",
+   "color": "#ae0001"
+  },
+  {
+   "id": "m_nuki",
+   "name": "抜き太郎",
+   "color": "#2a623d"
+  },
+  {
+   "id": "m_maruyama",
+   "name": "丸山先生",
+   "color": "#b9831a"
+  }
+ ],
+ "preds": [
+  {
+   "member_id": "m_hame",
+   "fight_id": "r55_05",
+   "winner_id": "f_ushiku",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_hame",
+   "fight_id": "r55_02",
+   "winner_id": "f_mizoguchi",
+   "method": "KO",
+   "round": 1,
+   "technique": "right_straight"
+  },
+  {
+   "member_id": "m_hame",
+   "fight_id": "r55_11",
+   "winner_id": "f_inoue_naoki",
+   "method": "DEC",
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_hame",
+   "fight_id": "r55_08",
+   "winner_id": "f_ota",
+   "method": "KO",
+   "round": 2,
+   "technique": "gnp"
+  },
+  {
+   "member_id": "m_hame",
+   "fight_id": "r55_07",
+   "winner_id": "f_aimoto",
+   "method": "KO",
+   "round": 2,
+   "technique": "right_hook"
+  },
+  {
+   "member_id": "m_hame",
+   "fight_id": "r55_06",
+   "winner_id": "f_chiharu",
+   "method": "DEC",
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_hame",
+   "fight_id": "r55_12",
+   "winner_id": "f_hamada",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_hame",
+   "fight_id": "r55_09",
+   "winner_id": "f_fukuda",
+   "method": "KO",
+   "round": 2,
+   "technique": "left_straight"
+  },
+  {
+   "member_id": "m_hame",
+   "fight_id": "r55_10",
+   "winner_id": "f_laramie",
+   "method": "DEC",
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_hame",
+   "fight_id": "r55_03",
+   "winner_id": "f_kuramoto",
+   "method": "KO",
+   "round": 3,
+   "technique": "knee"
+  },
+  {
+   "member_id": "m_maruyama",
+   "fight_id": "r55_10",
+   "winner_id": "f_sinryu",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_maruyama",
+   "fight_id": "r55_11",
+   "winner_id": "f_inoue_naoki",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_maruyama",
+   "fight_id": "r55_09",
+   "winner_id": "f_fukuda",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_maruyama",
+   "fight_id": "r55_08",
+   "winner_id": "f_kashimura",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_maruyama",
+   "fight_id": "r55_07",
+   "winner_id": "f_aimoto",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_maruyama",
+   "fight_id": "r55_05",
+   "winner_id": "f_ushiku",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_maruyama",
+   "fight_id": "r55_04",
+   "winner_id": "f_zumagaziev",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_maruyama",
+   "fight_id": "r55_13",
+   "winner_id": "f_papalii",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_maruyama",
+   "fight_id": "r55_06",
+   "winner_id": "f_suzuki",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_maruyama",
+   "fight_id": "r55_02",
+   "winner_id": "f_mizoguchi",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_maruyama",
+   "fight_id": "r55_03",
+   "winner_id": "f_kuramoto",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_maruyama",
+   "fight_id": "r55_12",
+   "winner_id": "f_sekihara",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_maruyama",
+   "fight_id": "r55_01",
+   "winner_id": "f_kimura_ruon",
+   "method": null,
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_hame",
+   "fight_id": "r55_04",
+   "winner_id": "f_zumagaziev",
+   "method": "DEC",
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_nuki",
+   "fight_id": "r55_05",
+   "winner_id": "f_leekaiwen",
+   "method": "DEC",
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_nuki",
+   "fight_id": "r55_10",
+   "winner_id": "f_sinryu",
+   "method": "SUB",
+   "round": 2,
+   "technique": "kata_gatame"
+  },
+  {
+   "member_id": "m_nuki",
+   "fight_id": "r55_11",
+   "winner_id": "f_tilenov",
+   "method": "KO",
+   "round": 3,
+   "technique": "right_straight"
+  },
+  {
+   "member_id": "m_nuki",
+   "fight_id": "r55_09",
+   "winner_id": "f_kimsuchol",
+   "method": "DEC",
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_nuki",
+   "fight_id": "r55_08",
+   "winner_id": "f_ota",
+   "method": "DEC",
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_nuki",
+   "fight_id": "r55_07",
+   "winner_id": "f_aimoto",
+   "method": "KO",
+   "round": 3,
+   "technique": "right_hook"
+  },
+  {
+   "member_id": "m_nuki",
+   "fight_id": "r55_06",
+   "winner_id": "f_chiharu",
+   "method": "KO",
+   "round": 2,
+   "technique": "right_hook"
+  },
+  {
+   "member_id": "m_nuki",
+   "fight_id": "r55_02",
+   "winner_id": "f_mizoguchi",
+   "method": "DEC",
+   "round": null,
+   "technique": null
+  },
+  {
+   "member_id": "m_nuki",
+   "fight_id": "r55_03",
+   "winner_id": "f_saiga",
+   "method": "KO",
+   "round": 2,
+   "technique": "high_kick"
+  },
+  {
+   "member_id": "m_nuki",
+   "fight_id": "r55_12",
+   "winner_id": "f_hamada",
+   "method": "SUB",
+   "round": 2,
+   "technique": "guillotine"
+  }
+ ],
+ "results": {
+  "r55_12": {
+   "winner_id": "f_hamada",
+   "result_method": "KO",
+   "result_round": 3,
+   "result_technique": "gnp",
+   "no_score": false,
+   "cancelled": false
+  },
+  "r55_06": {
+   "winner_id": "f_chiharu",
+   "result_method": "KO",
+   "result_round": 2,
+   "result_technique": "elbow",
+   "no_score": false,
+   "cancelled": false
+  },
+  "r55_04": {
+   "winner_id": "f_zumagaziev",
+   "result_method": "KO",
+   "result_round": 1,
+   "result_technique": null,
+   "no_score": false,
+   "cancelled": false
+  },
+  "r55_05": {
+   "winner_id": "f_ushiku",
+   "result_method": "DEC",
+   "result_round": null,
+   "result_technique": null,
+   "no_score": false,
+   "cancelled": false
+  },
+  "r55_07": {
+   "winner_id": "f_meheula",
+   "result_method": "NC",
+   "result_round": 2,
+   "result_technique": null,
+   "no_score": true,
+   "cancelled": false
+  },
+  "r55_08": {
+   "winner_id": "f_kashimura",
+   "result_method": "SUB",
+   "result_round": 3,
+   "result_technique": "sub_other",
+   "no_score": false,
+   "cancelled": false
+  },
+  "r55_09": {
+   "winner_id": "f_fukuda",
+   "result_method": "DEC",
+   "result_round": null,
+   "result_technique": null,
+   "no_score": false,
+   "cancelled": false
+  },
+  "r55_11": {
+   "winner_id": "f_tilenov",
+   "result_method": "DEC",
+   "result_round": null,
+   "result_technique": null,
+   "no_score": false,
+   "cancelled": false
+  },
+  "r55_10": {
+   "winner_id": "f_laramie",
+   "result_method": "DEC",
+   "result_round": null,
+   "result_technique": null,
+   "no_score": false,
+   "cancelled": false
+  },
+  "r55_01": {
+   "winner_id": "f_rikiya",
+   "result_method": "DEC",
+   "result_round": null,
+   "result_technique": null,
+   "no_score": false,
+   "cancelled": false
+  },
+  "r55_03": {
+   "winner_id": "f_saiga",
+   "result_method": "KO",
+   "result_round": 1,
+   "result_technique": "left_hook",
+   "no_score": false,
+   "cancelled": false
+  },
+  "r55_02": {
+   "winner_id": "f_mizoguchi",
+   "result_method": "SUB",
+   "result_round": 1,
+   "result_technique": "rnc",
+   "no_score": false,
+   "cancelled": false
+  },
+  "r55_13": {
+   "winner_id": "f_papalii",
+   "result_method": "KO",
+   "result_round": 2,
+   "result_technique": null,
+   "no_score": false,
+   "cancelled": false
+  }
+ },
+ "supports": [
+  {
+   "member_id": "m_hame",
+   "fight_id": "r55_04",
+   "fighter_id": "f_kimkyeongpyo"
+  },
+  {
+   "member_id": "m_hame",
+   "fight_id": "r55_12",
+   "fighter_id": "f_hamada"
+  }
+ ],
+ "zones": {
+  "r55_12": {
+   "chroma": 37,
+   "bl": {
+    "L": 20,
+    "sim": {
+     "m_hame": 0.03,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.01
+    }
+   },
+   "br": {
+    "L": 24,
+    "sim": {
+     "m_hame": 0.04,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.03
+    }
+   },
+   "tl": {
+    "L": 29,
+    "sim": {
+     "m_hame": 0.22,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.13
+    }
+   },
+   "tr": {
+    "L": 47,
+    "sim": {
+     "m_hame": 0.01,
+     "m_nuki": 0.01,
+     "m_maruyama": 0.26
+    }
+   }
+  },
+  "r55_06": {
+   "chroma": 41,
+   "bl": {
+    "L": 25,
+    "sim": {
+     "m_hame": 0.03,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.0
+    }
+   },
+   "br": {
+    "L": 26,
+    "sim": {
+     "m_hame": 0.07,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.02
+    }
+   },
+   "tl": {
+    "L": 40,
+    "sim": {
+     "m_hame": 0.22,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.13
+    }
+   },
+   "tr": {
+    "L": 44,
+    "sim": {
+     "m_hame": 0.02,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.24
+    }
+   }
+  },
+  "r55_04": {
+   "chroma": 40,
+   "bl": {
+    "L": 28,
+    "sim": {
+     "m_hame": 0.02,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.03
+    }
+   },
+   "br": {
+    "L": 25,
+    "sim": {
+     "m_hame": 0.05,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.02
+    }
+   },
+   "tl": {
+    "L": 51,
+    "sim": {
+     "m_hame": 0.22,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.19
+    }
+   },
+   "tr": {
+    "L": 48,
+    "sim": {
+     "m_hame": 0.02,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.25
+    }
+   }
+  },
+  "r55_05": {
+   "chroma": 39,
+   "bl": {
+    "L": 21,
+    "sim": {
+     "m_hame": 0.06,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.01
+    }
+   },
+   "br": {
+    "L": 19,
+    "sim": {
+     "m_hame": 0.07,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.03
+    }
+   },
+   "tl": {
+    "L": 57,
+    "sim": {
+     "m_hame": 0.22,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.15
+    }
+   },
+   "tr": {
+    "L": 48,
+    "sim": {
+     "m_hame": 0.02,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.25
+    }
+   }
+  },
+  "r55_07": {
+   "chroma": 39,
+   "bl": {
+    "L": 22,
+    "sim": {
+     "m_hame": 0.02,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.0
+    }
+   },
+   "br": {
+    "L": 24,
+    "sim": {
+     "m_hame": 0.06,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.03
+    }
+   },
+   "tl": {
+    "L": 52,
+    "sim": {
+     "m_hame": 0.22,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.21
+    }
+   },
+   "tr": {
+    "L": 57,
+    "sim": {
+     "m_hame": 0.02,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.24
+    }
+   }
+  },
+  "r55_08": {
+   "chroma": 40,
+   "bl": {
+    "L": 23,
+    "sim": {
+     "m_hame": 0.02,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.0
+    }
+   },
+   "br": {
+    "L": 26,
+    "sim": {
+     "m_hame": 0.06,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.03
+    }
+   },
+   "tl": {
+    "L": 46,
+    "sim": {
+     "m_hame": 0.22,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.14
+    }
+   },
+   "tr": {
+    "L": 50,
+    "sim": {
+     "m_hame": 0.01,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.24
+    }
+   }
+  },
+  "r55_09": {
+   "chroma": 40,
+   "bl": {
+    "L": 25,
+    "sim": {
+     "m_hame": 0.02,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.01
+    }
+   },
+   "br": {
+    "L": 24,
+    "sim": {
+     "m_hame": 0.05,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.01
+    }
+   },
+   "tl": {
+    "L": 56,
+    "sim": {
+     "m_hame": 0.22,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.18
+    }
+   },
+   "tr": {
+    "L": 59,
+    "sim": {
+     "m_hame": 0.03,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.25
+    }
+   }
+  },
+  "r55_11": {
+   "chroma": 39,
+   "bl": {
+    "L": 24,
+    "sim": {
+     "m_hame": 0.03,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.02
+    }
+   },
+   "br": {
+    "L": 28,
+    "sim": {
+     "m_hame": 0.05,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.05
+    }
+   },
+   "tl": {
+    "L": 40,
+    "sim": {
+     "m_hame": 0.22,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.14
+    }
+   },
+   "tr": {
+    "L": 41,
+    "sim": {
+     "m_hame": 0.01,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.2
+    }
+   }
+  },
+  "r55_10": {
+   "chroma": 35,
+   "bl": {
+    "L": 19,
+    "sim": {
+     "m_hame": 0.03,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.0
+    }
+   },
+   "br": {
+    "L": 25,
+    "sim": {
+     "m_hame": 0.06,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.04
+    }
+   },
+   "tl": {
+    "L": 51,
+    "sim": {
+     "m_hame": 0.21,
+     "m_nuki": 0.01,
+     "m_maruyama": 0.11
+    }
+   },
+   "tr": {
+    "L": 43,
+    "sim": {
+     "m_hame": 0.02,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.25
+    }
+   }
+  },
+  "r55_01": {
+   "chroma": 42,
+   "bl": {
+    "L": 23,
+    "sim": {
+     "m_hame": 0.06,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.01
+    }
+   },
+   "br": {
+    "L": 25,
+    "sim": {
+     "m_hame": 0.08,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.03
+    }
+   },
+   "tl": {
+    "L": 49,
+    "sim": {
+     "m_hame": 0.22,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.16
+    }
+   },
+   "tr": {
+    "L": 56,
+    "sim": {
+     "m_hame": 0.01,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.26
+    }
+   }
+  },
+  "r55_03": {
+   "chroma": 41,
+   "bl": {
+    "L": 29,
+    "sim": {
+     "m_hame": 0.02,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.02
+    }
+   },
+   "br": {
+    "L": 26,
+    "sim": {
+     "m_hame": 0.07,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.02
+    }
+   },
+   "tl": {
+    "L": 43,
+    "sim": {
+     "m_hame": 0.22,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.12
+    }
+   },
+   "tr": {
+    "L": 52,
+    "sim": {
+     "m_hame": 0.02,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.26
+    }
+   }
+  },
+  "r55_02": {
+   "chroma": 40,
+   "bl": {
+    "L": 25,
+    "sim": {
+     "m_hame": 0.03,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.0
+    }
+   },
+   "br": {
+    "L": 27,
+    "sim": {
+     "m_hame": 0.05,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.03
+    }
+   },
+   "tl": {
+    "L": 48,
+    "sim": {
+     "m_hame": 0.22,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.14
+    }
+   },
+   "tr": {
+    "L": 49,
+    "sim": {
+     "m_hame": 0.01,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.23
+    }
+   }
+  },
+  "r55_13": {
+   "chroma": 40,
+   "bl": {
+    "L": 28,
+    "sim": {
+     "m_hame": 0.05,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.02
+    }
+   },
+   "br": {
+    "L": 34,
+    "sim": {
+     "m_hame": 0.04,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.05
+    }
+   },
+   "tl": {
+    "L": 55,
+    "sim": {
+     "m_hame": 0.22,
+     "m_nuki": 0.0,
+     "m_maruyama": 0.16
+    }
+   },
+   "tr": {
+    "L": 57,
+    "sim": {
+     "m_hame": 0.06,
+     "m_nuki": 0.01,
+     "m_maruyama": 0.29
+    }
+   }
+  }
+ },
+ "built_at": "11/8 20:38"
+};

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>予想番付｜格闘技の勝敗予想</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=20261121155051">
+</head>
+<body>
+<div id="app-header"></div>
+<div class="wrap" id="main"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js"></script>
+<script src="js/config.js?v=20261121155051"></script>
+<script src="js/techniques.js?v=20261121155051"></script>
+<script src="js/demo-data.js?v=20261121155051"></script>
+<script src="js/api.js?v=20261121155051"></script>
+<script src="js/app.js?v=20261121155051"></script>
+<script src="js/glyph_fit.js?v=20261121155051"></script>
+<script>
+// Xから来た人に「いま何をやっているか」を最初に見せる。
+// 監査（2026-08-31）で、入口に大会情報がゼロのまま登録を求めていて離脱する形だったため追加。
+// 入口の次大会（Gaku 11/11「予想受付中って書いてあるけど、ファイトカードとかのビジュアルがないと意味がない」）。
+// 文字の「予想受付中」と1人だけの割れ具合（0%／100%）をやめ、公式のVSバナーで「何を予想するのか」を見せる。
+// メインを横いっぱいに、続く3試合を小さく並べる。押すと名前の欄へ（goJoin）
+async function nextEventTeaser() {
+  try {
+    const events = await DB.listEvents();
+    const up = events.filter(e => e.status !== "finished")
+      .sort((a, b) => (a.event_date || "").localeCompare(b.event_date || ""))[0];
+    if (!up) return "";
+    const [fights, fighters] = await Promise.all([DB.listFights(up.id), DB.listFighters()]);
+    const live = fights.filter(f => !f.cancelled && !f.event_only).sort((a, b) => b.order_no - a.order_no);
+    if (!live.length) return "";
+    const FM = fighterMap(fighters);
+    const vs = (f) => `${FM[f.fighter1_id]?.name || ""} vs ${FM[f.fighter2_id]?.name || ""}`;
+    // タイトルマッチ等の札は重ねない＝バナー自体に書いてある（重ねると主役の絵を隠す）
+    const ban = (f, cls) => f.image_url ? `<figure class="${cls}"><img src="${esc(f.image_url)}" alt="${esc(vs(f))}" loading="lazy"></figure>` : "";
+    const withImg = live.filter(f => f.image_url);
+    if (!withImg.length) return "";
+    const [main, ...rest] = withImg;
+    const days = daysToEvent(up);
+    const [ttl, sub] = evParts(up.name);
+    return `
+      <div class="next-flag"><i></i>NEXT EVENT</div>
+      <a class="tz-card" href="#gname" onclick="event.preventDefault();goJoin()">
+        ${ban(main, "tz-main")}
+        <div class="tz-head">
+          <div class="tz-ev"><span class="tz-ev-m">${evNameHTML(ttl)}</span>${sub ? `<small>${esc(sub)}</small>` : ""}</div>
+          ${dateBlock(up.event_date)}
+        </div>
+        ${rest.length ? `<div class="tz-rest">${rest.slice(0, 3).map(f => ban(f, "tz-sub")).join("")}</div>` : ""}
+        <div class="tz-foot"><span><b>全${live.length}試合</b>${days != null && days >= 0 ? `<em>あと${days}日</em>` : ""}</span><i>名前を決めて予想 ↓</i></div>
+      </a>`;
+  } catch (e) { return ""; }
+}
+
+// 大会ページは名前を決めてから開く作り（requireMember）。決める前に大会ページへ飛ばすとTOPへ送り返されるので、
+// 名前の欄まで降ろして入れてもらう（11/11 気づき：前の札は event.html へ飛んで、そのまま戻されていた）
+function goJoin() {
+  const box = document.querySelector(".guest-box"), inp = document.getElementById("gname");
+  if (!box) return;
+  box.scrollIntoView({ behavior: "smooth", block: "center" });
+  setTimeout(() => inp && inp.focus({ preventScroll: true }), 450);
+}
+
+// このブラウザが美食会のLINEのリンクで開かれたか（美食会の札を出すのはその時だけ）
+async function bishokuDevice() {
+  try {
+    if ((await window.JOIN_PROMISE) === true) return true;
+    return typeof DB.isBishokuDevice === "function" ? !!(await DB.isBishokuDevice()) : false;
+  } catch (e) { return false; }
+}
+
+// 登録欄の「いまの番付」（Gaku 11/10「ランキングの内容スクショにランキングに参加しよう！みたいなキャッチ画像あっていい」
+// 「ジョビンとかストラッサーとかがいる想定だった」）。ランキングの通算と同じ式・同じ見た目（rankGrid）で上位9人を出し、
+// 10番目の席を空けて「あなた」にする。数字は毎回DBから計算する（画像にすると古くなる）。失敗したら札ごと出さない
+async function joinRankCard() {
+  try {
+    const [events, members, fights, preds] = await Promise.all([DB.listEvents(), DB.listMembers(), DB.listFights(), DB.listPredictions({})]);
+    const from = events.find(e => e.id === window.RANK_FROM);
+    const done = new Set(fights.filter(f => f.winner_id || f.result_method).map(f => f.event_id));
+    const evs = events.filter(e => done.has(e.id) && (!from || e.event_date >= from.event_date))
+      .sort((a, b) => String(a.event_date).localeCompare(String(b.event_date)));
+    const evIds = new Set(evs.map(e => e.id));
+    const fs = fights.filter(f => evIds.has(f.event_id)), fIds = new Set(fs.map(f => f.id));
+    await window.AVATARS_READY;
+    const pool = members.filter(m => !window.RANK_HIDDEN.includes(m.id));
+    const rows = computeLeaderboard(pool, fs, preds.filter(p => fIds.has(p.fight_id)), { scope: "career" })
+      .filter(r => window.isRanked(r, "career") && r.decided > 0).slice(0, 9);
+    if (!rows.length) return "";
+    const you = `<div class="rk-cell you"><span class="lb-rank">?</span><span class="lb-ava you-ava">?</span>
+        <span class="rk-body"><span class="you-nm">あなた</span><span class="rk-nums"><span class="lb-hit">—</span></span></span></div>`;
+    const grid = window.rankGrid(rows).replace(/<\/div><\/div>$/, you + "</div></div>");
+    const scope = evs.length ? `${esc(evs[0].name)}〜${esc(evs[evs.length - 1].name)}・${evs.length}大会の通算ランキング` : "通算ランキング";
+    return `<div class="jr-card">
+        <div class="jr-head"><h3 class="jr-ttl"><span>予想通りに全くいかない。</span><span class="jr-hot">だから面白い。</span></h3><p class="jr-scope">${scope}</p></div>
+        ${grid}
+        <div class="rk-cta"><b>あなたの予想も、番付に。</b><span>参加無料</span></div>
+      </div>`;
+  } catch (e) { console.warn("[joinRankCard]", e); return ""; }
+}
+
+// 運用哲学への入口（Gaku 11/9「HP TOPか『運用哲学』とまとめておきたい」）。ヘッダーのナビは375px幅で埋まっているのでTOPの最後に置く
+const PH_LINK = `<a class="ph-link" href="philosophy.html"><b>熱狂は、予想から。</b><span>予想番付について（運用哲学とルール） ›</span></a>`;
+
+async function renderPlayerSelect() {
+  const [members, teaser, rankCard, isGroup] = await Promise.all([DB.listMembers(), nextEventTeaser(), joinRankCard(), bishokuDevice()]);
+  window._nameKeys = new Set(members.map(m => nameKey(m.name)));
+  // 美食会は特別グループ。3人の札は、美食会のLINEのリンクで開いたブラウザにだけ出す
+  // （Gaku 11/11「表からは美食会の要素を消して」「ハメ太郎、丸山先生、抜き太郎のこのサンプルは、あんまり良くない」）。
+  // インフルエンサーは予想の出典であって"なりすまし入口"にしない。
+  const friends = isGroup ? members.filter(m => window.BISHOKU.includes(m.id)) : [];
+  const tiles = friends.map((m, i) => `
+          <button class="player-tile" style="--c:${esc(m.color)};--d:${i * 70}ms" data-initial="${esc(m.name.slice(0, 1))}" onclick="choose('${m.id}')">
+            <span class="entry-no">MEMBER</span>
+            <span class="pname">${esc(m.name)}</span>
+          </button>`).join("");
+  // 「前に参加した人」は下に小さく（Gaku 11/11「主従が逆じゃない？初めての人を優先して、前に参加した人はこちらボタンを下に」）。
+  // 同じブラウザで前に名前を作った人は、この画面を通らずに続きから始まる＝ここに来るのは別の端末・別のブラウザで開いた人
+  const back = friends.length ? `
+    <div class="back-box">
+      <div class="back-ttl">美食会のメンバー</div>
+      <div class="player-grid">${tiles}</div>
+    </div>` : `
+    <details class="back-more">
+      <summary>前に参加した人はこちら</summary>
+      <p>同じスマホ・同じブラウザなら、開くだけで前の続きから始まります。この画面が出たのは、別の端末かブラウザで開いているからです。</p>
+      <p>別の端末へ記録を引き継ぐ「Xでつなぐ」を準備しています。</p>
+    </details>`;
+  document.getElementById("main").innerHTML = `
+    ${friends.length ? back : ""}
+    ${teaser}
+    <div class="ps-hero">
+      <div class="title-row"><h1 class="page-title">はじめての人はこちら</h1><span class="en-label">JOIN FREE</span></div>
+      <p class="page-sub">名前を決めるだけ。登録不要で今すぐ予想＆応援できる。</p>
+    </div>
+    ${rankCard}
+    <!-- 11/10 Gaku「これださい」：絵文字の丸札3つ → 宣言1行（句点だけ赤）。札にしない・面を塗らない。
+         理由のページへは誘わない（Gaku「理由はあるだけ。誘導しない。」）＝ここはリンクにしない -->
+    <p class="free-decl"><span class="fd-words">無料<i>。</i>広告なし<i>。</i>賭けなし<i>。</i></span></p>
+    <div class="guest-box" style="background:#131318;border:1px solid #2a2a33;border-radius:12px;padding:16px;margin:0 auto;max-width:460px">
+      <input id="gname" placeholder="ニックネーム（全角8文字まで）" maxlength="16" autocomplete="nickname"
+        style="width:100%;box-sizing:border-box;padding:12px;font-size:16px;border-radius:8px;border:1px solid #3a3a44;background:#0d0d10;color:#fff"
+        oninput="checkGuestName()" onkeydown="if(event.key==='Enter')startGuest()">
+      <p id="gname-msg" class="gname-msg" role="alert" aria-live="polite"></p>
+      <button onclick="startGuest()"
+        style="width:100%;margin-top:10px;padding:13px;font-size:15px;font-weight:900;border:none;border-radius:8px;background:#e60012;color:#fff;cursor:pointer">この名前で始める →</button>
+      <p style="font-size:11px;color:#8a8a92;margin:8px 0 0">※記録はこの端末に保存。別端末で引き継ぎたい人は後からアカウント連携（近日）。</p>
+    </div>
+    <div class="rules-box">
+      <b class="gold">ランキングは勝敗だけ。</b>勝つと思う方を選ぶだけでOK。<br>
+      KO・一本の決まり手とラウンドまで当てれば<b class="gold">🎯ピタリ</b>（判定決着は対象外・おまけ・ランキングには関係なし）。
+      予想しない試合はノーカウント。
+    </div>
+    ${friends.length ? "" : back}
+    ${PH_LINK}`;
+  // 長い名前（MMA言語化挑戦中 など）は…で切らずに字を小さくして収める（ランキングと同じ処理）
+  const jc = document.querySelector(".jr-card");
+  if (jc && window.fitRankNames) window.fitRankNames(jc);
+}
+
+function choose(id) { setMemberId(id); renderHome(); }
+
+// 名前のかぶり・なりすましを弾く（Gaku 11/10「名前のかぶりは使用されてますみたいな感じに」）。
+// 比べるのは「見た目が同じ名前」：全角半角・大文字小文字・空白・中黒の違いは同じ名前とみなす
+// （「青木 真也」「ﾊﾒ太郎」で既存の予想者を名乗れないように）。DB側にも同じ鍵の一意制約がある
+// （supabase/migrations/2026-11-10_member_name_unique.sql）。ここは打っている途中に知らせるための先回り。
+function nameKey(s) { return String(s || "").normalize("NFKC").replace(/[\s・]/g, "").toLowerCase(); }
+const RESERVED_NAME = /予想番付|運営|管理人|公式/;
+// 字数制限（Gaku 11/10「名前字数制限」）：全角1・半角0.5で数えて8まで。
+// 根拠＝スマホ幅のランキングの名前欄（104px・12.5px）に全角8字が切れずに収まる（11/10実測）。DB側も同じ数え方（member_name_width）
+const NAME_MAX = 8;
+function nameWidth(s) { const t = String(s || ""); return t.length - (t.match(/[ -~\uFF61-\uFF9F]/g) || []).length / 2; }
+function guestNameProblem(name) {
+  if (!name) return "ニックネームを入れてください";
+  if (nameWidth(name) > NAME_MAX) return "名前は全角8文字（半角16文字）までです";
+  if (RESERVED_NAME.test(name.normalize("NFKC"))) return "「予想番付」「運営」「管理人」「公式」を含む名前は使えません";
+  if (window._nameKeys && window._nameKeys.has(nameKey(name))) return "この名前は使われています。別の名前にしてください";
+  return "";
+}
+function showGuestMsg(msg) {
+  const el = document.getElementById("gname-msg");
+  if (el) { el.textContent = msg; el.classList.toggle("on", !!msg); }
+}
+function checkGuestName() {
+  const name = (document.getElementById("gname").value || "").trim();
+  showGuestMsg(name ? guestNameProblem(name) : "");
+}
+
+// ゲスト登録：名前だけで自分専用のメンバーを作って即プレイ（ゼロ障壁）
+let _guestBusy = false;
+async function startGuest() {
+  if (_guestBusy) return;
+  const name = (document.getElementById("gname").value || "").trim();
+  // 画面を開いてから他の人が同じ名前で登録したかもしれないので、押した時に一覧を取り直す
+  try { window._nameKeys = new Set((await DB.listMembers()).map(m => nameKey(m.name))); } catch (e) { /* 取れなければ手元の一覧で見る */ }
+  const problem = guestNameProblem(name);
+  if (problem) { showGuestMsg(problem); return; }
+  const pal = ["#e17055", "#00b894", "#0984e3", "#e84393", "#00cec9", "#6c5ce7", "#fdcb6e", "#d63031"];
+  const id = "m_g_" + Math.random().toString(36).slice(2, 9);
+  _guestBusy = true;
+  try {
+    await DB.upsertMember({ id, name, color: pal[Math.floor(Math.random() * pal.length)] });
+    setMemberId(id);
+    renderHome();
+  } catch (e) {
+    // 23505＝DBの一意制約（同じ瞬間に同じ名前が登録された）
+    const dup = e && (e.code === "23505" || /duplicate|unique/i.test(String(e.message || "")));
+    showGuestMsg(dup ? "この名前は使われています。別の名前にしてください"
+                     : "登録できませんでした。通信の状態を確かめて、もう一度押してください");
+    console.warn("[guest]", e);
+  } finally { _guestBusy = false; }
+}
+
+async function renderHome() {
+  await renderHeader("home");
+  const all = await DB.listEvents();
+  const FMAP = fighterMap(await DB.listFighters());
+  const isFin = (e) => e.status === "finished";
+  // 「結果ダイジェスト」は直近の1大会だけ上部に残す（Gaku方針・2026-08-11）。残りの終了大会は下の「これまでの大会」へ。
+  // 上に出すのは大会の3日後まで。次の大会の前に、前の大会の結果が一番上にあるのは気持ちよくない（Gaku指示11/7）
+  const RECENT_DAYS = 3;
+  const finishedDesc = all.filter(isFin).sort((a, b) => (b.event_date || "").localeCompare(a.event_date || ""));
+  const recentFinished = finishedDesc.slice(0, 1).filter(e => (daysToEvent(e) ?? -Infinity) >= -RECENT_DAYS);
+  const recentIds = new Set(recentFinished.map(e => e.id));
+  const live = all.filter(e => !isFin(e)).sort((a, b) => (a.event_date || "").localeCompare(b.event_date || ""));
+  const pastFinished = finishedDesc.filter(e => !recentIds.has(e.id));
+
+  // 大会の系統で煙の色を変える（Gaku 11/8「ナンバーシリーズ赤煙背景、LANDMARK緑煙背景、超RIZIN金煙にしよう」・系統は app.js の evSeries）。
+  // 煙はカードの外に出るので、clip-path のあるカードを .ev-unit で包む
+  const unit = (ev, html, cls = "") => `<div class="ev-unit s-${evSeries(ev.name)}${cls}">${html}</div>`;
+
+  // 半分サイズの結果ダイジェスト（メイン結果を匂わせて「結果＆ランキングを見る」へ誘導）
+  const compactCard = async (ev) => {
+    const fights = await DB.listFights(ev.id);
+    const done = fights.filter(f => f.winner_id && f.result_method && !f.cancelled)
+      .sort((a, b) => b.order_no - a.order_no);
+    const main = done[0];
+    const mainTxt = main
+      ? `<span class="cm-w">WIN</span>${esc(FMAP[main.winner_id]?.name || "")}　${METHOD_LABEL[main.result_method] || ""}`
+      : "結果発表";
+    return unit(ev, `
+      <a class="event-card compact result" href="event.html?id=${ev.id}">
+        ${ev.poster_url ? `<div class="eposter mini" style="background-image:url('${esc(ev.poster_url)}')"></div>` : ""}
+        <div class="ebody">
+          <div class="ename small">${evNameHTML(ev.name)}<span class="result-flag">結果発表</span></div>
+          <div class="compact-main">${mainTxt}</div>
+          <div class="compact-hook">全結果＆ランキングを見る ›</div>
+        </div>
+      </a>`, " compact");
+  };
+
+  // 大会カードの名前の段（Gaku 11/7「ここも手抜き」）：日付・何試合入れたかを文で並べず、数字と形で見せる。
+  // 日付＝右端に大きく「11.8」＋小さく年と曜日（ポスターと同じ英字）。受付中のタグは下の残り時間が言うので出さない
+  // 大会名は「主題＋副題」に割る（「超RIZIN.6｜師走の尾張名古屋下剋上祭り」「RIZIN LANDMARK 16｜in NAGASAKI」）。
+  // 1本のまま大きくすると「尾張名古／屋」のように語の途中で折れるため。副題は小さく下の段へ
+  const nameBlock = (name, tag) => {
+    const m = String(name).match(/^(.+?)\s+((?:in\s|[^\x00-\x7F]).*)$/);
+    const main = m ? m[1] : name, sub = m ? m[2] : "";
+    return `<div class="ename${main.length > 12 ? " long" : ""}"><span class="en-m">${evNameHTML(main)}</span>${tag}${sub ? `<small class="en-s">${esc(sub)}</small>` : ""}</div>`;
+  };
+  // 通常サイズ（受付中・COMING SOON・過去）
+  const fullCard = async (ev) => {
+    const fights = await DB.listFights(ev.id);
+    const myPreds = await DB.listPredictions({ fightIds: fights.map(f => f.id), memberId: getMemberId() });
+    if (!fights.length) {
+      return unit(ev, `
+        <div class="event-card soon">
+          <div class="ebody">
+            <div class="soon-label">COMING SOON</div>
+            <div class="ename">${evNameHTML(ev.name)}</div>
+            <div class="emeta"><span>${fmtDate(ev.event_date)}</span><span class="tag before_open">対戦カード発表待ち</span></div>
+          </div>
+        </div>`, " soon");
+    }
+    const phase = eventPhase(ev), openBook = isOpenBook(ev);
+    const tag = openBook ? `<span class="tag open">予想受付中・締切なし</span>` : `<span class="tag ${phase}">${PHASE_LABEL[phase]}</span>`;
+    // 残り時間は文言を置かず、枠いっぱいの数字だけで見せる（Gaku 11/7「予想締切まで」「大会まで」は長い・数字で伝わる）。
+    // 締切＝大会の開始時刻（11/7〜）なので、締切と大会までの2つは1つにまとまる
+    const countdown = (phase === "open" && !openBook) ? `
+      <div class="cd-big" data-target="${ev.lock_at}" role="timer" aria-label="予想締切までの残り時間"></div>` : "";
+    return unit(ev, `
+      <a class="event-card" href="event.html?id=${ev.id}">
+        ${ev.poster_url ? `<div class="eposter" style="background-image:url('${esc(ev.poster_url)}')"><img src="${esc(ev.poster_url)}" alt=""></div>` : ""}
+        <div class="ebody">
+          <div class="eb-top">
+            ${nameBlock(ev.name, phase === "open" && !openBook ? "" : tag)}
+            ${dateBlock(ev.event_date)}
+          </div>
+          ${progBlock(myPreds.length, fights.filter(f => !f.cancelled).length)}
+        </div>
+        ${countdown}
+      </a>`);
+  };
+
+  const recentHtml = (await Promise.all(recentFinished.map(compactCard))).join("");
+  const liveCards = await Promise.all(live.map(fullCard));
+  // 先頭の未来大会＝次大会。札は「NEXT EVENT」（Gaku 11/8「NEXT EVENT で」）。
+  const liveHtml = liveCards.map((html, i) =>
+    i === 0 ? `<div class="next-flag"><i></i>NEXT EVENT</div>${html}` : html).join("");
+  const pastHtml = (await Promise.all(pastFinished.map(fullCard))).join("");
+
+  // 頭の「大会 / EVENTS」の見出しは外した（Gaku 11/8「上部の大会－EVENT取りだな」）＝ヘッダーのロゴの真下から次の大会の札で始める
+  document.getElementById("main").innerHTML = `
+    ${recentHtml ? `<div class="section-label">直近の結果</div>${recentHtml}` : ""}
+    ${liveHtml}
+    ${pastHtml ? `<div class="section-label">これまでの大会</div>${pastHtml}` : ""}
+    ${PH_LINK}`;
+  document.querySelectorAll(".cd-big").forEach(el => bigCountdown(el, () => location.reload()));
+}
+
+// 日・時間・分・秒を枠いっぱいの数字で。1日を切ったら日の欄が消えて残りの数字が大きくなり、1時間を切ったら赤くなる
+function bigCountdown(el, onExpire) {
+  const target = new Date(el.dataset.target), p = (n) => String(n).padStart(2, "0");
+  const tick = () => {
+    const ms = target - new Date();
+    if (ms <= 0) { clearInterval(el._cd); if (onExpire) onExpire(); return; }
+    const d = Math.floor(ms / 864e5), h = Math.floor(ms % 864e5 / 36e5), m = Math.floor(ms % 36e5 / 6e4), s = Math.floor(ms % 6e4 / 1e3);
+    const cells = [...(d ? [[d, "日"]] : []), [p(h), "時間"], [p(m), "分"], [p(s), "秒"]];
+    el.className = `cd-big n${cells.length}${ms < 36e5 ? " hot" : ""}`;
+    el.innerHTML = cells.map(([n, u]) => `<span class="cdb${u === "日" ? " d" : ""}"><b>${n}</b><i>${u}</i></span>`).join("");
+  };
+  clearInterval(el._cd); tick(); el._cd = setInterval(tick, 1000);
+}
+
+(async () => {
+  await renderHeader("home");
+  if (getMemberId()) renderHome(); else renderPlayerSelect();
+})();
+</script>
+</body>
+</html>

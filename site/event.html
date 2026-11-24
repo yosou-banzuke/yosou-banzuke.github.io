@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>大会予想｜予想番付</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=20261121155051">
+</head>
+<body>
+<div id="app-header"></div>
+<div id="sticky-cd"></div>
+<div class="wrap" id="main"></div>
+<div class="toast" id="toast"></div>
+<div class="wiz" id="wiz" hidden role="dialog" aria-modal="true" aria-label="勝敗予想"></div>
+<div class="pg-spot" id="pg-spot" hidden></div><div class="pick-guide" id="pick-guide" aria-hidden="true"><span class="pg-t"></span><span class="pg-a"></span><span class="pg-x">予想を入れる<i class="pg-arw"></i></span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js"></script>
+<script src="js/config.js?v=20261121155051"></script>
+<script src="js/techniques.js?v=20261121155051"></script>
+<script src="js/demo-data.js?v=20261121155051"></script>
+<script src="js/api.js?v=20261121155051"></script>
+<script src="js/app.js?v=20261121155051"></script>
+<script src="js/glyph_fit.js?v=20261121155051"></script>
+<script src="js/stats.js?v=20261121155051"></script>
+<script src="js/bishoku_summary.js?v=20261121155051"></script>
+<script>
+let EV, PHASE, FIGHTS, FMAP, MEMBERS, myPreds = {}, allPreds = [], ALL_SUPPORTS = [];
+
+// 美食会の3人（ハメ・抜き・丸山）は一覧では左・各カードでは最上部に固定する（Gaku方針）
+const FRIEND_IDS = ["m_hame", "m_nuki", "m_maruyama"];
+// 固定は美食会の3人が見ている時だけ（Gaku 11/11「表からは美食会の要素を消して」）。一般の人には誰も特別扱いしない
+const friendRank = (id) => { if (!window.isBishokuViewer()) return 0; const i = FRIEND_IDS.indexOf(id); return i < 0 ? 99 : i; };
+// 3人を先頭（固定順）→ 残りは元の順。安定ソート。
+const orderMembers = (list) => [...list].sort((a, b) => friendRank(a.id) - friendRank(b.id));
+// 結果が出ている時の見せ場ランク（あらます>ピタリ>的中>その他）
+const predRank = (s) => s ? (s.aramasu ? 3 : s.pitari ? 2 : s.winnerHit ? 1 : 0) : 0;
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._tm); t._tm = setTimeout(() => t.classList.remove("show"), Math.max(1500, msg.length * 90));  // 長いエラー文は読める時間だけ出す
+}
+
+async function load() {
+  if (!requireMember()) return;
+  await renderHeader("home");
+  const id = qp("id");
+  EV = id ? await DB.getEvent(id) : null;
+  if (!EV) { document.getElementById("main").innerHTML = "<p class='page-sub'>大会が見つかりません。</p>"; return; }
+  PHASE = eventPhase(EV);
+  FIGHTS = (await DB.listFights(EV.id)).sort((a, b) =>
+    (a.segment === b.segment) ? b.order_no - a.order_no : (a.segment === "main" ? -1 : 1));
+  FMAP = fighterMap(await DB.listFighters());
+  MEMBERS = await DB.listMembers();
+  const fightIds = FIGHTS.map(f => f.id);
+  // みんなの予想は常時公開のため、受付中でも全員分を取得する（計量前は予想が無い）
+  allPreds = PHASE === "before_open"
+    ? []
+    : await DB.listPredictions({ fightIds });
+  myPreds = {};
+  for (const p of allPreds.filter(p => p.member_id === getMemberId())) myPreds[p.fight_id] = p;
+  // 応援（supportsテーブル未作成でもページを落とさない）
+  try { ALL_SUPPORTS = PHASE === "before_open" ? [] : await DB.listSupports({ fightIds }); }
+  catch (e) { ALL_SUPPORTS = []; }
+  await window.AVATARS_READY;
+  render();
+}
+
+// 📣応援：予想とは別に「どっちを応援するか」。締切に関係なくいつでも。
+// 応援の印（絵文字をやめて線画のメガホン。Gaku 11/7「応援も無駄な文字」＝見出しの段は出さず形で伝える）。
+// ただし選ぶ前は何のボタンか分からない（Gaku 11/7「選択するときに応援という文字がないとなんのことだかわからない」）
+// → まだ応援していない時だけ、名前の上に小さく「予想と別に応援」（札の RED/BLUE と同じ置き方）。押した後は色で伝わるので消す。
+//   勝つと思う方（予想）と勝ってほしい方（応援）は別もの・応援だけでもいい（Gaku 11/7「勝敗関係なく…応援だけでもOK」）
+const MEGA = `<svg class="mega" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5v5h3.2l1.5 5.2h2.6L9 14.5l10 4.5v-14l-10 4.5z"/><path d="M20.4 9.4a2.8 2.8 0 0 1 0 5.2z"/></svg>`;
+function supportRow(f) {
+  const mid = getMemberId();
+  const mine = ALL_SUPPORTS.find(s => s.fight_id === f.id && s.member_id === mid);
+  const cnt = (fid) => ALL_SUPPORTS.filter(s => s.fight_id === f.id && s.fighter_id === fid).length;
+  const btn = (fid, side) => {
+    const n = cnt(fid), name = FMAP[fid]?.name;
+    // 8字以上の名前は字を一段小さくして1行に収める（トニー・ララミー）。それ以上長い名前だけ「・」で折る
+    return `<button type="button" class="sup-btn c${side}${mine?.fighter_id === fid ? " sel" : ""}${(name || "").length >= 8 ? " long" : ""}" onclick="toggleSupport('${f.id}','${fid}')"
+      aria-label="${esc(name)}を応援">${MEGA}<span class="sup-t">${mine ? "" : `<small>予想と別に応援</small>`}<span class="sup-nm">${fnm(name)}</span></span>${n ? `<b class="sup-n">${n}</b>` : ""}</button>`;
+  };
+  return `<div class="support-row">${btn(f.fighter1_id, 1)}${btn(f.fighter2_id, 2)}</div>`;
+}
+async function toggleSupport(fightId, fighterId) {
+  const mid = getMemberId();
+  const cur = ALL_SUPPORTS.find(s => s.fight_id === fightId && s.member_id === mid);
+  try {
+    if (cur && cur.fighter_id === fighterId) await DB.deleteSupport(mid, fightId);
+    else await DB.upsertSupport({ member_id: mid, fight_id: fightId, fighter_id: fighterId });
+    ALL_SUPPORTS = await DB.listSupports({ fightIds: FIGHTS.map(f => f.id) });
+    replaceCard(fightId);
+    // 「みんなの予想」と全員の予想一覧にも応援が出るので貼り直す
+    const op = document.getElementById("op_" + fightId);
+    if (op) op.outerHTML = othersBlock(FIGHTS.find(x => x.id === fightId));
+    drawBishokuSummary();
+    toast("応援を更新 ✓");
+  } catch (e) { toast("応援テーブルが未作成かも（要SQL）"); }
+}
+
+// タイトルマッチの印＝「TITLE MATCH」と刻んだ金のプレート（Gaku 11/8 の画像「タイトルMATCHはこんな感じで。右側に。」）。
+// 見出しの段（第〇試合と同じ高さ）の右端に置き、カード写真には被せない。プレートが「TITLE MATCH」を言うので、見出しの金の英字は外して「フライ級」だけにする。
+// 前は無地の金のプレート（28px）＋金の英字だった。その前は右上から垂れるベルト（SVG）で写真に掛かっていた（「カード写真に被せるのではなく、13試合目とおんなじレベル」）。
+// ときどき光の筋が横切ってキラッと光る（Gaku 11/8「キラッとね」）＝光はプレートの形の内側だけ（style.css の .t-plate::after）。
+// height は属性でも持つ＝CSSが古いまま読まれても大きく出ない
+const TITLE_PLATE = `<span class="t-plate" role="img" aria-label="TITLE MATCH"><img src="assets/title_match.webp" alt="" height="34"></span>`;
+
+// 試合の見出し：1行（Gaku 11/7「2段になってる・文字ダサい」）。大きい番号 → 題（あれば赤）／階級（体重）
+// 体重は階級の直後に括弧でくっつける（Gaku 11/8「バンタム級（61.0kg）くっつけて欲しい。はなさず」。前は右端に離していた）
+// 題に階級名が入っていれば（RIZINフライ級タイトルマッチ）階級も体重も繰り返さない（階級＝体重は決まっている・スマホで1行に収める）
+// title_label はタイトルマッチ専用ではない（「キックボクシングルール」「甲子園 決勝戦」「GP決勝」も入る）。
+// 金の演出とベルトは王座が懸かる試合だけ＝題に「タイトルマッチ」か「王座」があるもの
+const isTitleFight = (f) => /タイトルマッチ|王座/.test(f.title_label || "");
+// 王座戦の題は「フライ級」＋金の「TITLE MATCH」に組み直す（Gaku 11/8「RIZINフライ級タイトルマッチの文字部分がダサい」＝和文の長い金字をやめた）。
+// 「RIZIN〇〇級タイトルマッチ」の形でない題（王座決定戦の併記など）はそのまま金の字。
+// plate＝右端に「TITLE MATCH」のプレートが付く段（カードの頭）。英字はプレートと重なるので階級だけにする（予想の画面の見出しは英字のまま）
+function titleText(f, plate) {
+  const m = f.title_label.match(/^(?:RIZIN\s*)?(.+?級)タイトルマッチ$/);
+  return m ? `<span class="fl-t tl-ttl"><span class="tl-wc">${esc(m[1])}</span>${plate ? "" : `<span class="tl-en">TITLE MATCH</span>`}</span>`
+    : `<span class="fl-t title-label gold">${esc(f.title_label)}</span>`;
+}
+function fightLabel(f, plate) {
+  const wc = f.weight_class ? weightClassName(f.weight_class) : "";
+  const kg = f.weight_class && f.weight_class !== wc ? `<span class="fl-kg">（${esc(f.weight_class)}）</span>` : "";
+  const cls = wc ? `<span class="fl-t">${esc(wc)}${kg}</span>` : "";
+  const t = f.title_label ? `${isTitleFight(f) ? titleText(f, plate) : `<span class="fl-t title-label">${esc(f.title_label)}</span>`}${f.title_label.includes(wc) ? "" : cls}` : cls;
+  return `<span class="fno">${f.segment === "opening" ? "OP " : ""}第<b>${f.order_no}</b>試合</span>${t}`;
+}
+// 体重超過・MMA以外の注意書き。読ませたいので写真には重ねず、写真の下に段で出す
+const fightWarn = (f) => `${f.no_score ? `<span class="ns-badge">⚠️ ${esc(f.no_score_note || "体重超過")}｜予想対象外</span>` : ""}
+    ${f.event_only ? `<span class="ns-badge">${esc(f.event_only_note || "MMA以外のルール")}｜予想は任意・通算対象外</span>` : ""}`.trim();
+// カードの頭。試合番号と階級はカード写真の上に段で出す（Gaku 11/8「カード写真の左上じゃない？」→「カード写真に被らないで、その上ね」）。
+// 写真の下は予想の割合バー、注意書きはその下
+function cardHead(f) {
+  const warn = fightWarn(f);
+  return `<div class="fight-label top">${fightLabel(f, true)}${isTitleFight(f) ? TITLE_PLATE : ""}</div>
+      ${f.image_url ? `<div class="banner"><img src="${esc(f.image_url)}" alt="" loading="lazy"></div>` : ""}
+      ${voteBar(f)}${warn ? `<div class="fight-label">${warn}</div>` : ""}`;
+}
+
+// 選手名から名鑑へ飛ぶリンク行。「名鑑」の語は出さず、何が起きるかを言う（Gaku 11/7「『名鑑』は『福田龍彌をもっと詳しく』みたいに」）。
+// 選手へのリンク。左右の対立のまま（Gaku 11/7「縦に並んでるのは違和感。左右の対立構造には徹底したい」）、
+// 文は1行（「もっと詳しくは2行にしないでね」）。半分の幅に長い名前は入らないので、名前は真上の戦績の列に任せて
+// 「選手DATA 詳しく ›」だけを置く（Gaku 11/7「選手DATA もっとくわしく…もっといらなくてもいいか」）。
+// 誰のかは左右の位置とコーナー色の印で分かる（読み上げには名前を渡す）
+function profileLinks(f) {
+  const a = (id, side) => `<a class="c${side}" href="fighter.html?id=${id}" aria-label="${esc(FMAP[id]?.name)}の選手データを詳しく"><span>選手<b>DATA</b> 詳しく</span><i>›</i></a>`;
+  return `
+    <div class="profile-links">${a(f.fighter1_id, 1)}${a(f.fighter2_id, 2)}</div>`;
+}
+
+// STATS の部品（statsBlock・fitNicks ほか）は js/stats.js（名鑑と共通）
+
+// ---------- 予想UI（受付中） ----------
+// 勝敗は、カードの札を押してもその試合から予想の画面（openWiz）が開き、最後の「これでいい？」で決定して保存する（Gaku 11/7）。
+// 決まり手・ラウンドも同じ画面の中だけで入れる（任意）。カードには選んだ中身が勝者の札に小さく出るだけ
+// 勝敗予想の札（Gaku 11/7「勝敗予想のタップ部分はこだわりたい。気持ちが昂る瞬間」）：うっすら赤・青の地に選手の顔を透かす。
+// 選んだ方（締切後は勝った方）は金で囲み、顔がはっきり出る。選ばなかった方は沈む。予想・締切後・計量前・中止の全カードで同じ札
+function cornerBox(f, side, { sel = false, tag = "div", attrs = "", cls = "", note = "" } = {}) {
+  const fx = FMAP[side === 1 ? f.fighter1_id : f.fighter2_id];
+  // CSS変数に入れた url() は style.css（css/）からの相対で読まれる＝絶対URLにして渡す
+  const face = fx?.highlight_url ? ` style="--face:url('${esc(new URL(fx.highlight_url, location.href).href)}')"` : "";
+  return `<${tag} class="corner-btn c${side}${sel ? " sel" : ""}${face ? " has-face" : ""}${cls ? " " + cls : ""}"${face}${attrs}>` +
+    `<small>${side === 1 ? "RED" : "BLUE"}</small><span class="cb-name">${fnm(fx?.name)}</span>${note ? `<em class="cb-note">${esc(note)}</em>` : ""}</${tag}>`;
+}
+// 決まり手の中身（一本・RNC・2R）。札の中と予想の画面で同じ書き方
+const kimNote = (p) => [p.method && METHOD_LABEL[p.method], p.technique && techShort(p.technique), p.method !== "DEC" && p.round && `${p.round}R`].filter(Boolean).join("・");
+function predictCard(f) {
+  const p = myPreds[f.id] || {};
+  // 決まり手は予想の画面の大きな札の中だけで決める（Gaku 11/7「判定かどうかはここで決めるのではなく、あの大きなボタンの中で完結」）。
+  // カードは選んだ勝者の札に中身を小さく書くだけ。押せば予想の画面が開き、そこで直す・取り消す
+  const corner = (side) => {
+    const fid = side === 1 ? f.fighter1_id : f.fighter2_id, sel = p.winner_id === fid;
+    return cornerBox(f, side, { sel, tag: "button", attrs: ` onclick="openWiz('${f.id}')"`, note: sel ? kimNote(p) : "" });
+  };
+  return `
+    <div class="fight-card${p.winner_id ? " confirmed" : ""}" id="fc_${f.id}">
+      ${cardHead(f)}
+      ${statsBlock(f)}
+      ${profileLinks(f)}
+      <div class="pick-zone">
+      <div class="pz-head">どっちが勝つ？</div>
+      <div class="vs-row${p.winner_id ? " has-sel" : ""}">
+        ${corner(1)}
+        <span class="vs-mark">VS</span>
+        ${corner(2)}
+      </div>
+      ${supportRow(f)}
+      </div>
+    </div>`;
+}
+
+// ---------- 受付前（計量待ち）：カードだけ見せる ----------
+function previewCard(f) {
+  const f1 = FMAP[f.fighter1_id], f2 = FMAP[f.fighter2_id];
+  return `
+    <div class="fight-card" id="fc_${f.id}">
+      ${cardHead(f)}
+      ${statsBlock(f)}
+      ${profileLinks(f)}
+      <div class="pick-zone">
+      <div class="pz-head">勝敗予想</div>
+      <div class="vs-row">
+        ${cornerBox(f, 1, { cls: "disabled" })}
+        <span class="vs-mark">VS</span>
+        ${cornerBox(f, 2, { cls: "disabled" })}
+      </div>
+      <div class="fight-foot"><span class="save-note">計量終了後に予想開始</span></div>
+      ${supportRow(f)}
+      </div>
+    </div>`;
+}
+
+// ---------- 中止・延期の試合 ----------
+// カードに大きくCANCELLEDを重ね、理由を添える。予想は採点外だが一応見れる。
+function cancelledCard(f) {
+  const f1 = FMAP[f.fighter1_id], f2 = FMAP[f.fighter2_id];
+  const picks = allPreds.filter(p => p.fight_id === f.id).length;
+  return `
+    <div class="fight-card cancelled" id="fc_${f.id}">
+      <div class="cancel-stamp">CANCELLED</div>
+      ${cardHead(f)}
+      <div class="vs-row">
+        ${cornerBox(f, 1, { cls: "disabled" })}
+        <span class="vs-mark">VS</span>
+        ${cornerBox(f, 2, { cls: "disabled" })}
+      </div>
+      <div class="cancel-note">${esc(f.cancel_note || "この試合は中止・延期になりました")}</div>
+      ${picks ? `<div class="ob-picks" id="op_${f.id}">
+        <div class="ob-head">この試合の予想（採点対象外）</div>
+        ${picksRows(f)}
+      </div>` : ""}
+    </div>`;
+}
+
+async function clearPred(fightId) {
+  try {
+    if (window.CLAIM_PROMISE) await window.CLAIM_PROMISE;
+    await DB.deletePrediction(getMemberId(), fightId);
+  } catch (e) { toast(window.saveErrorText ? saveErrorText(e) : (e.message || "取り消せなかった")); return; }
+  delete myPreds[fightId];
+  replaceCard(fightId);
+  await refreshMatrix();
+  toast("取り消した");
+}
+
+// オープンブック（締切なし）時、保存後にALL PICKS一覧と各カードの併記を即時更新
+async function refreshMatrix() {
+  if (PHASE === "before_open") return;
+  allPreds = await DB.listPredictions({ fightIds: FIGHTS.map(f => f.id) });
+  drawBishokuSummary();
+  // 各カード下の「みんなの予想」も貼り直す（自分のピックが増減し、一致/割れも変わるため）
+  // 中止試合のブロックは専用カード側で描画済みなので触らない。
+  FIGHTS.forEach(f => {
+    if (f.cancelled) return;
+    const el = document.getElementById("op_" + f.id);
+    if (el) el.outerHTML = othersBlock(f);
+  });
+}
+
+function replaceCard(fightId) {
+  const f = FIGHTS.find(x => x.id === fightId);
+  const el = document.getElementById("fc_" + fightId);
+  const tmp = document.createElement("div");
+  tmp.innerHTML = (PHASE === "locked" || PHASE === "finished") ? resultCard(f)
+    : PHASE === "before_open" ? previewCard(f) : predictCard(f);
+  el.replaceWith(tmp.firstElementChild);
+  drawProg();
+}
+
+// ---------- 答え合わせUI（締切後） ----------
+function resultCard(f) {
+  const f1 = FMAP[f.fighter1_id], f2 = FMAP[f.fighter2_id];
+  const decided = f.winner_id && f.result_method && !f.no_score;
+  let resultBox = `<div class="result-box waiting"><span class="rline">結果待ち</span></div>`;
+  if (f.no_score) {
+    const w = FMAP[f.winner_id];
+    const res = (f.winner_id && f.result_method)
+      ? `<div class="rline"><span class="win">🏆 ${fnm(w?.name)}</span>　${METHOD_LABEL[f.result_method] || ""}${f.result_method !== "DEC" && f.result_round ? ` ${f.result_round}R` : ""}${f.result_technique ? `／${TECH_LABEL[f.result_technique] || esc(f.result_technique)}` : ""}</div>`
+      : "";
+    resultBox = `<div class="result-box">${res}<span class="rline" style="color:#ffcf66">⚠️ ${esc(f.no_score_note || "体重超過")}（予想対象外・集計に含めない）</span></div>`;
+  } else if (decided) {
+    if (f.result_method === "DRAW" || f.result_method === "NC") {
+      resultBox = `<div class="result-box"><span class="rline">${METHOD_LABEL[f.result_method]}</span>（集計対象外）</div>`;
+    } else {
+      const w = FMAP[f.winner_id];
+      resultBox = `<div class="result-box">
+        <div class="rline"><span class="win">🏆 ${fnm(w?.name)}</span>　${METHOD_LABEL[f.result_method] || ""}
+          ${f.result_method !== "DEC" && f.result_round ? ` ${f.result_round}R` : ""}
+          ${f.result_technique ? `／${TECH_LABEL[f.result_technique] || esc(f.result_technique)}` : ""}</div>
+      </div>`;
+    }
+  }
+  return `
+    <div class="fight-card" id="fc_${f.id}">
+      ${cardHead(f)}
+      ${statsBlock(f)}
+      ${profileLinks(f)}
+      <div class="pick-zone">
+      <div class="pz-head">${decided ? "結果と答え合わせ" : "勝敗予想（締切済み）"}</div>
+      <div class="vs-row${decided && f.winner_id ? " has-sel" : ""}">
+        ${cornerBox(f, 1, { sel: decided && f.winner_id === f.fighter1_id })}
+        <span class="vs-mark">VS</span>
+        ${cornerBox(f, 2, { sel: decided && f.winner_id === f.fighter2_id })}
+      </div>
+      ${supportRow(f)}
+      ${resultBox}
+      ${picksRows(f)}
+      </div>
+    </div>`;
+}
+
+// 1試合分の「全員の予想」行。結果が出ていれば○×・ピタリ・あらますを付ける。
+// 答え合わせカード（締切後）とオープンブックの各カード下の両方で使う。
+function picksRows(f) {
+  const decided = f.winner_id && f.result_method && !f.no_score && !["DRAW", "NC"].includes(f.result_method);
+  const preds = allPreds.filter(p => p.fight_id === f.id)
+    .map(p => ({ p, m: MEMBERS.find(m => m.id === p.member_id), s: decided ? scoreFight(p, f) : null }))
+    // 3人を最上部に固定 → その中/外で見せ場順（あらます>ピタリ>的中）
+    .sort((a, b) => friendRank(a.p.member_id) - friendRank(b.p.member_id) || predRank(b.s) - predRank(a.s));
+  // 応援📣も各行に出す（予想とは別軸）。応援だけして予想していない人も行を出す
+  const sups = ALL_SUPPORTS.filter(s => s.fight_id === f.id);
+  const supTag = (mid) => {
+    const sup = sups.find(s => s.member_id === mid);
+    return sup ? `<span class="psup ${sup.fighter_id === f.fighter1_id ? "r" : "b"}">${MEGA}${fnm(FMAP[sup.fighter_id]?.name)}</span>` : "";
+  };
+  const cheerOnly = sups.filter(s => !preds.some(x => x.p.member_id === s.member_id))
+    .map(s => MEMBERS.find(m => m.id === s.member_id)).filter(Boolean)
+    .sort((a, b) => friendRank(a.id) - friendRank(b.id));
+  if (!preds.length && !cheerOnly.length) return `<div class="pred-row"><span class="pdetail">まだ予想なし</span></div>`;
+  return preds.map(({ p, m, s }) => {
+    const kim = p.method === "DEC" ? "判定" : (p.technique ? TECH_LABEL[p.technique] : null);
+    const detail = [FMAP[p.winner_id]?.name, kim, (p.method !== "DEC" && p.round) ? `${p.round}R` : null].filter(Boolean).join("・");
+    if (!s || !s.counted) return `<div class="pred-row"><span class="pwho">${avatarHTML(m, "pava")}${esc(m?.name)}</span><span class="pdetail">${esc(detail)}</span>${supTag(p.member_id)}</div>`;
+    const tier = s.pitari ? `<span class="ptier pitari">ピタリ!</span>`
+      : s.winnerHit ? `<span class="ptier">的中</span>` : "";
+    return `<div class="pred-row ${s.winnerHit ? "hit" : "miss"}">
+      <span class="hitmark">${s.winnerHit ? "○" : "×"}</span>
+      <span class="pwho">${avatarHTML(m, "pava")}${esc(m?.name)}</span>
+      <span class="pdetail">${esc(detail)}</span>
+      ${supTag(p.member_id)}
+      ${tier}
+    </div>`;
+  }).join("") + cheerOnly.map(m =>
+    `<div class="pred-row"><span class="pwho">${avatarHTML(m, "pava")}${esc(m.name)}</span><span class="pdetail">予想なし</span>${supTag(m.id)}</div>`
+  ).join("");
+}
+
+// その試合で「全員の勝者予想が揃っているか」を判定する。
+//   unanimous＝予想した全員が同じ勝者／split＝割れている／none＝1人以下
+function consensus(f) {
+  const picks = allPreds.filter(p => p.fight_id === f.id);
+  if (picks.length < 2) return { level: "none", n: picks.length };
+  const winners = new Set(picks.map(p => p.winner_id));
+  return winners.size === 1
+    ? { level: "unanimous", winner: [...winners][0], n: picks.length }
+    : { level: "split", n: picks.length };
+}
+
+// 得票率の横グラフ（オッズ可視化）。赤=RED側・青=BLUE側の勝者予想の割合。色は .vb（style.css）
+function voteBar(f) {
+  const picks = allPreds.filter(p => p.fight_id === f.id);
+  const n = picks.length;
+  if (!n) return "";
+  // バーの下に「神龍誠 60%｜40% トニー・ララミー」と名前と割合を並べていたが、バーの中の数字と左右（赤＝写真の左・青＝右）で読めるので外した
+  // （Gaku 11/8「ここいらなくね？」）
+  const n1 = picks.filter(p => p.winner_id === f.fighter1_id).length;
+  const p1 = Math.round(n1 / n * 100), p2 = 100 - p1;
+  return `
+    <div class="votebar" style="margin:6px 0 4px">
+      <div class="vb">${p1 ? `<i class="r" style="flex:${p1}">${p1 >= 12 ? p1 + "%" : ""}</i>` : ""}${p2 ? `<i class="b" style="flex:${p2}">${p2 >= 12 ? p2 + "%" : ""}</i>` : ""}</div>
+    </div>`;
+}
+
+// 各カードの下に出す「みんなの予想」ブロック。得票率グラフで割れ具合は一目なので文言バッジは出さない。
+function othersBlock(f) {
+  return `<div class="ob-picks" id="op_${f.id}">
+    <div class="ob-head">みんなの予想<span class="ob-n">${allPreds.filter(p => p.fight_id === f.id).length}<small>人</small></span></div>
+    ${picksRows(f)}
+  </div>`;
+}
+
+// ---------- 結果発表（finished時の大会サマリー） ----------
+function eventSummary() {
+  // ランキングの「直近」と同じ表（11/9「ランキングの出し方変わってない」）：的中率の順・2列×5段・ランクインはこの大会で結果の出た試合の半分から。
+  // ランキングにだけ出さない予想者（RANK_HIDDEN）もランキングと揃えて外す（予想は各カードの下に残る）
+  const all = computeLeaderboard(MEMBERS.filter(m => !window.RANK_HIDDEN.includes(m.id)), FIGHTS, allPreds, { scope: "event" }).filter(r => r.answered > 0);
+  if (!all.length) return "";
+  const rows = all.filter(r => isRanked(r, "event")), out = all.filter(r => !isRanked(r, "event"));
+  return `
+    <div class="summary-box">
+      <div class="summary-title">この大会の成績</div>
+      ${rankGrid(rows)}
+      ${unrankedGrid(out, rankMin(FIGHTS, "event"), "この大会で")}
+      <p class="summary-rule">勝敗の的中率で順位（同じ率なら当てた数）。名前をタップするとその人の戦績へ</p>
+    </div>`;
+}
+
+function render() {
+  const main = FIGHTS.filter(f => f.segment === "main");
+  const op = FIGHTS.filter(f => f.segment === "opening");
+  const base = (PHASE === "locked" || PHASE === "finished") ? resultCard
+    : PHASE === "before_open" ? previewCard : predictCard;
+  // 予想受付中は、大会の締切有無に関わらず各カードの下に全員のピックを併記する
+  // （Gaku方針：みんなの予想は常時公開）。締切後・結果発表後は resultCard が
+  // 既に全員のピックを内包しているので、二重にしないため predictCard のときだけ足す。
+  // 中止・延期の試合は専用カード（大きくCANCELLED・予想は見れる）に差し替える。
+  // 各試合は煙をまとう（.glow・Gaku 11/8「他の試合も何かしらの色で囲もう」）：タイトルマッチ＝金（揺れる）／それ以外＝赤。中止のカードは囲まない。
+  // .aura＝カードの縁にかかる靄・外側の煙と縁は CSS の ::before/::after。金のプレートは見出しの段（cardHead）
+  const card = (f) => `<section class="fight-unit${f.cancelled ? "" : " glow"}${isTitleFight(f) ? " title" : ""}">${f.cancelled ? cancelledCard(f)
+    : base === predictCard ? base(f) + othersBlock(f) : base(f)}${f.cancelled ? "" : `<i class="aura" aria-hidden="true"></i>`}</section>`;
+  const openBook = isOpenBook(EV);
+  document.getElementById("main").innerHTML = `
+    <div class="title-row"><h1 class="page-title">${evNameHTML(evParts(EV.name)[0])}${evParts(EV.name)[1] ? `<small class="ev-sub">${esc(evParts(EV.name)[1])}</small>` : ""}</h1>${dateBlock(EV.event_date)}</div>
+    ${PHASE === "finished" ? eventSummary() : ""}
+    <!-- 日付と案内文・ALL PICKS（全員の予想の一覧表）は撤去（Gaku指示11/7「これ削除」「ALLPICKS削除」）。
+         みんなの予想は各カードの下で見える。美食会予想まとめは美食会の3人が見ている時だけ（Gaku 11/11「一般客の動線に美食会がいないか」） -->
+    ${PHASE !== "before_open" && window.isBishokuViewer() ? `<div id="bsum" class="bsum"></div>` : ""}
+    ${main.length ? `<div class="section-label">MAIN CARD</div>` : ""}
+    ${main.map(card).join("")}
+    ${op.length ? `<div class="section-label">OPENING FIGHTS</div>` : ""}
+    ${op.map(card).join("")}`;
+  // 締切ありの受付中のみカウントダウンをスティッキー表示（締切なし大会は非表示）
+  const sc = document.getElementById("sticky-cd");
+  if (PHASE === "open" && !openBook) {
+    sc.innerHTML = `
+      <div class="countdown-bar sticky">
+        <span class="cd-timer" id="cd_main" role="timer" aria-label="予想締切までの残り時間">--:--:--</span>
+        <div id="sticky-prog"></div>
+      </div>`;
+    startCountdown(document.getElementById("cd_main"), EV.lock_at, () => location.reload());
+    drawProg();
+  } else sc.innerHTML = "";
+  if (PHASE === "finished") fitRankNames(document.querySelector(".summary-box"));
+  drawBishokuSummary();
+}
+
+// 美食会3人の予想まとめ（LINEで送る画像と同じ描き方＝js/bishoku_summary.js）を ALL PICKS の上に出す（Gaku指示11/7）
+// 画像ファイルを貼らずにその場で組む＝予想や応援が入るたびに最新になる。幅1080pxの1枚を画面幅まで縮めて見せる。
+// サイトのCSSと class 名がぶつからないよう Shadow DOM に入れる。丸の縁の強さに使うバナーの測定値は data/zones/<大会>.json（build_data.py が書く）
+let BSUM_ZONES = null;
+async function drawBishokuSummary() {
+  const host = document.getElementById("bsum");
+  if (!host || !window.BishokuSummary) return;
+  if (BSUM_ZONES === null) {
+    try { BSUM_ZONES = await (await fetch(`data/zones/${EV.id}.json`)).json(); } catch (e) { BSUM_ZONES = {}; }
+  }
+  const ids = window.BISHOKU;
+  const members = ids.map(id => MEMBERS.find(m => m.id === id)).filter(Boolean);
+  const now = new Date();
+  const D = {
+    members,
+    preds: allPreds.filter(p => ids.includes(p.member_id)),
+    supports: ALL_SUPPORTS.filter(s => ids.includes(s.member_id)),
+    zones: BSUM_ZONES,
+    // オッズのバー＝その試合の全員の予想（外部の予想者も含む・各カードの得票率バー voteBar と同じ数え方）。[左の選手, 右の選手] の人数
+    odds: Object.fromEntries(FIGHTS.map(f => { const ps = allPreds.filter(p => p.fight_id === f.id);
+      return [f.id, [ps.filter(p => p.winner_id === f.fighter1_id).length, ps.filter(p => p.winner_id === f.fighter2_id).length]]; })),
+    built_at: `${now.getMonth() + 1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`,
+  };
+  const fights = FIGHTS.filter(f => !f.cancelled).sort((a, b) => b.order_no - a.order_no);
+  const root = host.shadowRoot || host.attachShadow({ mode: "open" });
+  root.innerHTML = `<style>:host{display:block} .fit{transform-origin:0 0}${BishokuSummary.CSS}</style>
+    <div class="fit"><div class="sheet bare">${BishokuSummary.render(D, { ev: EV, fights, fname: id => FMAP[id]?.name, img: u => u, bare: true })}</div></div>`;
+  window.fitGlyphs?.(root);
+  const fit = () => {
+    const el = root.querySelector(".fit"), k = host.clientWidth / 1080;
+    el.style.transform = `scale(${k})`;
+    host.style.height = Math.ceil(el.firstElementChild.offsetHeight * k) + "px";
+    refreshGuide();
+  };
+  fit();
+  root.querySelectorAll("img").forEach(im => im.complete || im.addEventListener("load", fit, { once: true }));
+  // 幅が変わった時だけ合わせ直す（fit が高さを変える→また通知、の空回りで ResizeObserver loop のエラーが出ていた）
+  if (!host._ro) { host._ro = new ResizeObserver(() => { if (host.clientWidth !== host._w) { host._w = host.clientWidth; fit(); } }); host._ro.observe(host); }
+}
+
+// 上の帯の目盛り（大会タブの予想済みと同じ型）と、浮く「予想を入れる」。予想のたびに描き直す
+const WIZ_FIGHTS = () => [...document.querySelectorAll(".fight-card")].map(el => FIGHTS.find(f => "fc_" + f.id === el.id))
+  .filter(f => f && !f.cancelled && !f.event_only);
+function drawProg() {
+  const fs = FIGHTS.filter(f => !f.cancelled && !f.event_only), n = fs.filter(f => myPreds[f.id]?.winner_id).length;
+  const el = document.getElementById("sticky-prog");
+  if (el) el.innerHTML = progBlock(n, fs.length);
+  refreshGuide();
+}
+// 浮いて追いかけてくる「予想を入れる ↓」（Gaku 11/8「予想ページに来たはずなのにどこで予想を登録すればいいんだ？ってなっちゃうから、
+// 下にあるよって追従する」）。上の大きな入口札は撤去し、これを最初から出す（「これがそもそもいらない」「最初から出しておいて」）。
+// 本来は「この下にある」の合図（「右の青いボタン押さないといけない感じじゃなくて」）。ただし押されたら、一番上の試合の「どっちが勝つ？」と
+// 2人の札まで飛ぶ（Gaku 11/8「「予想を入れる」ボタン押したら一番上のカードの選択ボタンに飛ぶ」）＝jumpToPick。前は指が素通りして何も起きなかった。
+// 美食会予想まとめは写真に撮る面なので、まとめの頭が上の帯の下まで来て画面を占めている間（下の端が画面の8割より下にある間）は引っ込む。
+// カードも同じ（Gaku 11/8「写真のスクショでカードの上から判断材料まで写り切ってるのが理想…まずそこが外せない条件」）。
+// 第〇試合の段から判断材料の下の端までが上の帯の下に全部入っていて、浮く札がその下の端に重なる間は引っ込む＝framedCard。
+// 出たままだと一番上の試合の前戦の段を隠していた
+// 上から順にスクロールしてメインイベント（一番上の試合）の「どっちが勝つ？」と2人の札が浮く札の上まで来たら、勝手に照らす＝arriveGuide
+// （「行ったら勝手に背景黒くしてハイライトする感じ。流れるように繋がってるの、しかも一度きりの出現」）。照らしたら、そのページではもう出さない。
+// 全試合を入れ終えている時は最初から出さない（1-2b 促さない）
+const mainPick = () => document.querySelector(".fight-card .pick-zone");
+const topBar = () => Math.max(...["app-header", "sticky-cd"].map(id => document.getElementById(id)?.getBoundingClientRect().bottom || 0));
+// 浮く札の上端は offsetTop で取る（fixed なので画面からの位置・出入りの transform を含まない＝出し入れで揺れない）。札が判断材料に重ならない縦長の画面では引っ込まない
+const framedCard = (bar, H, g) => [...document.querySelectorAll(".fight-card")].some(c => {
+  const t = c.querySelector(".fight-label.top")?.getBoundingClientRect(), s = c.querySelector(".stats")?.getBoundingClientRect();
+  return t && s && t.top >= bar - 4 && s.bottom <= H && s.bottom > g.offsetTop;
+});
+let GUIDE_DONE = false, JUMP_T = 0;   // JUMP_T＝押して飛んでいる最中（まとめやカードの上を通り過ぎる間も引っ込めない）
+function updateGuide() {
+  const g = document.getElementById("pick-guide");
+  if (!g || !Array.isArray(FIGHTS) || GUIDE_DONE) return;   // 読み込み前・照らし終えた後は何もしない
+  const H = innerHeight, bar = topBar(), z = mainPick();
+  const r = z?.querySelector(".vs-row")?.getBoundingClientRect(), bs = document.getElementById("bsum")?.getBoundingClientRect();
+  const show = PHASE === "open" && document.getElementById("wiz").hidden && !!r
+    && r.top >= bar - 8   // もう通り過ぎている（戻るで下から開いた等）なら下向きの矢印は嘘になるので出さない
+    && FIGHTS.some(f => !f.cancelled && !f.event_only && !myPreds[f.id]?.winner_id)
+    && (JUMP_T || !(bs && bs.height > 0 && bs.top < bar + 48 && bs.bottom > H * 0.78) && !framedCard(bar, H, g));
+  g.classList.toggle("show", show);
+  if (!show || r.bottom > g.getBoundingClientRect().top - 8) return;
+  GUIDE_DONE = true;   // 2人の札が浮く札より上に出きった
+  arriveGuide(g, z);
+}
+// 照らす（Gaku 11/8「他が暗くなってボタンだけがハイライト」「流れるように繋がってる」）。浮く札がそのまま光になって飛んでいく：
+// 照明の穴は浮く札（赤青2枚ぶん）の位置・大きさから始まり、周りが暗くなりながら、行き過ぎて戻る動きで「どっちが勝つ？」と2人の札を囲む大きさまで飛ぶ。
+// 飛ぶ間もスクロールに付いていく（行き先を毎こま測り直す）。着いたら2人の札が交互に光る。2秒（着いてから1.4秒）か画面に触れたら明かりが戻る
+// （前は3.4秒＝着いてから2.8秒。Gaku 11/8「2.6秒続くの長い。半分でいい」）
+// （照明は指を通すので、そのまま札を押せる）
+function arriveGuide(g, z) {
+  const spot = document.getElementById("pg-spot"), row = z.querySelector(".vs-row"), head = z.querySelector(".pz-head") || row, pad = 10;
+  const put = q => Object.assign(spot.style, { left: q.l + "px", top: q.t + "px", width: q.w + "px", height: q.h + "px" });
+  const to = () => { const a = head.getBoundingClientRect(), b = row.getBoundingClientRect(), l = Math.min(a.left, b.left);
+    return { l: l - pad, t: a.top - pad, w: Math.max(a.right, b.right) - l + pad * 2, h: b.bottom - a.top + pad * 2 }; };
+  const s = g.getBoundingClientRect(), from = { l: s.left, t: s.top, w: s.width, h: s.height };
+  const T = matchMedia("(prefers-reduced-motion: reduce)").matches ? 1 : 620, t0 = performance.now();
+  const back = k => 1 + 2.7 * (k - 1) ** 3 + 1.7 * (k - 1) ** 2;   // 1割ほど行き過ぎて戻る（デフォルメ）
+  put(from);
+  spot.hidden = false;
+  void spot.offsetWidth;
+  spot.classList.add("on");
+  g.classList.add("fly");
+  let live = true;
+  const step = now => {
+    if (!live) return;
+    const k = Math.min(1, (now - t0) / T), e = back(k), q = to();
+    put({ l: from.l + (q.l - from.l) * e, t: from.t + (q.t - from.t) * e, w: from.w + (q.w - from.w) * e, h: from.h + (q.h - from.h) * e });
+    if (k === 1 && !spot.classList.contains("lit")) { spot.classList.add("lit"); row.classList.add("beckon"); }
+    requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+  const end = () => {
+    if (!live) return;
+    spot.classList.add("off");
+    setTimeout(() => { live = false; spot.hidden = true; g.classList.remove("show"); row.classList.remove("beckon"); }, 600);
+  };
+  setTimeout(end, 2000);
+  addEventListener("pointerdown", end, { once: true });
+}
+// 押したら飛ぶ：「どっちが勝つ？」と2人の札を、上の帯と浮く札の間の真ん中に置く（入りきらなければ「どっちが勝つ？」を帯のすぐ下に）。
+// 飛ぶ途中で2人の札が浮く札より上に出きるので、照らす（arriveGuide）はそのまま流れで続く＝浮く札が光になって札を囲む
+function jumpToPick() {
+  const g = document.getElementById("pick-guide"), z = mainPick(), row = z?.querySelector(".vs-row");
+  if (!g.classList.contains("show") || GUIDE_DONE || !row) return;
+  const a = (z.querySelector(".pz-head") || row).getBoundingClientRect(), b = row.getBoundingClientRect();
+  // 上の帯は飛んだ先で貼り付いた高さで測る（今の位置で測ると、帯がまだページの流れの中にある一番上からは下にずれる）
+  const top = ["app-header", "sticky-cd"].reduce((s, id) => s + (document.getElementById(id)?.offsetHeight || 0), 0) + 12;
+  const room = g.getBoundingClientRect().top - 12 - top;
+  clearTimeout(JUMP_T); JUMP_T = setTimeout(() => { JUMP_T = 0; refreshGuide(); }, 1500);
+  scrollTo({ top: scrollY + a.top - top - Math.max(0, (room - (b.bottom - a.top)) / 2),
+    behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+document.getElementById("pick-guide").addEventListener("click", jumpToPick);
+let GUIDE_RAF = 0;
+function refreshGuide() { if (!GUIDE_RAF) GUIDE_RAF = requestAnimationFrame(() => { GUIDE_RAF = 0; updateGuide(); }); }
+addEventListener("scroll", refreshGuide, { passive: true });
+addEventListener("resize", refreshGuide);
+
+// ---------- 予想の画面（Gaku 11/7「ボタンで押して階層を作る」「脳死で質問に答えれば勝敗が正しく思い通りに入力される」） ----------
+// 大会ページは見る所。予想はカードの札から入る別の画面で、1試合ずつ「どっちが勝つ？」に答えるだけ。
+// 顔の札が画面いっぱい（「MAX時には画面いっぱい」）。押すと金で光って次の試合へ。戻る・飛ばすがあり、全部埋めさせはしない。
+// 押した時点では保存しない。最後に選んだ内容を一覧にして「これでいい？」と聞き、「これで決定」でまとめて保存する（「決定前は…確認を挟む」）
+// 予想の画面：1試合ずつ質問に答えていく（Gaku 11/7）
+//   どっちが勝つ？ → どう勝つ？（KO/TKO・一本・判定）→ 決まり手は？ → ラウンドは？ → これでいい？ → 決定
+//   判定ならその先は無い。決まり手を入れない人は各段の「入れない」で「これでいい？」へ。決定するまで保存しない
+const WIZ = { list: [], i: 0, step: "win", trail: [], pend: null, one: false };   // one＝カードから1試合だけ開いた
+const WIZ_KEYS = ["winner_id", "method", "technique", "round"];
+const wizSaved = (f) => myPreds[f.id]?.winner_id || null;
+const wizBase = (f) => Object.fromEntries(WIZ_KEYS.map(k => [k, myPreds[f.id]?.[k] || null]));
+function openWiz(fightId) {
+  WIZ.list = WIZ_FIGHTS();
+  if (!WIZ.list.length) return;
+  WIZ.one = !!fightId;
+  document.getElementById("wiz").hidden = false;
+  document.body.classList.add("wiz-open");
+  history.pushState({ wiz: 1 }, "");
+  wizGo(Math.max(0, WIZ.list.findIndex(f => fightId ? f.id === fightId : !wizSaved(f))));
+}
+function hideWiz() {
+  document.getElementById("wiz").hidden = true;
+  document.body.classList.remove("wiz-open");
+  refreshGuide();
+}
+function closeWiz() { if (history.state?.wiz) history.back(); else hideWiz(); }
+addEventListener("popstate", () => { if (!document.getElementById("wiz").hidden) hideWiz(); });
+function wizGo(k) { clearTimeout(WIZ_T); Object.assign(WIZ, { i: k, step: "win", trail: [], pend: wizBase(WIZ.list[k]) }); drawWiz(); }
+function wizTo(step) { WIZ.trail.push(WIZ.step); WIZ.step = step; drawWiz(); }
+function wizBack() {
+  clearTimeout(WIZ_T);
+  if (WIZ.trail.length) { WIZ.step = WIZ.trail.pop(); drawWiz(); } else if (WIZ.i > 0) wizGo(WIZ.i - 1);
+}
+function wizNext() { WIZ.i >= WIZ.list.length - 1 ? closeWiz() : wizGo(WIZ.i + 1); }
+const wizFace = (fx) => fx?.highlight_url ? ` style="background-image:url('${esc(new URL(fx.highlight_url, location.href).href)}')"` : "";
+// 2問目からは、選んだ勝者を上に小さく残す（誰の勝ち方を答えているか）
+function wizWho(f, wid) {
+  const fx = FMAP[wid];
+  return `<div class="wiz-who c${wid === f.fighter1_id ? 1 : 2}"><i${wizFace(fx)}></i><b>${fnm(fx?.name)}</b></div>`;
+}
+function drawWiz(pop) {
+  const w = document.getElementById("wiz"), L = WIZ.list, f = L[WIZ.i], p = WIZ.pend, last = WIZ.i === L.length - 1;
+  const bar = `<span class="ep-bar wiz-bar">${L.map((x, k) =>
+    `<i class="${wizSaved(x) ? "on" : ""}${k === WIZ.i ? " cur" : ""}" onclick="wizGo(${k})"></i>`).join("")}</span>`;
+  const head = (h) => `<div class="wiz-top"><button type="button" class="wiz-x" onclick="closeWiz()" aria-label="閉じる">×</button>${bar}</div>
+    <div class="wiz-q"><div class="fight-label">${fightLabel(f)}${fightWarn(f)}</div>${WIZ.step === "win" || WIZ.step === "ok" ? "" : wizWho(f, p.winner_id)}<h2 class="wiz-h">${h}</h2></div>`;
+  const back = `<button type="button" onclick="wizBack()" ${WIZ.i === 0 && !WIZ.trail.length ? "disabled" : ""}>‹ 戻る</button>`;
+  const nav = (right) => `<div class="wiz-nav">${back}${right}</div>`;
+  const skip = `<button type="button" onclick="wizSkip()">入れない ›</button>`;
+  const opt = (on, js, t) => `<button type="button" class="wiz-opt${on ? " sel" : ""}" onclick="${js}">${t}</button>`;
+  if (WIZ.step === "win") {
+    const c = (side) => {
+      const sel = p.winner_id === (side === 1 ? f.fighter1_id : f.fighter2_id);
+      return cornerBox(f, side, { sel, tag: "button", attrs: ` onclick="wizPick(${side})"`, cls: sel && pop ? "pop" : "" });
+    };
+    w.innerHTML = head("どっちが勝つ？") +
+      `<div class="vs-row wiz-stage${p.winner_id ? " has-sel" : ""}">${c(1)}<span class="vs-mark">VS</span>${c(2)}</div>` +
+      (wizSaved(f) ? `<button type="button" class="wiz-clear" onclick="wizClear()">予想を取り消す</button>` : "") +
+      nav(`<button type="button" onclick="wizNext()">${last ? "閉じる" : wizSaved(f) ? "次へ ›" : "飛ばす ›"}</button>`);
+  } else if (WIZ.step === "how") {
+    w.innerHTML = head("どう勝つ？") +
+      `<div class="wiz-opts">${METHODS.map(x => opt(p.method === x.id, `wizHow('${x.id}')`, x.label)).join("")}</div>` +
+      `<div class="wiz-foot">ランキングは勝敗だけで決まる。ここからは入れなくてもOK</div>` + nav(skip);
+  } else if (WIZ.step === "tech") {
+    w.innerHTML = head("決まり手は？") +
+      `<div class="wiz-opts grid">${techsFor(p.method).map(t => opt(p.technique === t.id, `wizTech('${t.id}')`, fnm(t.label).replace("（", "<wbr>（"))).join("")}</div>` + nav(skip);
+  } else if (WIZ.step === "rnd") {
+    w.innerHTML = head("ラウンドは？") +
+      `<div class="wiz-opts">${Array.from({ length: f.rounds || 3 }, (_, i) => i + 1)
+        .map(r => opt(Number(p.round) === r, `wizRound(${r})`, `${r}<small>R</small>`)).join("")}</div>` + nav(skip);
+  } else {
+    // これでいい？：勝者の札＋答えた分だけ（入れなかった所は出さない）。
+    // 相手は札の隅に小さく（赤は左下・青は右下）。押せばそちらの勝ちに替わる（Gaku 11/7）
+    const side = p.winner_id === f.fighter1_id ? 1 : 2, alt = FMAP[side === 1 ? f.fighter2_id : f.fighter1_id];
+    const spec = [p.method && METHOD_LABEL[p.method], p.technique && TECH_LABEL[p.technique], p.method !== "DEC" && p.round && `${p.round}R`].filter(Boolean);
+    w.innerHTML = head("これでいい？") +
+      `<div class="vs-row wiz-stage wiz-one has-sel">${cornerBox(f, side, { sel: true, cls: pop ? "pop" : "" })}
+        <button type="button" class="wiz-alt c${3 - side}" onclick="wizSwap()" aria-label="${esc(alt?.name)}の勝ちに変える"><i${wizFace(alt)}></i><b>${fnm(alt?.name)}</b></button></div>
+      ${spec.length ? `<div class="ws-spec">${spec.map(x => `<b>${esc(x)}</b>`).join("")}</div>` : ""}
+      <div class="wiz-nav ask"><button type="button" class="wiz-arw" onclick="wizBack()" aria-label="戻る">‹</button>
+        <button type="button" class="wiz-ok" id="wiz-ok" onclick="wizCommit()">決定</button></div>`;
+  }
+}
+// 押したら金で囲んで、少し見せてから次の問いへ
+let WIZ_T = 0;
+function wizPick(side) {
+  const f = WIZ.list[WIZ.i];
+  WIZ.pend.winner_id = side === 1 ? f.fighter1_id : f.fighter2_id;
+  drawWiz(true);
+  clearTimeout(WIZ_T);
+  WIZ_T = setTimeout(() => wizTo("how"), 340);
+}
+async function wizClear() {
+  const f = WIZ.list[WIZ.i];
+  await clearPred(f.id);
+  if (myPreds[f.id]) return;   // 取り消せなかった（clearPred がエラーを出している）
+  if (WIZ.one) return closeWiz();
+  WIZ.pend = wizBase(f); drawWiz();
+}
+function wizSwap() {
+  const f = WIZ.list[WIZ.i];
+  WIZ.pend.winner_id = WIZ.pend.winner_id === f.fighter1_id ? f.fighter2_id : f.fighter1_id;
+  drawWiz(true);
+}
+function wizHow(m) {
+  const p = WIZ.pend;
+  if (p.method !== m) Object.assign(p, { method: m, technique: null, round: null });
+  wizTo(m === "DEC" ? "ok" : "tech");   // 判定ならその先の分岐は無い
+}
+function wizTech(id) { WIZ.pend.technique = id; wizTo("rnd"); }
+function wizRound(r) { WIZ.pend.round = r; wizTo("ok"); }
+// 「入れない」：その段から先を空にして「これでいい？」へ
+function wizSkip() {
+  const p = WIZ.pend, st = WIZ.step;
+  if (st === "how") Object.assign(p, { method: null, technique: null, round: null });
+  if (st === "tech") Object.assign(p, { technique: null, round: null });
+  if (st === "rnd") p.round = null;
+  wizTo("ok");
+}
+// 「決定」：この1試合を保存する。カードから開いた時はそれで閉じてカードに戻る（Gaku 11/7「追ってくるようなものが出てきた。これいらない」）。
+// 「予想を入れる」から入った時だけ、この先のまだの試合へ進む（前に戻って追いかけない）。最後まで来たら閉じる
+async function wizCommit() {
+  const f = WIZ.list[WIZ.i], p = WIZ.pend, btn = document.getElementById("wiz-ok"), b = wizBase(f);
+  if (!p?.winner_id) return;
+  btn.disabled = true; btn.textContent = "保存中…";
+  try {
+    if (WIZ_KEYS.some(k => (p[k] || null) != (b[k] || null))) {   // 何も変えていなければ保存しない
+      if (window.CLAIM_PROMISE) await window.CLAIM_PROMISE;   // 名前の紐づけが終わる前に保存するとRLSで弾かれる
+      await DB.upsertPrediction({ member_id: getMemberId(), fight_id: f.id, winner_id: p.winner_id,
+        method: p.method || null, round: p.method === "DEC" ? null : p.round || null, technique: p.technique || null });
+      myPreds[f.id] = { ...(myPreds[f.id] || {}), ...p, member_id: getMemberId(), fight_id: f.id };
+      replaceCard(f.id);
+      refreshMatrix().catch(() => {});
+    }
+    btn.textContent = "✓";
+    const L = WIZ.list, rest = WIZ.one ? null : L.slice(WIZ.i + 1).find(x => !wizSaved(x));
+    setTimeout(() => {
+      if (document.getElementById("wiz").hidden) return;
+      if (rest) return wizGo(L.indexOf(rest));
+      toast(L.every(wizSaved) ? `全${L.length}試合 予想済み ✓` : "予想を保存 ✓");
+      closeWiz();
+    }, 420);
+  } catch (e) {
+    toast(window.saveErrorText ? saveErrorText(e) : (e.message || "保存できなかった"));
+    btn.disabled = false; btn.textContent = "決定";
+  }
+}
+
+new ResizeObserver(([e]) => document.documentElement.style.setProperty("--hdr-h", e.target.offsetHeight + "px"))
+  .observe(document.getElementById("app-header"));
+// カードは予想のたびに差し替わる（replaceCard）ので、描き直しを見張って合わせ直す
+let NICK_T = 0;
+const refitNicks = () => { clearTimeout(NICK_T); NICK_T = setTimeout(() => { fitNicks(); }, 30); };
+new MutationObserver(refitNicks).observe(document.getElementById("main"), { childList: true, subtree: true });
+addEventListener("resize", refitNicks);
+document.fonts?.ready.then(refitNicks);
+// 数字の字（Oswald）はカードを描いた後に読み込まれることがあり、ready はその前に済んでいる＝読み込みのたびに合わせ直す（年齢が1行目に入るかは字幅で変わる）
+document.fonts?.addEventListener?.("loadingdone", refitNicks);
+
+load();
+</script>
+</body>
+</html>

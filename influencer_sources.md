@@ -1,0 +1,616 @@
+# インフルエンサー予想 出典台帳
+
+`rizin-prediction-intake` スキルで取り込んだ外部予想の出典記録。
+仲間内・noindex 運用が前提。**出典を示せない予想は載せない**（第三者の実名予想を扱うための線引き）。
+
+各行＝1動画からの取り込み。`ingest_predictions.py --ledger` が自動追記する。
+
+| 投稿日 | チャンネル名 | 対象大会 | 取込件数 | 動画URL | member_id |
+|---|---|---|---|---|---|
+| 2026-08-04 | MMA言語化挑戦中 Voyage GI | ev_r54 | 10件 | https://www.youtube.com/watch?v=MH0KHsC0iBQ | m_yt_mmavoyagegi |
+| 2026-07-24 | Yutaka Saito | ev_r54 | 5件 | https://www.youtube.com/watch?v=Y6VQ4pBUeHw | m_yt_yutakasaito |
+| 2026-08-03 | 川尻達也のじりラジオ | ev_r54 | 3件 | https://www.youtube.com/watch?v=ZRfv4tZrYf0 | m_yt_42cc778a |
+| 2026-07-26 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_r54 | 1件 | https://www.youtube.com/watch?v=dM9HR1Cw4hQ | m_yt_ogichannel |
+| 2026-08-02 | 伊澤星花SEIKA IZAWAと時々COROさん | ev_r54 | 10件 | https://www.youtube.com/watch?v=jAFbgJIrJ5k | m_yt_seikaizawacoro |
+| 2026-08-02 | 元谷友貴 | ev_r54 | 2件 | https://www.youtube.com/watch?v=qKGHR1q9OE8 | m_yt_7487b80a |
+| 2026-08-02 | ジョビンチャンネル | ev_r54 | 6件 | https://www.youtube.com/watch?v=rovflGPzsqY | m_yt_922c02ef |
+| 2026-07-28 | 秋元強真　Kyoma Akimoto | ev_r54 | 8件 | https://www.youtube.com/watch?v=z8NLva1ncCg | m_yt_kyomaakimoto |
+| 2026-08-05 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_r54 | 7件 | https://www.youtube.com/watch?v=jjibTomr4GA | m_yt_ogichannel |
+| 2026-08-09 | ジョビンチャンネル | ev_r54 | 10件 | https://www.youtube.com/watch?v=QJpIbNoiY04 | m_yt_922c02ef |
+| 2026-08-01 | 石渡伸太郎 Shintaro Ishiwatari | ev_r54 | 6件 | https://www.youtube.com/watch?v=yB2tPLoOXGA | m_yt_shintaroishiwatari |
+
+> ※除外：松嶋こよみ(Hf-OltOZW3k)・格闘キャスト(lD9tzFZAWKU)＝複数人パネルで単独予想として攻略不可（話者混在・誤読確認）。単独/本人インタビュー形式のみ採用（2026-08-11）。| 2026-08-07 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_r54 | 7件 | https://www.youtube.com/watch?v=JBJXUMhbDqg | m_yt_shinyaaoki |
+| 2026-08-06 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_r54 | 2件 | https://www.youtube.com/watch?v=HOHNU38C4Vk | m_yt_shinyaaoki |
+| 2026-08-11 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_r54 | 1件 | https://www.youtube.com/watch?v=g5SxvlbZLmM | m_yt_shinyaaoki |
+| 2026-08-03 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_r54 | 1件 | https://www.youtube.com/watch?v=sBL_176HKrY | m_yt_ogichannel |
+| 2026-07-22 | Valentine Hosokawa / Positive  Classroom | ev_cho5 | 5件 | https://www.youtube.com/watch?v=41pS2rgjU9A | m_yt_valentinehosokawapos |
+| 2026-07-20 | 川尻達也のじりラジオ | ev_cho5 | 1件 | https://www.youtube.com/watch?v=Br3bX-aSXr4 | m_yt_42cc778a |
+| 2026-08-14 | 元谷友貴 | ev_cho5 | 0件 | https://www.youtube.com/watch?v=Edo2TQH1lNk | m_yt_7487b80a |
+| 2026-08-07 | Yutaka Saito | ev_cho5 | 5件 | https://www.youtube.com/watch?v=KSWvZngFMpM | m_yt_yutakasaito |
+| 2026-07-26 | 久保優太ちゃんねる | ev_cho5 | 5件 | https://www.youtube.com/watch?v=KlomSwbI6Wg | m_yt_69bc9bd4 |
+| 2026-07-23 | BRAVE GYM OFFICIAL ヘラクレスチャンネル | ev_cho5 | 2件 | https://www.youtube.com/watch?v=NzkpqgQI1oE | m_yt_bravegymofficial |
+| 2026-08-18 | 石渡伸太郎 Shintaro Ishiwatari | ev_cho5 | 1件 | https://www.youtube.com/watch?v=P2cIDyiHfyg | m_yt_shintaroishiwatari |
+| 2026-07-22 | Kanehara Masanori no kinchanTV | ev_cho5 | 4件 | https://www.youtube.com/watch?v=Pgy1lbH_bzg | m_yt_kaneharamasanorinoki |
+| 2026-07-23 | Kanehara Masanori no kinchanTV | ev_cho5 | 2件 | https://www.youtube.com/watch?v=d0Og5w7HwTI | m_yt_kaneharamasanorinoki |
+| 2026-08-15 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_cho5 | 1件 | https://www.youtube.com/watch?v=iVitGZl5dKY | m_yt_ogichannel |
+| 2026-07-21 | 前田日明チャンネル | ev_cho5 | 1件 | https://www.youtube.com/watch?v=nWhCRPfBtqk | m_yt_336fd122 |
+| 2026-07-21 | 石渡伸太郎 Shintaro Ishiwatari | ev_cho5 | 4件 | https://www.youtube.com/watch?v=oyAX9IYgG4U | m_yt_shintaroishiwatari |
+| 2026-07-20 | 手塚裕之 HIROYUKI TETSUKA 野生獣チャンネル | ev_cho5 | 1件 | https://www.youtube.com/watch?v=uw2SnT7kPzA | m_yt_hiroyukitetsuka |
+| 2026-07-30 | 怪物くんチャンネル ''KAIBUTSUKUN" | ev_cho5 | 6件 | https://www.youtube.com/watch?v=wStY5p0i8B8 | m_yt_kaibutsukun |
+| 2026-07-22 | ストラッサー起一 [ストチャンネル] | ev_cho5 | 7件 | https://www.youtube.com/watch?v=z6fUXffdKtU | m_yt_b91a384d |
+
+| 2026-08-17 | RIZIN公式「超RIZIN.5 超緊急追加カード発表&国民超予想SP」 | ev_cho5 | 1件 | https://www.youtube.com/live/Zgo-nVipTEo | m_yt_hiramotoren |
+
+> ※超RIZIN.5（2026-08-18 取り込み）の注記
+> - **公式「国民超予想SP」(Zgo-nVipTEo) は全編を精査した**（Gaku指摘・2026-08-18）。中身は3層：
+>   ①**街頭のファン100人**のアンケート集計（平本62-38ダウトベック／朝倉75-25青木／シェイドゥラエフ77-23マッキー）＝個人予想ではないので member 化できない
+>   ②**スタジオの平本蓮・青木真也・大沢ケンジ・佐原氏**の見解＝ほぼ全て「分析」で断定が無い
+>   ③映像コメント出演の**武尊**＝宇佐美秀メイソンの推薦であって勝敗予想ではない
+> - **登録したのは1件だけ**：平本蓮が自分の試合（cho5_06）で「62票は少ない。100で自分」と明言 → 平本蓮を member 化して登録
+> - **登録しなかった断定未満の発言**（Gaku判断があれば追加可）：
+>   平本蓮→シェイドゥラエフ vs マッキーで「ポールヒューズ戦と立ち回りが似ている。シェイドゥラエフ有利なのかな」（推量止まり）／
+>   平本蓮→朝倉未来は「スロースターター。1R強い相手に弱い」と青木寄りの分析だが勝者を言わない／
+>   青木真也→シェイドゥラエフに「初めて問われる試合。めくれる可能性はある」（マッキー寄りだが断定せず）／
+>   街頭モンタージュ内でスタジオが「藤巻さんじゃない?」と気づいた人物が「シェイドゥラエフが圧勝」と発言。**自動字幕で本人特定ができないため出典を示せず見送り**
+> - 併せて確認：モンタージュ内のファンが「前田さんも朝倉と言っていた」と発言。**前田日明本人のチャンネル動画から取り込み済みの cho5_07＝朝倉未来と一致**
+>   ／格闘キャスト・Dropkick裏チャンネル・石渡×ジョビン＝複数人パネル／ジョビン切り抜き・カクトウ5ch・oricon・ヤノヨシタカ＝二次情報
+> - **食い違いの解決**：石渡伸太郎が cho5_07（朝倉未来 vs 青木真也）で2本の動画で逆の予想。
+>   07-21「全試合の感想」＝朝倉／08-18「超ガチ分析」＝青木 → **投稿日の新しい08-18の青木真也を採用**
+> - **要確認**：怪物くんチャンネル(wStY5p0i8B8)はホベルト・サトシ・ソウザ本人がゲスト。
+>   予想の中身は実質サトシのものだが、member はチャンネル名で登録している（表記の是非はGaku判断）
+| 2026-08-20 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_cho5 | 0件 | https://www.youtube.com/watch?v=59_yHe7Fs-k | m_yt_shinyaaoki |
+| 2026-08-18 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_cho5 | 0件 | https://www.youtube.com/watch?v=G3MZ-W2ZrA8 | m_yt_shinyaaoki |
+
+> ※上記の内訳（Gakuが番組内の著名人発言を拾い出し、蘭が機械照合して投入・2026-08-31／出典はGaku確定）
+> - JOY：cho5_06 平本蓮（判定）／cho5_08 シェイドゥラエフ（判定）
+> - 鬼ごえトマホーク良ちゃん：cho5_06 平本蓮／cho5_08 シェイドゥラエフ（2R バックチョーク→`rnc`）
+> - ハリウッドザコシショウ：cho5_07 青木真也
+> - チュートリアル福田：cho5_07 朝倉未来（2R パウンドアウト→`gnp`）
+> - 前田日明：cho5_07 朝倉未来 ＝**本人チャンネル(nWhCRPfBtqk)からの取り込み分と一致**したため再投入せず
+>
+> ※自動字幕では著名人の氏名を特定できず（前回この番組を「100人アンケートだけ」と判断して見送った）。
+> **人が見れば取れるものを、機械が取れないからと落としていた**という取りこぼしの実例。
+| 2026-08-31 | 中村拓己チャンネル / 格闘技解説・ライター（後藤丈治＆武田光司と対談） | ev_cho5 | 2件 | https://www.youtube.com/watch?v=-KZIEITd7Tg | m_yt_takeda_koji / m_yt_goto_joji |
+
+> ※3人の対談（中村拓己＝聞き手／後藤丈治・武田光司＝出場選手ではないRIZIN勢）。
+> **話者混在の危険があるため自動抽出にかけず、蘭が転写を読んで人力で切り分けた**（2026-08-31）。
+> - 武田光司 → cho5_08 **AJ・マッキー**。「勝敗予想はあんましないんですけど、僕はAJマッキーじゃないのかな」。
+>   理由＝2人は動きが似ていて、引き出しの多さでAJが上と見る
+> - 後藤丈治 → cho5_08 **ラジャブアリ・シェイドゥラエフ**。「順当に考えたらAJ勝利の可能性が高い。だけど
+>   シェイドゥラエフが勝つ可能性あるんじゃないか、6：4ぐらいで」。理由＝AJはポールヒューズ型の淡々とした
+>   プレッシャーに被弾する場面があり、シェイドゥラエフの圧をいなし切れるかが焦点
+> - **平本蓮 vs ダウトベックは登録せず**。2人とも分析のみで勝者を明言していない
+>   （「打ち合いを制するのは平本」は打撃戦の話で、直後に「問題はその後」と続く）
+> - どちらも断定ではなく傾き。同じ水準の発言を他の予想者でも採用しているため揃えた
+| 2026-08-22 | Yusuke Yachi | ev_cho5 | 0件 | https://www.youtube.com/watch?v=--w5iETHqQw | m_yt_yusukeyachi |
+| 2026-08-22 | ヌルの格闘技ラジオ | ev_cho5 | 8件 | https://www.youtube.com/watch?v=0zT9BdHXAUw | m_yt_e1ff8ceb | ※2026-11-07 Gaku判断で掲載取り下げ（DBから削除・member_map の blocked へ）
+| 2026-08-26 | クリケンchannel | ev_cho5 | 1件 | https://www.youtube.com/watch?v=1Rw3rcAWLzA | m_yt_channel |
+| 2026-08-24 | S.W.G格闘技 | ev_cho5 | 2件 | https://www.youtube.com/watch?v=1h8UmO4MXO8 | m_yt_swg |
+| 2025-12-03 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_cho5 | 1件 | https://www.youtube.com/watch?v=49sjkQtbFYc | m_yt_ogichannel |
+| 2025-11-10 | ジョビンのMMA塾 | ev_cho5 | 1件 | https://www.youtube.com/watch?v=67nzNr5t5zE | m_yt_mma |
+| 2026-09-01 | 中島太一チャンネル | ev_cho5 | 4件 | https://www.youtube.com/watch?v=CYyfSs16RXI | m_yt_225d3213 |
+| 2026-08-22 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_cho5 | 1件 | https://www.youtube.com/watch?v=F3f2YyHV1po | m_yt_ogichannel |
+| 2026-08-20 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_cho5 | 1件 | https://www.youtube.com/watch?v=I9e7KVJhrvA | m_yt_ogichannel |
+| 2026-08-25 | クリケンchannel | ev_cho5 | 1件 | https://www.youtube.com/watch?v=Ilva3j5rS0M | m_yt_channel |
+| 2026-07-30 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_cho5 | 3件 | https://www.youtube.com/watch?v=M9NZTS2HbCA | m_yt_shinyaaoki |
+| 2025-08-01 | ジョビンのMMA塾 | ev_cho5 | 1件 | https://www.youtube.com/watch?v=O4L0qSEhzko | m_yt_mma |
+| 2026-08-19 | Yura Rosa | ev_cho5 | 6件 | https://www.youtube.com/watch?v=QYWvHGX7JTk | m_yt_yurarosa |
+| 2026-08-30 | ぽんひろ働く社会人の趣味部屋 | ev_cho5 | 1件 | https://www.youtube.com/watch?v=S9CwoTB1wXM | m_yt_760fb8a9 |
+| 2025-11-26 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_cho5 | 1件 | https://www.youtube.com/watch?v=SU5uRG7pFEw | m_yt_ogichannel |
+| 2026-08-28 | 骨法・格闘技Ch-9D9 | ev_cho5 | 1件 | https://www.youtube.com/watch?v=UYbVNPncFKo | m_yt_ch9d9 |
+| 2026-07-25 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_cho5 | 1件 | https://www.youtube.com/watch?v=ZDmT9bCP5tk | m_yt_shinyaaoki |
+| 2026-08-24 | さくらラジオ | ev_cho5 | 5件 | https://www.youtube.com/watch?v=g3kK7rSnCuw | m_yt_f9adaa31 |
+| 2026-08-30 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_cho5 | 1件 | https://www.youtube.com/watch?v=z_d_q9KFrM4 | m_yt_ogichannel |
+
+
+> ※2026-08-31 の一括取り込み（20本を処理し14本を採用）の注記
+> - **カード発表前（2026-07-20より前）の動画4本を除外**：扇久保(49sjkQtbFYc・2025-12-03／SU5uRG7pFEw・2025-11-26)、
+>   ジョビンのMMA塾(67nzNr5t5zE・2025-11-10／O4L0qSEhzko・2025-08-01)。
+>   **選手名だけで超RIZIN.5の試合に誤照合していた**（斎藤裕 vs YA-MAN 等は過去にも組まれている）。
+>   → 以後、取り込みは**投稿日 ≥ カード発表日**で足切りする
+> - **S.W.G格闘技(1h8UmO4MXO8)は秋元強真本人のインタビュー**。「どっちが勝てると思いますか?」「AJマッキーです」と
+>   本人が答えているので、チャンネルではなく**既存メンバーの秋元強真へ付け替えた**
+> - 既存の予想とぶつかる（同じ人・同じ試合で勝者が違う）ものは**0件**。既存は一切上書きしていない
+| 2026-08-20 | 超やーまんチャンネル | ev_cho5 | 1件 | https://www.youtube.com/watch?v=lgWvDCqgo34 | m_yt_763c4c7e |
+
+> ※Gaku選定（2026-08-31）。候補チャンネル調査（`candidate_channels.md`）から**YA-MANのみ採用**。
+> - YA-MAN → cho5_06 **カルシャガ・ダウトベック**。「6：4でダウトベック、いや7：3かもしれないぐらいダウトベックが有利」
+> - **YA-MANは cho5_05（斎藤裕 vs YA-MAN）の当事者**だが、この動画で自分の試合には触れていないため自己予想は無し
+> - 転写で1点照合済み（自動抽出の値と一致）
+
+---
+
+## 掲載基準（Gaku確定・2026-08-31）★これが最上位のルール
+
+**載せるのは「当事者」だけ。** 一般の解説チャンネル・ファンチャンネル・バラエティは載せない。
+
+| 区分 | 扱い |
+|---|---|
+| **選手本人**（現役・元・レジェンド） | **載せる** ／ 例：斎藤裕・扇久保博正・青木真也・平本蓮・武田光司・後藤丈治・秋元強真・YA-MAN・久保優太・金原正徳・石渡伸太郎・手塚裕之・川尻達也・前田日明・ストラッサー起一・細川バレンタイン |
+| **著名人（タレント・芸人）** | **載せる** ／ 例：JOY・鬼越トマホーク良ちゃん・ハリウッドザコシショウ・チュートリアル福田 |
+| **有名YouTuber**（格闘技界で認知されている発信者） | **載せる** ／ 例：ジョビン・細川バレンタイン・MMA言語化挑戦中 |
+| **仲間**（美食会メンバー） | **載せる** |
+| 無名・一般のファン／ラジオ／バラエティチャンネル | **載せない** |
+| ジム公式チャンネル | **載せない** |
+
+**線引きは「知名度」**。同じ解説系でも、格闘技界で名前が通っている発信者は載せる／
+検索で出てきただけの一般チャンネルは載せない（Gaku補足・2026-08-31）。
+
+**インタビュー動画は「喋っている本人」の名義にする**（Gaku確定・2026-08-31）。
+チャンネル名ではなく予想を述べた当人を member にする。
+例：怪物くんチャンネルの回はホベルト・サトシ・ソウザ本人が全試合を語っていたので
+`m_yt_kaibutsukun`→`m_yt_satoshi`「ホベルト・サトシ・ソウザ」へ付け替え（予想6件を移送）。
+S.W.G格闘技の回も同様に秋元強真へ付け替え済み。
+
+### 2026-08-31 に削除したもの（上記基準に合わないため）
+ヌルの格闘技ラジオ(8件)／Yura Rosa(6)／さくらラジオ(5)／中島太一(4)／クリケン(2)／
+BRAVE GYM ヘラクレスチャンネル(2)／骨法・格闘技Ch(1)／ぽんひろ(1)＝**予想29件を削除**
+
+`candidate_channels.md` のA群（北方大地・ヤノヨシタカ・齋藤MMA・新居すぐる・岡田遼・神宮寺しし丸）も
+**この基準では全て対象外**。YA-MANのみ選手本人として採用した。
+
+### 表記の訂正
+「鬼ごえトマホーク」は誤り。正しくは **鬼越トマホーク**（越境の「越」）。
+
+### 2026-08-31 の判断（Gaku確定・解決済み）
+- **怪物くん** → **ホベルト・サトシ・ソウザ名義へ付け替え**（「サトシが喋ってるならサトシ」）
+- **ジョビン／細川バレンタイン／MMA言語化挑戦中** → **有名YouTuberとして残す**
+| 2026-09-03 | RIZIN公式【事前番組】井上雄策＆後藤丈治＆冨澤大智 | ev_cho5 | 16件 | https://www.youtube.com/live/sCU8dMcFcHs | m_yt_goto_joji / m_yt_tomizawa / m_yt_inoue_yusaku |
+
+> ※3人が1試合ずつ順番に予想を出す構成。**自動抽出にかけず、蘭が転写を読んで人力で切り分けた**（話者混在の危険があるため）。
+> - **冨澤大智**＝中止になった cho5_02 の当事者。出場しないが番組に出て全試合を予想
+> - **井上雄策**＝RIZIN側の当事者（実況・解説）
+> - 取れた分：cho5_09 は3人ともメイソン／cho5_03 は冨澤・井上=高木凌、後藤=ケラモフ／
+>   **cho5_08 は後藤=シェイドゥラエフ、冨澤・井上=マッキー**／cho5_01 井上=クジュティナ・冨澤=RENA(2R KO)／
+>   cho5_05 冨澤・井上=YA-MAN／cho5_07 井上=朝倉未来・後藤=青木真也／cho5_06 井上=平本蓮
+> - **裏が取れた点**：後藤丈治のメイン予想（シェイドゥラエフ）は、中村拓己チャンネル(-KZIEITd7Tg・8/31)の
+>   発言と**一致**。別番組で同じ結論＝抽出が正しいことの傍証
+>
+> **取れなかったもの（自動字幕で話者が特定できず・登録していない）**
+> - cho5_04（サトシ vs 野村）は3人とも判別不能。「1ラウンドKO」「小村」等、字幕の崩れが大きい
+> - cho5_01 の後藤／cho5_05 の後藤／cho5_06 の後藤・冨澤／cho5_07 の冨澤
+> → **Gakuが映像で確認できれば追加できる**（憶測では入れない）
+| 2026-09-02 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_cho5 | 1件 | https://www.youtube.com/watch?v=FXoRaUqDCts | m_yt_ogichannel |
+| 2026-09-04 | ジョビンチャンネル【川尻達也】超RIZIN5勝敗予想 | ev_cho5 | 3件 | https://www.youtube.com/watch?v=6GmBww9HpvE | m_yt_922c02ef / m_yt_kawajiri |
+
+> ※ジョビン×川尻達也の対談（2026-09-04）。**人力で切り分け**（話者2人）。
+> - ジョビン → cho5_03 **ケラモフ**（判定）「ズバリ予想僕いいすか? ケラモフで」
+> - 川尻達也 → cho5_03 **高木凌**「高木で」→ その場で『割れましたね』と確認されている
+> - 川尻達也 → cho5_08 **シェイドゥラエフ 1R KO**「魔法かかったまま勝っちゃうと思う」
+> - 平本vsダウトベック／朝倉vs青木も2人で割れていると本人たちが言及しているが、
+>   **予想はカードに書いて画面で見せる形式**で口頭にないため字幕から取れない → 登録していない
+>
+> ★事故の記録：**川尻達也(m_yt_42cc778a)がDBから消えていた**（2026-09-05に発見）。
+> 08-31の一括削除では名指ししていないため原因は特定できていない。
+> 今回の動画で予想が取れたので `m_yt_kawajiri` として作り直した。
+> **教訓：削除は「消す対象を先に一覧で出して確認してから実行する」**。
+| 2026-09-04 | 格闘キャスト（シン＆ナオト）超RIZIN.5 全カード徹底予想 | ev_cho5 | 3件 | https://www.youtube.com/watch?v=2sZBQ0nCNYQ | m_yt_kakutokast |
+
+> ※Gaku指名で採用（2026-09-05）。過去に「複数人パネルで誤抽出」として除外していたチャンネル。
+> **出演は2人（シン／ナオト＝概要欄のSNSより確認）。字幕に名前が出ないため個人には割り振れない。**
+> そこで**チャンネルを1つの声として扱い、次の線引きで採用した**：
+> - **反対意見が出ていない発言は採用**／**2人が明確に割れた試合は不採用**
+> - 採用：cho5_08 シェイドゥラエフ（**2人とも明言**）／cho5_04 野村駿太／cho5_05 YA-MAN
+> - **不採用：cho5_03 ケラモフ vs 高木**。実物が
+>   「じゃあ全財産ベットするなら**僕はケラモフで行く**」→「いや、**僕は高木選手に**」と
+>   真っ二つ。どちらを採っても片方を捨てることになるため入れていない
+>
+> **個人単位で入れたい場合はGakuの確認が要る**（どちらの声がシンでナオトか、映像なら分かる）。
+> 2人を別メンバーにすれば、割れた試合もそのまま母集団に入る。
+| 2026-09-02 | ジョビンチャンネル【細川バレンタイン】ド直前！青木真也vs朝倉未来徹底討論 | ev_cho5 | 2件 | https://www.youtube.com/watch?v=WhrZ1kwn4Vo | m_yt_922c02ef / m_yt_valentinehosokawapos |
+
+> ※2人の対談。**話者は一人称と呼びかけで特定**した——「僕」＝ジョビン（相手が『ジョビンが言ったように』と呼ぶ）、「俺」＝細川バレンタイン。
+> - 細川バレンタイン → cho5_07 **青木真也**「俺は青木真也が勝つと」。理由＝この試合が引退後に持つ意味の大きさを本人が分からないほどバカじゃない
+> - ジョビン → cho5_07 **朝倉未来**「実力的には青木真也と思うけど…**僕は結局朝倉未来じゃないかな**」。
+>   理由＝青木がエモーショナルになりすぎていて「ピークが入場」になっている
+> - **同じ動画で2人が逆**。1本で割れが1組取れた形
+| 2026-08-28 | Yusuke Yachi | ev_cho5 | 4件 | https://www.youtube.com/watch?v=35e2dDzU1YY | m_yt_yusukeyachi |
+| 2026-09-05 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_cho5 | 2件 | https://www.youtube.com/watch?v=3E4p-wQ__sc | m_yt_ogichannel |
+| 2026-05-25 | 久保優太ちゃんねる | ev_cho5 | 0件 | https://www.youtube.com/watch?v=9ZH7eskOAwA | m_yt_69bc9bd4 |
+| 2026-09-03 | 伊澤星花SEIKA IZAWAと時々COROさん | ev_cho5 | 2件 | https://www.youtube.com/watch?v=ELIx2eca_70 | m_yt_seikaizawacoro |
+| 2026-08-28 | 秋元強真　Kyoma Akimoto | ev_cho5 | 7件 | https://www.youtube.com/watch?v=lYMzJ4flPSo | m_yt_kyomaakimoto |
+| 2026-09-05 | ストラッサー起一 [ストチャンネル] | ev_cho5 | 8件 | https://www.youtube.com/watch?v=rKUFr3XHaDY | m_yt_b91a384d |
+| 2026-09-05 | Kyoji Horiguchi | ev_cho5 | 1件 | https://www.youtube.com/watch?v=t6u5j3cksC8 | m_yt_kyojihoriguchi |
+| 2026-09-05 | Kleber Koikeクレベル コイケ | ev_cho5 | 6件 | https://www.youtube.com/watch?v=8ENV_sGaILc | m_yt_kleberkoike |
+
+> ※2026-09-05 直前ラッシュの取り込み。新規メンバー＝矢地祐介・堀口恭司・クレベル・コイケ（いずれも選手本人）。
+> - **ストラッサー起一は9/5に予想を組み直した**が、結論は7/22と全て同じだった（cho5_07・cho5_09が追加されただけ）。
+>   抽出の安定性を示す良い例
+> - 久保優太の動画(9ZH7eskOAwA)は**2026-05-25＝カード発表前**のため除外
+> - 堀口恭司の「腕十字」は辞書に無いと弾かれたので `armbar` へ手当て
+>
+> ★**クレベルの動画は1人ではなく「磯部さん」との2人対談だった**（2026-09-05に発見）。
+> 自動抽出は2人の発言を全部クレベル名義で6件拾っていたが、実物は
+> 「クレベルさん。AJマッキーが3ラウンド判定」「**磯部さんは**AJマッキー3ラウンド1本」と役割が分かれている。
+> **明示的にクレベルへ帰属できた2件だけ採用**（cho5_08 マッキー判定／cho5_07 朝倉未来2R）。
+> 残り4件（cho5_03/04/05/09）は誰の発言か切り分けられず不採用。
+> → チャンネル名＝個人名でも、**中身が対談なら必ず疑う**。
+| 2026-08-27 | 石渡伸太郎 Shintaro Ishiwatari | ev_cho5 | 1件 | https://www.youtube.com/watch?v=2RHF_pQLOeU | m_yt_shintaroishiwatari |
+| 2026-08-28 | MMA言語化挑戦中 Voyage GI | ev_cho5 | 1件 | https://www.youtube.com/watch?v=GrG9AQkLdHM | m_yt_mmavoyagegi |
+| 2026-09-06 | 石渡伸太郎 Shintaro Ishiwatari | ev_cho5 | 7件 | https://www.youtube.com/watch?v=PA0ipzh1rOI | m_yt_shintaroishiwatari |
+| 2026-09-02 | MMA言語化挑戦中 Voyage GI | ev_cho5 | 0件 | https://www.youtube.com/watch?v=We4PaaJgoWs | m_yt_mmavoyagegi |
+| 2026-09-02 | 伊澤星花SEIKA IZAWAと時々COROさん | ev_cho5 | 4件 | https://www.youtube.com/watch?v=iJGAn8p6nD8 | m_yt_seikaizawacoro |
+| 2026-09-05 | リオン武 | ev_cho5 | 1件 | https://www.youtube.com/watch?v=xtqSGcMrOHE | m_yt_ebbadc8c |
+
+> ※2026-09-06 の直前ラッシュ第2弾。新規メンバー＝リオン武（元RIZIN選手）。
+> - **石渡伸太郎は8/27（メインのみ）と9/6（直前SP・全カード）の2本**。新しい9/6を優先したが、
+>   重複した試合は**すべて同じ結論**だった（cho5_08 シェイドゥラエフ）
+> - 既存との食い違いは**0件**
+> - 手順の事故：URLを `printf` で並べたら zsh が `?` をワイルドカードと解釈して失敗した。
+>   **URLリストは必ずヒアドキュメント（クォート）で書く**
+| 2026-09-06 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_cho5 | 3件 | https://www.youtube.com/watch?v=J9PUPUrtnHw | m_yt_shinyaaoki |
+
+> ※**未処理・要Gaku確認**：ABEMA 格闘【公式】
+> 「【超RIZIN.5】格闘技好きタレントたちが注目カード3戦を“ガチ”予想！」(2026-09-06・11.5分)
+> https://www.youtube.com/watch?v=TTx_TA8VO8E
+> - **著名人の予想が3試合ぶん入っており、掲載基準にも合う高価値な素材**
+> - しかし**出演タレント名が字幕にも概要欄にも出ない**。字幕に「けこばさん／小林さん」（ケンドーコバヤシと思われる）
+>   と関西弁の話者がいるが確証がない
+> - 平本蓮 vs ダウトベックは**複数のタレントが全員 平本蓮**（2R KO／3R KO／判定／パウンドアウトと決着はバラバラ）
+> - **出演者名が分かれば個人単位で登録できる。** 誰が出ているかGakuに確認したい
+| 2026-09-03 | ジョビンチャンネル【佐伯繁】超RIZIN5全試合見所解説 | ev_cho5 | 8件 | https://www.youtube.com/watch?v=320d4wAeP1w | m_yt_saeki / m_yt_922c02ef |
+
+> ※新規メンバー＝**佐伯繁（DEEP代表・当事者）**。2人対談を人力で切り分け。
+> - 話者判別：ジョビン＝「僕」で司会、佐伯繁＝「俺」。ただし**終盤の一気出しリストは佐伯**。
+>   経緯が「もう面白くない、こんな予想ばっかりで」（佐伯）→「お前言ったな。**まだ個人でやってない**」（ジョビン）
+>   →「じゃあ、やるよ。7割（を目指す）」（佐伯）と明確
+> - **裏取り**：リスト内容が、途中で佐伯が個別に述べた「俺はシェイドゥラエフかな」「普通に考えたら朝倉未来でしょ」と
+>   **完全に一致**。切り分けが正しいことの傍証
+> - 佐伯繁の全カード（7件）：朝倉未来／野村駿太／シェイドゥラエフ／ダウトベック／YA-MAN／ケラモフ／クジュティナ
+> - ジョビン → cho5_05 YA-MAN を追加（「僕はやっぱヤーマン有利かなと」）
+>
+> ※取り込めなかったもの
+> - 格闘キャスト「平本蓮vsダウトベック｜ビリーが徹底予想」(HsL2d1ojKiM)＝**字幕のDLに失敗**
+> - **選手本人が自分の試合だけを語るインタビューは対象外**（Gaku方針・2026-09-06）。
+>   朝倉未来・平本蓮・野村駿太の各インタビューは全試合を語っていないため取り込まない
+
+---
+
+## 計量結果（2026-09-09・公開計量）★超過ゼロ
+
+出典：RIZIN公式 https://jp.rizinff.com/_ct/17863354
+
+**全8試合とも両者クリア。体重超過・失格・再計量の記載は一切なし。**
+→ `no_score`（体重超過による予想対象外）を付ける試合は **無し**。全試合が通常どおり採点対象。
+
+| 試合 | 契約 | 結果 |
+|---|---|---|
+| 第8 シェイドゥラエフ 66.00 vs マッキー 65.95 | 66.0kg | ○ |
+| 第7 朝倉未来 71.00 vs 青木真也 70.65 | 71.0kg | ○ |
+| 第6 ダウトベック 65.85 vs 平本蓮 65.95 | 66.0kg | ○ |
+| 第5 サトシ 70.80 vs 野村駿太 70.95 | 71.0kg | ○ |
+| 第4 斎藤裕 65.90 vs YA-MAN 66.00 | 66.0kg | ○ |
+| 第3 ケラモフ 65.80 vs 高木凌 65.95 | 66.0kg | ○ |
+| 第2 RENA 48.85 vs クジュティナ 48.75 | 49.0kg | ○ |
+| 第1 ベイノア vs 宇佐美秀メイソン | スペシャルワンマッチ | ○ |
+
+**試合順が公式で変更**（冨澤vsドンマイ川端の中止による繰り上がり）。demo-data.js の order_no を合わせた：
+サトシvs野村 第4→**第5**／斎藤vsYA-MAN 第5→**第4**／RENAvsクジュティナ 第1→**第2**／ベイノア戦 →**第1**
+| 2026-09-06 | Kanehara Masanori no kinchanTV | ev_cho5 | 2件 | https://www.youtube.com/watch?v=fGZFIgBSJ3g | m_yt_kaneharamasanorinoki |
+| 2026-09-08 | Shoei | ev_cho5 | 8件 | https://www.youtube.com/watch?v=foeYhFpqJeg | m_yt_shoei |
+| 2026-09-07 | ジョビンチャンネル | ev_cho5 | 8件 | https://www.youtube.com/watch?v=hCTW74wVyYQ | m_yt_922c02ef |
+
+> ※大会前日（09-09）の最終取り込み。新規メンバー＝ショウエイ（選手本人）。
+> ジョビンが9/7に全カードを出しており、それまでの部分的な予想と**食い違いゼロ**で埋まった。
+> 既存との変更は全体で0件。
+
+## 予想者の選定（Gaku・2026-09-09）
+**削除**：ショウエイ（超5で8件）／リオン武（1件）／手塚裕之（1件）＝予想10件を削除。残り34人。
+削除は**対象を一覧で出して中身を確認してから実行**した（川尻達也が消えた件の教訓）。
+
+## ABEMA「格闘技好きタレントたちが注目カード3戦をガチ予想」(TTx_TA8VO8E・2026-09-06)
+- **JOYの出演を特定**：本人が「向こうもジョイって呼ぶ中ですよ。友達ですよ」と発言し、
+  cho5_08 を**シェイドゥラエフ判定**と予想。**Gaku提供のJOYの予想と完全一致＝裏取り成立**
+- 他の出演者は**字幕・概要欄ともに名前が出ず特定できない**。
+  手がかり：「けこばさん／小林さん」（ケンドーコバヤシか）／関西弁の話者／
+  ブレイキングダウンで炎上経験のある人物
+- 中身は濃く、平本vsダウトベックは**出演者全員が平本蓮**（決着は2R KO／3R KO／判定／パウンドアウトと分散）
+- **Gakuが出演者名を教えてくれれば個人単位で登録できる**（10件前後増える見込み）
+| 2026-09-07 | MMA言語化挑戦中 Voyage GI | ev_cho5 | 4件 | https://www.youtube.com/watch?v=FFa16YBGiJ4 | m_yt_mmavoyagegi |
+| 2026-05-20 | ストラッサー起一 [ストチャンネル] | ev_cho5 | 0件 | https://www.youtube.com/watch?v=vubx3fX5CHg | m_yt_b91a384d |
+| 2026-09-06 | 中村拓己チャンネル【大沢ケンジ】超RIZIN.5を徹底分析 | ev_cho5 | 2件 | https://www.youtube.com/watch?v=WphPF0nIk5M | m_yt_osawa_kenji |
+
+> ★**取りこぼし4本を発見（2026-09-09・大会前日）**。原因は取り込みが
+> 「キーワード検索で動画を探す」やり方だったこと。**登録済みチャンネルの新作を構造的に取りこぼす**。
+> 対策として `scripts/sweep_channels.py`（チャンネル起点の総ざらい）を新設し、
+> SKILL.md §3.5 に「カード発表直後／1週間前／**前日（計量後）**／当日朝」の実施タイミングを明記した。
+>
+> - **MMA言語化挑戦中は9/7に予想を組み直していた**：cho5_08 を **AJ・マッキー → シェイドゥラエフへ変更**。
+>   本人が「試合展開予想ではAJマッキーと言ったんだけど…シェイドゥラエフ選手にします」と明言。
+>   **直前に予想を変える人がいる＝既存値との差分確認は必須**
+> - 大沢ケンジ（新規）：cho5_06 平本蓮／cho5_05 斎藤裕。**メインと朝倉vs青木は断定しておらず不採用**
+>   （朝倉vs青木は「5年前の青木なら絶対勝ってた。でも年齢もあるし…どうなのかな」で終わっている）
+> - ~~中村拓己（新規・格闘技解説/ライター）~~ → **Gaku判断で不採用・削除（2026-09-09）**。
+>   チャンネル主（聞き手）であって予想者としては載せない。**同じ動画のゲスト＝大沢ケンジは採用**
+
+## 例外措置：丸山探偵事務所の締切延長（2026-09-10・今回限り）
+- **理由**：私（蘭）のRLS不具合により、丸山探偵事務所が締切前に予想を登録できなかった。
+  匿名サインインをフラグでOFFにしたまま人の報告待ちにしていたことが原因（＝運営側の落ち度）
+- **措置**：Gaku判断で `ev_cho5.lock_at` を **2026-09-10 00:00 → 15:00 JST**（大会開始1時間前）へ延長。
+  **自動で閉じるため閉じ忘れが起きない**。demo-data.js と本番DBの両方を更新済み
+- **公平性の確認**：延長時点で**結果は0件・大会未開始**。結果を見てから予想する余地はない
+- **副作用**：この窓の間は他のメンバーも登録できる。仲間2人（ハメ太郎9件・抜き太郎8件）は既に登録済み、
+  インフルエンサー分は service key 経由でRLSの影響を受けないため、実害はない見込み
+- **今回限り**。次大会は通常どおり前日24:00で締める
+| 2026-09-09 | 鶴屋怜格闘チャンネル | ev_cho5 | 6件 | https://www.youtube.com/watch?v=pEgJOT8zj70 | m_yt_03be54be |
+
+> ※新規メンバー＝**鶴屋怜（選手本人）**。Gaku指名（2026-09-09）。
+> 会話形式で相手がいるが、**確認したメイン（cho5_08）は2人とも シェイドゥラエフ で一致**
+> （「シェイドライフかな」「そうだね。シェイドライフ勝つかな」）。
+> 予想：ケラモフ／斎藤裕／サトシ 1R KO／平本蓮／青木真也 1R一本／シェイドゥラエフ
+>
+> ※未処理：川尻達也のじりラジオ「超RIZIN.5ファイター達の勝敗予想まとめ」(il_aA3THDxY・9/1)。
+> **他の選手たちの予想を紹介する回**なので、出典が二次情報になる。本人の一次発言を優先する方針に反するため保留。
+| 2026-09-01 | 川尻達也のじりラジオ「超RIZIN.5ファイター達の勝敗予想まとめ」 | ev_cho5 | 8件 | https://www.youtube.com/watch?v=il_aA3THDxY | m_yt_inoue_naoki / m_yt_yusukeyachi / m_yt_ogichannel |
+
+> ※**二次情報だがGaku判断で採用**（2026-09-10）。川尻が他選手の予想を紹介する回。
+> - 新規メンバー＝**井上直樹（選手本人）**。全カード級で6件：高木凌／サトシ／斎藤裕／
+>   **ダウトベック（唯一の平本以外）**／青木真也（一本）／AJ・マッキー
+> - 矢地祐介 → cho5_07 **青木真也** を追加／扇久保博正 → cho5_04 **サトシ 2R バックチョーク** を追加
+>
+> **★この回は既存データの強力な裏取りになった。** 紹介されていた予想が、本人チャンネルから
+> 取り込んだ値と**軒並み一致**した：扇久保（cho5_07 青木・cho5_08 シェイドゥラエフ）／
+> 斎藤裕（cho5_06 平本・cho5_08 マッキー）／秋元強真（cho5_03 高木・cho5_04 サトシ2R一本・cho5_06 平本判定・cho5_01 RENA2R KO）／
+> 矢地祐介（cho5_04 野村・cho5_06 平本）／金原正徳（cho5_03 高木・cho5_07 朝倉）／久保優太（cho5_06 平本・cho5_07 朝倉）。
+> 字幕の崩れ（「音イ育久保」＝扇久保／「八選手」＝矢地）も、この一致から特定できた。
+>
+> **★要確認の食い違い1件**：秋元強真の cho5_05。
+> 本人チャンネル(8/28)＝**YA-MAN の3R KO**／このじりラジオ(9/1)＝**斎藤裕の3R KO**。
+> ラウンドと決着は一致し勝者だけ逆。**一次情報（本人チャンネル）を優先して既存のYA-MANのまま**にしてある。
+> 映像で確認できれば確定させたい。
+
+---
+
+## LANDMARK 16 カード追加（2026-09-10・超RIZIN.5後の発表）
+公式の対戦カードが **3試合 → 14試合** に増えたため取り込み。
+- **ケイト・ロータス vs NOEL がついに登録**（RIZIN.54から延期されていた試合）
+- 新規選手19人を名鑑へ（82→101人）。プロフィール（生年月日/出身/所属）は17人ぶんRIZIN公式から取得
+- 既存3試合の order_no を公式の並びへ修正（メイン＝堀江圭功 vs 宇佐美正パトリック）
+
+**取れなかったもの（要Gaku判断）**
+- **杉山廣平**：RIZIN公式に選手タグが無く（404）ポートレート・プロフィールとも取得できない。
+  表記違いも試したが不発。カードには載せてある（外すと1試合減るため）
+- **アルブリー・ンジャイ**：公式ポートレートなし。同じくカードには載せてある
+- **LANDMARK 16 のポスター**：公式に縦長画像（B2比）が無い。og:imageで代用すると
+  テキスト画像を掴む事故になるため見送り。**Gakuの目視が必要**
+- 戦績はDATA MMA収録が7人のみ（オープニングファイトの選手は未収録）。異名は37人が空欄
+
+## 超RIZIN.5 結果（2026-09-10）
+公式の結果記事が未公開だったため、**2ソースで突き合わせて確定**（カクトウログ／KAI-YOU、決着の詳細はeFightで補完）。
+
+| 試合 | 勝者 | 決着 |
+|---|---|---|
+| 第1 ベイノア vs 宇佐美秀メイソン | 宇佐美秀メイソン | 判定3-0（30-25×3） |
+| 第2 RENA vs クジュティナ | ナターシャ・クジュティナ | 2R 3:14 ギロチンチョーク |
+| 第3 ケラモフ vs 高木凌 | ヴガール・ケラモフ | 判定3-0 |
+| 第4 斎藤裕 vs YA-MAN | 斎藤裕 | 判定3-0 |
+| 第5 サトシ vs 野村駿太 | ホベルト・サトシ・ソウザ | 判定3-0 |
+| 第6 ダウトベック vs 平本蓮 | 平本蓮 | 判定2-1 |
+| 第7 朝倉未来 vs 青木真也 | 朝倉未来 | 1R 2:39 KO |
+| 第8 シェイドゥラエフ vs マッキー | ラジャブアリ・シェイドゥラエフ | 判定3-0 |
+
+**第7試合の決定打の判断**：青木が自分から引き込んだグラウンドでの決着で、
+「立って倒された」形ではないため `gnp`（パウンド）とした。
+KAI-YOUは「パンチ一閃で沈黙→パウンド連打でストップ」、eFightは「パウンド連打でKO」と表現が割れたが、
+Gaku確定の決定打ルール（削り切りは`gnp`専用）に照らしてこちらを採った。
+※この判断はピタリ判定を左右しない（唯一決着を指定した チュートリアル福田 は2R予想で、実際は1R）。
+
+### 名鑑への反映（2026-09-11・完了）
+出場16名のうち**MMA14名**の `history` 先頭に今大会を追記し、通算戦績を更新 → Supabaseへ同期済み。
+数値は**ja.wikipedia の `{{MMA recordbox}}`（大会翌日に更新済み）の確定値で上書き**した（+1方式はやめた）。
+
+- **試合前の値が既にズレていた2名**：カルシャガ・ダウトベック 18勝→**19勝**（KO14→15）／青木真也 50勝→**49勝**。
+  +1方式だとこのズレを引き継いだままになる。以後は確定値で置き換える（SKILL.md ⑤に記載）
+- **AJ・マッキーは名鑑が空だった**ので新規に起こした：25勝3敗（KO6・一本8・判定11）＋直近8戦（出典＝ja.wikipedia 戦績表）。
+  異名は ja.wikipedia に「マーセナリー」の記載があるが**data-mma未収録・RIZIN公式にも無く2ソース目が取れない**ため、
+  鉄則どおり**空欄のまま**にした（憶測で埋めない）
+- **内訳計が勝数と合わない2名**（ケラモフ22勝/内訳21・青木49勝/内訳47）は Wikipedia の `otherwins`（反則等）が原因で、
+  **Wikipedia側と一致している＝正しい**。名鑑のグラフは合致時だけ描く仕様なので無理に合わせない
+- **キックルールの第1試合**（ベイノア vs 宇佐美秀メイソン）は `rec_*` を動かさず、`history` に「キックルール 判定(全会一致)」と明記して追記
+- 検証：`verify_nicknames.py` exit 0（64/64）／`verify.js` 参照切れ0
+| 2026-09-19 | 川尻達也のじりラジオ | ev_lm16 | 1件 | https://www.youtube.com/watch?v=6wZp4wuCMhQ | m_yt_42cc778a |
+| 2026-09-22 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_lm16 | 9件 | https://www.youtube.com/watch?v=7KNohU_8iHU | m_yt_ogichannel |
+| 2026-09-24 | Kanehara Masanori no kinchanTV | ev_lm16 | 1件 | https://www.youtube.com/watch?v=QIdD7F5qmcc | m_yt_kaneharamasanorinoki |
+| 2026-09-27 | ジョビンチャンネル | ev_lm16 | 3件 | https://www.youtube.com/watch?v=a9Mh_1egUHo | m_yt_922c02ef |
+| 2026-09-25 | Yutaka Saito | ev_lm16 | 3件 | https://www.youtube.com/watch?v=br_e7qQINpQ | m_yt_yutakasaito |
+| 2026-09-28 | MMA言語化挑戦中 Voyage GI | ev_lm16 | 3件 | https://www.youtube.com/watch?v=gV-uLydJunI | m_yt_mmavoyagegi |
+| 2026-09-23 | 伊澤星花SEIKA IZAWAと時々COROさん | ev_lm16 | 7件 | https://www.youtube.com/watch?v=lbG52J_JiNc | m_yt_seikaizawacoro |
+| 2026-09-25 | 秋元強真　Kyoma Akimoto | ev_lm16 | 8件 | https://www.youtube.com/watch?v=uU-QWzbPgCY | m_yt_kyomaakimoto |
+| 2026-09-22 | 石渡伸太郎 Shintaro Ishiwatari | ev_lm16 | 1件 | https://www.youtube.com/watch?v=888umdRlHcY | m_yt_shintaroishiwatari |
+| 2026-09-27 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_lm16 | 5件 | https://www.youtube.com/watch?v=CtS_DyDxdCE | m_yt_shinyaaoki |
+| 2026-09-26 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_lm16 | 2件 | https://www.youtube.com/watch?v=E_u2NpgLjQg | m_yt_shinyaaoki |
+| 2026-09-19 | Yusuke Yachi | ev_lm16 | 2件 | https://www.youtube.com/watch?v=TS3f0FJVoRo | m_yt_yusukeyachi |
+| 2026-08-19 | ジョビン切り抜きチャンネル | ev_lm16 | 1件 | https://www.youtube.com/watch?v=WaBAIETvaEg | m_yt_922c02ef |
+| 2026-09-28 | ジョビンチャンネル | ev_lm16 | 9件 | https://www.youtube.com/watch?v=XyfL1hlNgEE | m_yt_922c02ef |
+| 2026-09-29 | MMA言語化挑戦中 Voyage GI | ev_lm16 | 4件 | https://www.youtube.com/watch?v=bEdUvVr1TtE | m_yt_mmavoyagegi |
+| 2026-09-28 | 川尻達也のじりラジオ | ev_lm16 | 5件 | https://www.youtube.com/watch?v=vyzUeZiVcZA | m_yt_kawajiri |
+
+## LANDMARK 16 スイープ（2026-09-29・大会4日前）
+本番へ **60件／11人** を投入（`push_predictions.py` でSupabaseへ直接upsert。コンソール貼付は廃止）。
+LM16の予想は合計 **67件／12人**（ハメ太郎7件を含む）。
+
+### 今回見つかった不具合（すべて修正済み）
+1. **`sweep_channels.py` は1語クエリだと取りこぼす**。「LANDMARK 16」では
+   英語タイトル（"RIZIN Landmark in Nagasaki!!"）や「長崎大会」表記が引っかからず、
+   青木真也2本・矢地祐介・石渡伸太郎・じりラジオ・**MMA言語化挑戦中の後編**を落としていた。
+   → 今後は **「LANDMARK 16」「長崎」「Nagasaki」「LM16」を全部回す**
+2. **既存メンバーの表示名が生のチャンネル名で上書きされていた**。
+   「斎藤裕」→「Yutaka Saito」、「扇久保博正」→「扇久保博正 おぎちゃんねる。Ogichannel」など**29件**該当。
+   → `scripts/member_map.json`（チャンネル→member_id＋表示名）を新設。掲載対象外チャンネルもここで弾く
+3. **カーリークォートで2試合が全員ぶん落ちていた**。データ側の `アラン“ヒロ”ヤマニハ`
+   `荒東“怪獣キラー”英貴` の `“ ”` を `norm()` が落とせず、lm16_10・lm16_11 が丸ごと不照合。
+   → 引用符を全種まとめて除去するよう修正
+4. **PostgRESTの一括upsertはキーを揃える必要がある**（PGRST102）。method等の有無が混ざると400。
+   → 欠けたキーを null で埋めてから送る
+
+### 人力切り分けに回した2本（★残作業）
+ジョビンチャンネルのゲスト回は**2人が交互に予想を述べる**形式で、自動抽出だと話者が混ざる。
+超RIZIN.5（`320d4wAeP1w`）では蘭が転写を読んで佐伯繁とジョビンに切り分けた前例がある。同じ扱いにする。
+
+| 動画 | 日付 | 内容 | 扱い |
+|---|---|---|---|
+| https://www.youtube.com/watch?v=XyfL1hlNgEE | 09-28 | 【佐伯繁】長崎大会全試合見所解説 | 自動抽出9件は保留。佐伯繁／ジョビンへ人力で切り分ける |
+| https://www.youtube.com/watch?v=a9Mh_1egUHo | 09-27 | 【川尻達也】長崎大会直前・勝敗予想 | 自動抽出5件は保留。川尻達也／ジョビンへ人力で切り分ける |
+
+### 掲載基準で弾いたもの（新顔）
+カルテルトーク／師山いちの人生／新居すぐるチャンネル／ヤノヨシタカ「格闘技の時間」／齋藤MMAチャンネル／
+MMA Gambling Podcast／2ch5chまとめ系 ＝ いずれも**一般の解説・まとめチャンネル**で基準外。
+`member_map.json` の `blocked` に登録したので、次回以降は自動で弾かれる。
+
+### 要Gaku判断
+- **ライアン・カファロ**（https://www.youtube.com/watch?v=4DVsl1np5KI ・09-29「自分のも予想してみた」）＝
+  **LM16に出場する選手本人**。基準表では「選手本人＝載せる」だが、自分の試合を自分で予想する扱いは未定。保留中
+| 2026-10-02 | 川尻達也のじりラジオ | ev_lm16 | 0件 | https://www.youtube.com/watch?v=MMAfV96plC4 | m_yt_kawajiri |
+| 2026-10-02 | ジョビンチャンネル | ev_lm16 | 1件 | https://www.youtube.com/watch?v=j0FxI_4hcgA | m_yt_922c02ef |
+| 2026-10-01 | 鶴屋怜格闘チャンネル | ev_lm16 | 3件 | https://www.youtube.com/watch?v=teeeqGTnotU | m_yt_tsuruya |
+| 2026-10-01 | ジョビンチャンネル | ev_lm16 | 9件 | https://www.youtube.com/watch?v=v0WE--F1nsI | m_yt_922c02ef |
+| 2026-10-02 | おぎの日常【扇久保博正】 | ev_lm16 | 2件 | https://www.youtube.com/watch?v=xqezLP6xkqg | m_yt_926204c0 |
+| 2026-10-02 | 川尻達也のじりラジオ | ev_lm16 | 0件 | https://www.youtube.com/watch?v=MMAfV96plC4 | m_yt_kawajiri |
+| 2026-10-02 | ジョビンチャンネル | ev_lm16 | 1件 | https://www.youtube.com/watch?v=j0FxI_4hcgA | m_yt_922c02ef |
+| 2026-10-01 | 鶴屋怜格闘チャンネル | ev_lm16 | 3件 | https://www.youtube.com/watch?v=teeeqGTnotU | m_yt_tsuruya |
+| 2026-10-01 | ジョビンチャンネル | ev_lm16 | 9件 | https://www.youtube.com/watch?v=v0WE--F1nsI | m_yt_922c02ef |
+| 2026-10-02 | おぎの日常【扇久保博正】 | ev_lm16 | 2件 | https://www.youtube.com/watch?v=xqezLP6xkqg | m_yt_ogichannel |
+
+## LANDMARK 16 当日の最終スイープ（2026-10-03 12:50・開始1時間前）
+前日（10/2）の計量を受けた分を追加。**14件／3人**を投入し、LM16は合計 **92件／14人**。
+
+| 日付 | 予想者 | 件数 | 動画 |
+|---|---|---|---|
+| 10-01 | ジョビン（単独の全試合予想） | 8 | https://www.youtube.com/watch?v=v0WE--F1nsI |
+| 10-01 | 鶴屋怜 | 3 | https://www.youtube.com/watch?v=teeeqGTnotU |
+| 10-02 | 扇久保博正（おぎの日常・計量後） | 2 | https://www.youtube.com/watch?v=xqezLP6xkqg |
+| 10-02 | ジョビン（計量を受けた回） | 1 | https://www.youtube.com/watch?v=j0FxI_4hcgA |
+
+- **ジョビンはメインの予想を変えた**：10/1の単独予想では**宇佐美**、計量超過を受けた10/2の回で**堀江**。
+  投稿日の新しい方を採る設計どおり堀江で確定（§3.5「同一人物が予想を変えていないか」の実例が再び出た）
+- **扇久保はサブチャンネル「おぎの日常」**でも喋る。別チャンネル扱いで新規メンバー化されかけたので
+  `member_map.json` に本人へ寄せる行を追加した
+- じりラジオの計量回（MMAfV96plC4）は予想の言明が無く0件
+
+### 計量で動いた3試合（採点に直結・demo-data.js へ反映済み）
+| 試合 | 変更 | 扱い |
+|---|---|---|
+| 第6 マック・パパリイ vs 赤沢幸典 | 赤沢が膝負傷でドクターストップ | **中止**（`cancelled`）。※公式カードでは相手がアルブリー・ンジャイから赤沢へ変わっていた＝こちらの取りこぼし |
+| 第2 ヤマニハ vs 山本聖悟 | 山本が100g超過・イエロー1枚減点1のノーコンテストルール | **採点対象外**（`no_score`） |
+| OP第1 KAKERU vs 歩叶 | キックボクシングルール65kg契約＋KAKERUが950g超過 | **採点対象外**（`no_score`） |
+| 第10 堀江圭功 vs 宇佐美正パトリック | 両陣営協議で契約体重 71.0→**72.65kg**、**通常ルールで実施** | **採点はそのまま**（★Gaku確認待ち） |
+
+> **★Gaku判断が要る**：ポータル方針は「体重超過が絡む試合は一律 `no_score`」。
+> 今回の第10試合は、公式が**契約体重を変更したうえで通常ルール＝公式記録**としており、
+> 減点もノーコンテスト条件も付いていない。よって**通常採点のまま**にした。
+> 12人中11人が堀江を予想しているメインなので、`no_score` にすると全員の的中が消える。これでよいか。
+| 2026-09-29 | ライアン・カファロの謎外国人ちゃんねる Ryan Cafaro MMA | ev_lm16 | 8件 | https://www.youtube.com/watch?v=4DVsl1np5KI | m_yt_cafaro |
+
+### ライアン・カファロを採用（Gaku判断・2026-10-03）
+LM16に**出場する選手本人**が全8試合を予想した回（09-29）。掲載基準の「選手本人＝載せる」を適用して採用。
+**自分の試合（第8 カファロ vs 安井飛馬）も自分で予想している**（自分の2R KO勝ち）。これも採点対象に含める。
+
+- member: `m_yt_cafaro`「ライアン・カファロ」
+- 出典: https://www.youtube.com/watch?v=4DVsl1np5KI （2026-09-29・8件）
+- **取得の注意**：この動画は英語。日本語の自動字幕がYouTube側の429（レート制限）で落とせず、
+  `fetch_transcript.py` が0件で止まった。**英語の自動字幕（en-orig）を直接取得**し、
+  同じフォーマットの転写ファイルを手で組んで extract に渡した。
+  スイープを連投すると timedtext が429になる——**言語フォールバック（ja→en）を入れるべき**（★スクリプト改善の残件）
+
+## RIZIN.55 スイープ（2026-10-19・大会20日前）
+
+カード12試合そろった直後のスイープ。候補10本を字幕と全件突き合わせ、**3本・7件だけ採用**した。
+抽出（Haiku）は「予想していない動画」からも勝者を立ててしまう——事前の**感想／見どころ紹介**動画が今回の主な誤検出源。
+
+### 採用（本番へ投入済み・7件）
+
+| 投稿日 | チャンネル | 大会 | 採用件数 | URL | member_id |
+|---|---|---|---|---|---|
+| 2026-10-09 | 石渡伸太郎 Shintaro Ishiwatari | ev_lm17 | 5件 | https://www.youtube.com/watch?v=cl-vYFSXtkU | m_yt_shintaroishiwatari |
+| 2026-10-14 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_lm17 | 1件 | https://www.youtube.com/watch?v=6TC_eufwZ24 | m_yt_shinyaaoki |
+| 2026-10-18 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_lm17 | 1件 | https://www.youtube.com/watch?v=Xbt4UPy8w5E | m_yt_ogichannel |
+
+照合の根拠（字幕そのまま）：
+- 石渡 r55_10「フロント決めそう」「ララミーがベルトを持つのは認めたくない」→ 神龍誠 SUB/front_choke
+- 石渡 r55_09「KOまではされない。判定勝ち。スーチョル…手数で上回るスーチョルかな」→ DEC
+- 石渡 r55_08「鹿志村仁之助、一本勝ち」／r55_07「相本選手勝ちます…KOになると思います。これは自信あります」
+- 石渡 r55_06「これ鈴木選手でしょうね」（決着不明＝method空）
+- 青木 r55_08「予想としてあえてするのであれば太田選手の方が可能性高い」→ 太田忍
+- 扇久保 r55_11「問題なく井上直樹選手判定勝ちかなと僕は予想して」→ 井上直樹 DEC
+
+### 除外（本番へ入れていない）
+
+| 投稿日 | チャンネル | 抽出 | 除外理由 |
+|---|---|---|---|
+| 2026-10-15 | ジョビンチャンネル（yAKdWgea-p4） | 9件 | **話者混在**。石渡とのコラボ回で両者が別々に予想し食い違う（「僕絶対チル」vs「俺鈴木選手だと思う」）。鉄則どおり丸ごと除外 |
+| 2026-09-25 | ジョビン切り抜き（ZvTThjBSH9g） | 5件 | **抽出が反転**。r55_06は「僕はここはね、圧倒的に違う予想ですね」＝千春なのに鈴木博昭で立っていた。1件でも反転したら動画ごと落とす |
+| 2026-09-26 | MMA言語化挑戦中 Voyage GI（RQpkuH5ao44） | 8件 | **予想していない**。「RIZIN.55のカードの感想」で、r55_06は「映像とかはまだ見てないんで、試合近くなったらまたチェックしようかな」 |
+| 2026-10-12 | Yusuke Yachi（hSGf1WJPBD0） | 5件 | **見どころ紹介**。鹿志村vs太田は「どうなんだろうね」止まり、戦績読み上げが主。断言が無い |
+| 2026-10-15 | 青木真也（r4MKCMDYOYA） | 9件 | **ざっくり査定**。本人が「また試合直前になったらガッチに行きましょう」と明言＝本番の予想は後日。r55_10も「大座が変わって回した方がいいような気がしてる」＝願望で断言ではない。直前スイープで本編を取る |
+| 2026-09-09 | 鶴屋怜格闘チャンネル（pEgJOT8zj70） | 0件 | カード発表前の古い回。`_transcripts/` に前回の残骸が残っていて拾われた（★後述） |
+| 2026-09-29 | たこの見解【格闘技バラエティ】（0OrcDCUGHgQ） | 0件 | 掲載基準：まとめ／バラエティ系＝当事者でない → `blocked` 登録 |
+| 2026-10-11 | 安城市・碧南市の総合格闘技ジムTEAM TMT（bQAlMDs1iBA） | 1件 | 掲載基準：**ChatGPTと一緒に予想**する企画＝本人の予想でない → `blocked` 登録 |
+
+### 第2波：チャンネル新着の直読みで2本追加（同日）
+
+キーワードスイープが**取りこぼしていた**2本を、チャンネルの `/videos` 直読みで発見した。
+
+| 投稿日 | チャンネル | 大会 | 採用件数 | URL | member_id |
+|---|---|---|---|---|---|
+| 2026-10-18 | MMA言語化挑戦中 Voyage GI | ev_lm17 | 1件 | https://www.youtube.com/watch?v=bxr8ywM2CPE | m_yt_mmavoyagegi |
+| 2026-10-14 | 石渡伸太郎 Shintaro Ishiwatari | ev_lm17 | 0件 | https://www.youtube.com/watch?v=tQAgJGGoulE | m_yt_shintaroishiwatari |
+
+- MMA言語化「太田忍vs鹿志村仁之介 試合展開予想」→ r55_08 太田忍 DEC。
+  字幕「勝敗予想的には僕は太田選手が、ま、判定とかで勝つのかな」「太田選手が現実的に勝つのかなというのが今んところの予想」＝明確。**単独**。採用
+- 石渡「濱田巧がRIZIN初参戦！」→ **0件が正しい**。濱田vs関原は
+  「この2人は、ま、ちょっとあえて…まあまあ、置いときましょうか」「一旦置いときましょう」と
+  本人が予想を保留している。抽出も勝者不明で正しく止まった
+
+これで RIZIN.55 の本番は **4人・8件**（石渡5／青木1／扇久保1／MMA言語化1）。
+
+### 今回見つかった不具合（★残件）
+
+1. **事前の「感想」「見どころ紹介」動画を予想として採る**——SKILL.md は試合後レビューの除外を書いているが、事前の非予想動画には触れていなかった。§鉄則に追記した
+2. **`_transcripts/` に前回の転写が残る**——`run_intake.py` が古いファイルを拾う（鶴屋怜の09-09回が混ざった）。0件なら無害だが、同名イベントだと混ざる危険がある。第2波の前に退避した。実行前のクリアを入れるべき（★残件）
+3. **チャンネル内キーワード検索が取りこぼす（修正済み）**——`sweep_channels.py` は
+   `/channel/<id>/search?query=` を叩いていたが、**並び順が関連度で古い動画を返す**。
+   「RIZIN.55」「RIZIN55」「ライジン55」を投げて 2021年のRIZIN33やUFC305が返り、
+   タイトルに【RIZIN.55】がある石渡の濱田回すら落ちた。
+   → **`--recent N` を既定にして `/videos` の新着を日付で見る**方式を追加。
+   `--since` で発表日以降に絞り、`_sweep_channels.json` にチャンネル解決をキャッシュする
+
+4. **ANTHROPIC_API_KEY を誰も読んでいなかった（修正済み）**——`run_intake.py` 経由だと
+   shell の環境変数が無く、Haiku抽出が全本「抽出失敗」で落ちた。
+   鍵の置き場は `.env.local` と決まっているので、`extract_predictions.py` が
+   自分で読むようにした（`load_api_key()`）。呼ぶ側の shell 設定に依存させない
+
+5. **石渡の動画は【RIZIN.55予想Pt.1】**——5カード発表時点の収録。残り試合を扱う Pt.2 が出る可能性。直前スイープで必ず拾う
+6. `fetch_transcript.py` の ja→en 言語フォールバック（LM16から継続の残件）
+
+| 2026-10-18 | MMA言語化挑戦中 Voyage GI | ev_lm17 | 1件 | https://www.youtube.com/watch?v=bxr8ywM2CPE | m_yt_mmavoyagegi |
+| 2026-10-14 | 石渡伸太郎 Shintaro Ishiwatari | ev_lm17 | 0件 | https://www.youtube.com/watch?v=tQAgJGGoulE | m_yt_shintaroishiwatari |
+| 2026-10-24 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_lm17 | 1件 | https://www.youtube.com/watch?v=14shtC-CCP8 | m_yt_ogichannel |
+| 2026-11-02 | MMA言語化挑戦中 Voyage GI | ev_lm17 | 5件 | https://www.youtube.com/watch?v=3irExZUbts8 | m_yt_mmavoyagegi |
+| 2026-10-31 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_lm17 | 1件 | https://www.youtube.com/watch?v=5r9S4-gTKys | m_yt_shinyaaoki |
+| 2026-11-05 | Kanehara Masanori no kinchanTV | ev_lm17 | 1件 | https://www.youtube.com/watch?v=IKX8U3-r-ek | m_yt_kaneharamasanorinoki |
+| 2026-10-31 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_lm17 | 1件 | https://www.youtube.com/watch?v=MiapUdQlLzk | m_yt_ogichannel |
+| 2026-10-28 | MMA言語化挑戦中 Voyage GI | ev_lm17 | 1件 | https://www.youtube.com/watch?v=RG-YRGzPzYU | m_yt_mmavoyagegi |
+| 2026-11-01 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_lm17 | 1件 | https://www.youtube.com/watch?v=ZcJgaJUgqNU | m_yt_shinyaaoki |
+| 2026-11-03 | 扇久保博正 おぎちゃんねる。Ogichannel | ev_lm17 | 8件 | https://www.youtube.com/watch?v=_-6ATvtGKgo | m_yt_ogichannel |
+| 2026-11-06 | ジョビンチャンネル | ev_lm17 | 12件 | https://www.youtube.com/watch?v=bV2Mq6IuZ5w | m_yt_922c02ef |
+| 2026-11-03 | MMA言語化挑戦中 Voyage GI | ev_lm17 | 7件 | https://www.youtube.com/watch?v=cutx5nn7qFg | m_yt_mmavoyagegi |
+| 2026-11-02 | ストラッサー起一 [ストチャンネル] | ev_lm17 | 11件 | https://www.youtube.com/watch?v=fzz3D73zsww | m_yt_b91a384d |
+| 2026-10-27 | 秋元強真　Kyoma Akimoto | ev_lm17 | 10件 | https://www.youtube.com/watch?v=ixKPI7iteqY | m_yt_kyomaakimoto |
+| 2026-11-03 | 杉山廣平の HEY! HEY! チャンネル | ev_lm17 | 4件 | https://www.youtube.com/watch?v=wtZwt7jkCL8 | m_yt_sugiyamakohei | ※2026-11-08 Gaku判断で掲載取り下げ（「杉山いらない。インフルエンサーね。知らない人」・DBから削除・member_map の blocked へ）
+| 2026-11-05 | ヌルの格闘技ラジオ | ev_lm17 | 13件 | https://www.youtube.com/watch?v=Myf3BXwvSyE | m_yt_e1ff8ceb | ※2026-11-07 Gaku判断で掲載取り下げ（DBから削除・member_map の blocked へ）
+| 2026-11-04 | RIZIN公式【事前番組】伊藤裕樹／安藤達也／井上雄策（abc presents RIZIN.55） | ev_lm17 | 31件（伊藤11・安藤10・井上10） | https://www.youtube.com/watch?v=ekBr5Jvwgzo | m_yt_ito_hiroki / m_yt_ando_tatsuya / m_yt_inoue_yusaku | ※2026-11-08 取込。帰属は字幕を試合ごとに読み「司会の呼びかけ→本人の答え」で確定（自動判定は6件しか通らず、残りを手で確認）。予想を出していない所は入れない（安藤＝相本戦、井上＝鹿志村vs太田「どっちかわかんない」）。名前が字幕で欠けたもの2件は文脈で確定：井上→牛久（「く選手」「縮選手」＝牛久の話で通す）、安藤→リー（「牛君が判定で勝つのもあり得るが今回は〇〇選手に…すいません」） |
+| 2024-06〜2026-09 | RIZIN公式【事前番組】過去11本の井上雄策の番（遡り採点・数字のみ） | career | 33試合 | https://www.youtube.com/watch?v=8zXzeTMWPQ8 https://www.youtube.com/watch?v=FFLSzKj-6T4 https://www.youtube.com/watch?v=KP6oJnFYCeM https://www.youtube.com/watch?v=RfF2950EtgY https://www.youtube.com/watch?v=S5NSJdaOJLM https://www.youtube.com/watch?v=drczZAJUqAI https://www.youtube.com/watch?v=j7nocazvNxw https://www.youtube.com/watch?v=kSIpb4Km59I https://www.youtube.com/watch?v=lkzaQL8a_0U https://www.youtube.com/watch?v=oXQNLtHuc9s https://www.youtube.com/watch?v=sCU8dMcFcHs | m_yt_inoue_yusaku | ※2026-11-08 retro/panel.py で採点。司会の呼びかけで本人の番を決め、長短2通りの独立判定で勝者を確認。抜き取り10件を字幕で確認（どちらとも取れる1件は除外）。予想者ページの通算に入る（site/data/career/m_yt_inoue_yusaku.json） |
+| 2026-09-06 | MMA言語化挑戦中 Voyage GI | ev_cho5 | 4件 | https://www.youtube.com/watch?v=PCRpuuM5TF8 | m_yt_mmavoyagegi | ※2026-11-09 上位再点検で追加（「超RIZIN.5 勝敗予想 前編」・台帳に無かった） |
+| 2026-08-10 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_r54 | 1件 | https://www.youtube.com/watch?v=7DGz42a1ljc | m_yt_shinyaaoki | ※2026-11-09 上位再点検で追加（メイン＝秋元） |
+| 2026-09-05 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_cho5 | 1件 | https://www.youtube.com/watch?v=AELu6hl7SIg | m_yt_shinyaaoki | ※2026-11-09 上位再点検で追加（「平本予想です」） |
+| 2026-11-02 | 青木真也  [ SHINYA AOKI ] チャンネル | ev_lm17 | 4件 | https://www.youtube.com/watch?v=7BWdaoid04c | m_yt_shinyaaoki | ※2026-11-09 上位再点検で追加（「残りのカード」） |
+| 2026-08-06 | 石渡伸太郎 Shintaro Ishiwatari | ev_r54 | 4件 | https://www.youtube.com/watch?v=MRi1T9EdLTY | m_yt_shintaroishiwatari | ※2026-11-09 上位再点検で追加（【後編】） |
+| 2026-10-27 | 石渡伸太郎 Shintaro Ishiwatari | ev_lm17 | 1件 | https://www.youtube.com/watch?v=5ZgTs55J5X4 | m_yt_shintaroishiwatari | ※2026-11-09 上位再点検で追加（井上直樹・判定） |
+| 2026-06-18 | ストラッサー起一 [ストチャンネル] | ev_r54 | 1件 | https://www.youtube.com/watch?v=XpCnJZZLLUg | m_yt_b91a384d | ※2026-11-09 上位再点検で追加（メインのみ・2R KO） |
+| 2026-10-01 | ストラッサー起一 [ストチャンネル] | ev_lm16 | 7件 | https://www.youtube.com/watch?v=bdxy25neOOw | m_yt_b91a384d | ※2026-11-09 上位再点検で追加（「全試合を選手目線で徹底予想」。荒東戦・メインは本人が「展開予想」と断っているので採らない） |
+| 2026-10-26 | 伊澤星花SEIKA IZAWAと時々COROさん | ev_lm17 | 3件 | https://www.youtube.com/watch?v=3-maqSQ617w | m_yt_seikaizawacoro | ※2026-11-09 Gaku判断「割れた試合は外す」により、せーのの答えが2人一致した試合だけ（関原・相本〔採点外〕・ララミー） |
+
+> ※2026-11-09 ランキング上位11人の再点検（詳細＝`../_audit/2026-11-09_上位再点検.md`）。
+> - **訂正4件**：井上雄策 超5 マッキー→シェイドゥラエフ（sCU8dMcFcHs）／扇久保 LM16 荒東→長谷川賢（7KNohU_8iHU）／伊澤 LM16 荒東→長谷川賢（lbG52J_JiNc）／伊澤 R54 クレベル→秋元（jAFbgJIrJ5k）。
+> - **台帳済みの動画から1試合だけ落ちていた分**：ジョビン R55 リー・カイウェン（bV2Mq6IuZ5w）／青木 R55 相本（ZcJgaJUgqNU）・井上直樹（5r9S4-gTKys）／ストラッサー R55 倉本（fzz3D73zsww）。
+> - **伊澤星花チャンネルは「せーの」で2人同時に答える形式**。答えが割れた試合は、字幕からどちらが伊澤さんの答えか分からない。Gaku判断で、割れた5試合（R54 水野戦・細川戦・佐藤将光戦／超5 ダウトベック戦／LM16 杉山戦）をDBから外した（外した行の控え＝`../_audit/2026-11-09_izawa_removed_backup.json`）。今後この形式は、2人一致の試合だけを取り込む。
