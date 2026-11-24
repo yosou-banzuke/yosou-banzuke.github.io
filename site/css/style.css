@@ -336,7 +336,7 @@ img { max-width: 100%; display: block; }
 .ev-unit.s-cho::before { will-change: transform, opacity; animation: goldSmoke 5s ease-in-out infinite alternate; }
 .ev-unit > .event-card:not(.compact):not(.soon)::before { background: var(--bar); }
 /* カードの縁にかかる靄（screen＝暗い所だけ色に光る）。四辺の際だけ・真ん中は塗らない＝ポスターと大会名がくすまない */
-.ev-unit > .event-card::after {
+.ev-unit > :is(.event-card, .tz-card)::after {
   content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none; mix-blend-mode: screen;
   background:
     radial-gradient(150px 40px at 14% 0, rgba(var(--sm1), calc(.42 * var(--k))), transparent 75%),
@@ -345,7 +345,7 @@ img { max-width: 100%; display: block; }
     linear-gradient(270deg, rgba(var(--sm2), calc(.2 * var(--k))), transparent 14px),
     linear-gradient(0deg, rgba(var(--sm3), calc(.18 * var(--k))), transparent 36px);
 }
-.ev-unit.s-cho > .event-card::after { animation: goldBreath 5s ease-in-out infinite alternate; }
+.ev-unit.s-cho > :is(.event-card, .tz-card)::after { animation: goldBreath 5s ease-in-out infinite alternate; }
 /* 枠内の強調色も系統の色に（Gaku 11/8「枠内強調色も変えよう」）：年と曜日・予想の目盛り・残り時間の縁と下地とコロン。
    ナンバーは従来の赤のまま。大きな数字は白のまま（金/黄で塗らない）。残り1時間を切った赤（.hot）は急ぎの合図なので系統に関わらず赤 */
 .ev-unit.s-lm  { --ac: #5fae80; --ac-rgb: 30, 120, 74; --ac-bar: linear-gradient(180deg, #4b9e70, #1d6440); }
@@ -916,6 +916,10 @@ tr.top .lb-rate { color: var(--gold-hot); }
 .tz-foot b { font-weight:900; color:#fff; }
 .tz-foot em { margin-left:8px; font-style:normal; font-weight:900; color:var(--red-hot); }
 .tz-foot i { flex:none; font-style:normal; font-weight:900; color:#fff; }
+/* 入口の札も大会一覧と同じ系統の煙で包む（11/24）。煙は包み（.ev-unit）に置くので、包みを札の幅に揃える */
+.ev-unit.tz-unit { max-width:460px; margin:0 auto 52px; }
+.tz-unit > .tz-card { position:relative; margin:0; border-color:rgba(var(--sm2), .28); }
+.tz-unit > .tz-card:hover { border-color:rgba(var(--sm2), .6); }
 
 /* ALL PICKS を折りたたみに（2026-08-31）：スマホで横スクロールの表が最初に来るのを防ぐ */
 .mx-details { margin:14px 0 18px; border:1px solid #3a3320; border-radius:10px; background:#101014; }

@@ -26,6 +26,7 @@
 // 入口の次大会（Gaku 11/11「予想受付中って書いてあるけど、ファイトカードとかのビジュアルがないと意味がない」）。
 // 文字の「予想受付中」と1人だけの割れ具合（0%／100%）をやめ、公式のVSバナーで「何を予想するのか」を見せる。
 // メインを横いっぱいに、続く3試合を小さく並べる。押すと名前の欄へ（goJoin）
+// 大会一覧と同じ系統の煙で包む（.ev-unit・Gaku 11/24「超RIZIN.6の周りが金色にもやかかってない」＝入口の札だけ包みが無かった）
 async function nextEventTeaser() {
   try {
     const events = await DB.listEvents();
@@ -46,7 +47,7 @@ async function nextEventTeaser() {
     const [ttl, sub] = evParts(up.name);
     return `
       <div class="next-flag"><i></i>NEXT EVENT</div>
-      <a class="tz-card" href="#gname" onclick="event.preventDefault();goJoin()">
+      <div class="ev-unit tz-unit s-${evSeries(up.name)}"><a class="tz-card" href="#gname" onclick="event.preventDefault();goJoin()">
         ${ban(main, "tz-main")}
         <div class="tz-head">
           <div class="tz-ev"><span class="tz-ev-m">${evNameHTML(ttl)}</span>${sub ? `<small>${esc(sub)}</small>` : ""}</div>
@@ -54,7 +55,7 @@ async function nextEventTeaser() {
         </div>
         ${rest.length ? `<div class="tz-rest">${rest.slice(0, 3).map(f => ban(f, "tz-sub")).join("")}</div>` : ""}
         <div class="tz-foot"><span><b>全${live.length}試合</b>${days != null && days >= 0 ? `<em>あと${days}日</em>` : ""}</span><i>名前を決めて予想 ↓</i></div>
-      </a>`;
+      </a></div>`;
   } catch (e) { return ""; }
 }
 
